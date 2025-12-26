@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amanecer Tropical</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon.png">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="assets/favicon.png" alt="Amanecer Tropical Logo" class="logo-icon">
+            <h1>Amanecer Tropical</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#">Inicio</a></li>
+            <li><a href="#">Destinos</a></li>
+            <li><a href="#">Paquetes</a></li>
+            <li><a href="#">Contacto</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="#" class="btn-login" data-tooltip="Iniciar Sesión">
+                <i class="fas fa-sign-in-alt"></i>
+                <span class="btn-text">Iniciar Sesión</span>
+            </a>
+            <a href="#" class="btn-register" data-tooltip="Registrarse">
+                <i class="fas fa-user-plus"></i>
+                <span class="btn-text">Registrarse</span>
+            </a>
+        </div>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="carousel">
+            <div class="carousel-slide active" style="background-image: url('assets/img/salto-angel.jpg');" data-tooltip="Salto Ángel - Canaima"></div>
+            <div class="carousel-slide" style="background-image: url('assets/img/Playa-El-Agua.webp');" data-tooltip="Playa El Agua - Margarita"></div>
+            <div class="carousel-slide" style="background-image: url('assets/img/PicoBolivar2.jpg');" data-tooltip="Pico Bolivar"></div>
+            <div class="carousel-slide" style="background-image: url('assets/img/images.webp');" data-tooltip="Parque Nacional Morrocoy"></div>
+        </div>
+        <div class="carousel-tooltip">Salto Ángel - Canaima</div>
+        <div class="hero-content">
+            <h1>Amanecer Tropical: Descubre Venezuela</h1>
+            <p>Tu nueva aventura comienza con la luz del trópico.</p>
+            <a href="#destinos" class="btn">Explorar Destinos</a>
+        </div>
+        <div class="carousel-indicators">
+            <span class="indicator active" data-slide="0"></span>
+            <span class="indicator" data-slide="1"></span>
+            <span class="indicator" data-slide="2"></span>
+            <span class="indicator" data-slide="3"></span>
+        </div>
+    </section>
+
+    <section id="about">
+        <h2>Sobre Nuestra Agencia</h2>
+        <div class="about-logo">
+            <img src="assets/favicon.png" alt="Amanecer Tropical Logo" class="about-logo-icon">
+        </div>
+        <p>Somos más que una agencia; somos creadores de recuerdos bañados por la luz del trópico.
+            Inspirados en ese momento mágico en que el sol ilumina los paisajes de Venezuela, nos 
+            dedicamos a diseñar experiencias de viaje que renuevan el alma y despiertan los sentidos. 
+            Creemos que cada viaje es un renacer, una oportunidad para ver el mundo con nuevos ojos.</p>
+        <h2>¿Qué ofrecemos?</h2>
+        <ul>
+            <li><span>Asesoría Personalizada:</span> Somos tus guías expertos, iluminando las mejores rutas para ti.</li>
+            <li><span>Circuitos Únicos:</span> Desde los rojizos amaneceres en Canaima hasta los tranquilos albores en los Andes, tejemos itinerarios a tu medida.</li>
+            <li><span>Confianza y Calidez:</span> Un servicio tan cálido y confiable como el sol tropical, apasionado por mostrarte la auténtica esencia de nuestra tierra.</li>
+        </ul>
+        <h3>Deja que seamos el amanecer de tu próxima gran historia. ¿Listo para empezar tu día de aventura?</h3>
+    </section>
+
+    <section id="destinos">
+        <h2>Destinos Populares</h2>
+        <div class="destinos-grid">
+            <div class="destino">
+                <img src="assets/img/CARACAS-1.jpg" alt="Caracas">
+                <h3>Caracas</h3>
+                <p>La capital vibrante con historia y cultura.</p>
+            </div>
+            <div class="destino">
+                <img src="assets/img/margarita2.jpg" alt="Margarita">
+                <h3>Isla de Margarita</h3>
+                <p>Playas paradisíacas y aguas cristalinas.</p>
+            </div>
+            <div class="destino">
+                <img src="assets/img/CANAIMA-1.webp" alt="Canaima">
+                <h3>Canaima</h3>
+                <p>El Salto Ángel y la selva amazónica.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="paquetes">
+        <h2>Paquetes de Viaje</h2>
+        <div class="paquetes-grid">
+            <div class="paquete">
+                <h3>Paquete Caracas</h3>
+                <p>Descubre la capital con tours culturales y gastronómicos.</p>
+                <div class="precio">$800</div>
+                <a href="#" class="btn">Reservar Ahora</a>
+            </div>
+            <div class="paquete">
+                <h3>Paquete Margarita</h3>
+                <p>Relájate en las playas paradisíacas de la Perla del Caribe.</p>
+                <div class="precio">$1,200</div>
+                <a href="#" class="btn">Reservar Ahora</a>
+            </div>
+            <div class="paquete">
+                <h3>Paquete Canaima</h3>
+                <p>Aventura en el Salto Ángel y la selva amazónica.</p>
+                <div class="precio">$1,500</div>
+                <a href="#" class="btn">Reservar Ahora</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Amanecer Tropical. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
