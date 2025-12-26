@@ -122,28 +122,224 @@ const handleMobileButtons = () => {
         }, 2000);
     };
 
-    loginBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        showTooltip(loginBtn);
+    const isMobile = window.innerWidth <= 768; // Match the CSS breakpoint
+
+    if (isMobile) {
+        loginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showTooltip(loginBtn);
+        });
+
+        registerBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showTooltip(registerBtn);
+        });
+
+        // Touch events for mobile
+        loginBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            showTooltip(loginBtn);
+        });
+
+        registerBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            showTooltip(registerBtn);
+        });
+    }
+    // On desktop, allow default link behavior (navigation)
+};
+
+const handleForms = () => {
+    const loginForm = document.querySelector('#login-form');
+    const registerForm = document.querySelector('#register-form');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Funcionalidad de inicio de sesión próximamente disponible. Por ahora, navega de vuelta a la página principal.');
+        });
+    }
+
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Funcionalidad de registro próximamente disponible. Por ahora, navega de vuelta a la página principal.');
+        });
+    }
+};
+
+const handleMultiStepForm = () => {
+    const registerForm = document.querySelector('#register-form');
+    if (!registerForm) return;
+
+    const formSections = document.querySelectorAll('.form-section');
+    const stepIndicators = document.querySelectorAll('.step');
+    const prevBtn = document.querySelector('#prev-btn');
+    const nextBtn = document.querySelector('#next-btn');
+    const submitBtn = document.querySelector('#submit-btn');
+
+    let currentStep = 0;
+
+    const showStep = (stepIndex) => {
+        // Hide all sections
+        formSections.forEach(section => section.classList.remove('active'));
+
+        // Show current section
+        formSections[stepIndex].classList.add('active');
+
+        // Update step indicators
+        stepIndicators.forEach((indicator, index) => {
+            indicator.classList.remove('active', 'completed');
+            if (index < stepIndex) {
+                indicator.classList.add('completed');
+            } else if (index === stepIndex) {
+                indicator.classList.add('active');
+            }
+        });
+
+        // Update buttons
+        prevBtn.style.display = stepIndex === 0 ? 'none' : 'inline-block';
+        nextBtn.style.display = stepIndex === formSections.length - 1 ? 'none' : 'inline-block';
+        submitBtn.style.display = stepIndex === formSections.length - 1 ? 'inline-block' : 'none';
+    };
+
+    const validateStep = (stepIndex) => {
+        const currentSection = formSections[stepIndex];
+        const requiredFields = currentSection.querySelectorAll('input[required], select[required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.style.borderColor = '#ff6b6b';
+                isValid = false;
+            } else {
+                field.style.borderColor = '#ddd';
+            }
+        });
+
+        return isValid;
+    };
+
+    nextBtn.addEventListener('click', () => {
+        if (validateStep(currentStep)) {
+            if (currentStep < formSections.length - 1) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        } else {
+            alert('Por favor, complete todos los campos requeridos antes de continuar.');
+        }
     });
 
-    registerBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        showTooltip(registerBtn);
+    prevBtn.addEventListener('click', () => {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+        }
     });
 
-    // Touch events for mobile
-    loginBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        showTooltip(loginBtn);
-    });
+    // Initialize first step
+    showStep(currentStep);
+};
 
-    registerBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        showTooltip(registerBtn);
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
+
+const handleModal = () => {
+    // Terms Modal
+    const termsModal = document.getElementById('terms-modal');
+    const termsLink = document.getElementById('terms-link');
+    const termsClose = document.querySelector('#terms-modal .close');
+    const declineTerms = document.getElementById('decline-terms');
+    const acceptTerms = document.getElementById('accept-terms');
+
+    // Privacy Modal
+    const privacyModal = document.getElementById('privacy-modal');
+    const privacyLink = document.getElementById('privacy-link');
+    const privacyClose = document.getElementById('privacy-close');
+    const declinePrivacy = document.getElementById('decline-privacy');
+    const acceptPrivacy = document.getElementById('accept-privacy');
+
+    // Terms Modal Events
+    if (termsLink) {
+        termsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            termsModal.style.display = 'block';
+        });
+    }
+
+    if (termsClose) {
+        termsClose.addEventListener('click', () => {
+            termsModal.style.display = 'none';
+        });
+    }
+
+    if (declineTerms) {
+        declineTerms.addEventListener('click', () => {
+            termsModal.style.display = 'none';
+            // Uncheck the terms checkbox
+            const termsCheckbox = document.getElementById('terms');
+            if (termsCheckbox) {
+                termsCheckbox.checked = false;
+            }
+        });
+    }
+
+    if (acceptTerms) {
+        acceptTerms.addEventListener('click', () => {
+            termsModal.style.display = 'none';
+            // Check the terms checkbox
+            const termsCheckbox = document.getElementById('terms');
+            if (termsCheckbox) {
+                termsCheckbox.checked = true;
+            }
+        });
+    }
+
+    // Privacy Modal Events
+    if (privacyLink) {
+        privacyLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            privacyModal.style.display = 'block';
+        });
+    }
+
+    if (privacyClose) {
+        privacyClose.addEventListener('click', () => {
+            privacyModal.style.display = 'none';
+        });
+    }
+
+    if (declinePrivacy) {
+        declinePrivacy.addEventListener('click', () => {
+            privacyModal.style.display = 'none';
+        });
+    }
+
+    if (acceptPrivacy) {
+        acceptPrivacy.addEventListener('click', () => {
+            privacyModal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === termsModal) {
+            termsModal.style.display = 'none';
+        }
+        if (e.target === privacyModal) {
+            privacyModal.style.display = 'none';
+        }
     });
 };
 
 navSlide();
 carousel();
 handleMobileButtons();
+handleMultiStepForm();
+handleForms();
+handleModal();

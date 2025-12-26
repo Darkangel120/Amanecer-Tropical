@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrarse - Amanecer Tropical</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon.png">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="assets/favicon.png" alt="Amanecer Tropical Logo" class="logo-icon">
+            <h1>Amanecer Tropical</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="index.html#about">Sobre Nuestra Agencia</a></li>
+            <li><a href="index.html#destinos">Destinos</a></li>
+            <li><a href="index.html#paquetes">Paquetes</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="login.html" class="btn-login" data-tooltip="Iniciar Sesión">
+                <i class="fas fa-sign-in-alt"></i>
+                <span class="btn-text">Iniciar Sesión</span>
+            </a>
+        </div>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+
+    <section class="register-section">
+        <div class="form-container">
+            <h2 style="background: linear-gradient(45deg, #ff7e5f, #ff6b6b, #48cae4);-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Registrarse</h2>
+
+            <!-- Step Indicators -->
+            <div class="step-indicators">
+                <div class="step active" data-step="1">
+                    <span class="step-number">1</span>
+                </div>
+                <div class="step" data-step="2">
+                    <span class="step-number">2</span>
+                </div>
+                <div class="step" data-step="3">
+                    <span class="step-number">3</span>
+                </div>
+                <div class="step" data-step="4">
+                    <span class="step-number">4</span>
+                </div>
+                <div class="step" data-step="5">
+                    <span class="step-number">5</span>
+                </div>
+                <div class="step" data-step="6">
+                    <span class="step-number">6</span>
+                </div>
+            </div>
+
+            <form action="#" method="post" id="register-form">
+                <!-- Información Personal -->
+                <div class="form-section active">
+                    <h3>Información Personal</h3>
+                    <div class="form-group">
+                        <label for="name">Nombre Completo</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="birthdate">Fecha de Nacimiento</label>
+                        <input type="date" id="birthdate" name="birthdate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Género</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="femenino">Femenino</option>
+                            <option value="otro">Otro</option>
+                            <option value="prefiero-no-decir">Prefiero no decir</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nationality">Nacionalidad</label>
+                        <select id="nationality" name="nationality" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="venezolana">Venezolana</option>
+                            <option value="colombiana">Colombiana</option>
+                            <option value="brasilera">Brasileña</option>
+                            <option value="argentina">Argentina</option>
+                            <option value="chilena">Chilena</option>
+                            <option value="peruana">Peruana</option>
+                            <option value="ecuatoriana">Ecuatoriana</option>
+                            <option value="mexicana">Mexicana</option>
+                            <option value="estadounidense">Estadounidense</option>
+                            <option value="española">Española</option>
+                            <option value="otra">Otra</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Información de Contacto -->
+                <div class="form-section">
+                    <h3>Información de Contacto</h3>
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Número de Teléfono</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+58 000 000 0000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Dirección</label>
+                        <input type="text" id="address" name="address" placeholder="Dirección completa" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">Ciudad</label>
+                        <input type="text" id="city" name="city" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="state">Estado</label>
+                        <select id="state" name="state" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="amazonas">Amazonas</option>
+                            <option value="anzoategui">Anzoátegui</option>
+                            <option value="apure">Apure</option>
+                            <option value="aragua">Aragua</option>
+                            <option value="barinas">Barinas</option>
+                            <option value="bolivar">Bolívar</option>
+                            <option value="carabobo">Carabobo</option>
+                            <option value="cojedes">Cojedes</option>
+                            <option value="delta-amacuro">Delta Amacuro</option>
+                            <option value="falcon">Falcón</option>
+                            <option value="guarico">Guárico</option>
+                            <option value="lara">Lara</option>
+                            <option value="merida">Mérida</option>
+                            <option value="miranda">Miranda</option>
+                            <option value="monagas">Monagas</option>
+                            <option value="nueva-esparta">Nueva Esparta</option>
+                            <option value="portuguesa">Portuguesa</option>
+                            <option value="sucre">Sucre</option>
+                            <option value="tachira">Táchira</option>
+                            <option value="trujillo">Trujillo</option>
+                            <option value="vargas">Vargas</option>
+                            <option value="yaracuy">Yaracuy</option>
+                            <option value="zulia">Zulia</option>
+                            <option value="distrito-capital">Distrito Capital</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Documentación -->
+                <div class="form-section">
+                    <h3>Documentación</h3>
+                    <div class="form-group">
+                        <label for="cedula">Cédula de Identidad</label>
+                        <input type="text" id="cedula" name="cedula" placeholder="V-00000000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="passport">Número de Pasaporte (opcional)</label>
+                        <input type="text" id="passport" name="passport" placeholder="Si tienes pasaporte">
+                    </div>
+                    <div class="form-group">
+                        <label for="passport-expiry">Fecha de Expiración del Pasaporte (opcional)</label>
+                        <input type="date" id="passport-expiry" name="passport-expiry">
+                    </div>
+                </div>
+
+                <!-- Contacto de Emergencia -->
+                <div class="form-section">
+                    <h3>Contacto de Emergencia</h3>
+                    <div class="form-group">
+                        <label for="emergency-name">Nombre Completo</label>
+                        <input type="text" id="emergency-name" name="emergency-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="emergency-phone">Número de Teléfono</label>
+                        <input type="tel" id="emergency-phone" name="emergency-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="emergency-relationship">Relación</label>
+                        <select id="emergency-relationship" name="emergency-relationship" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="padre">Padre</option>
+                            <option value="madre">Madre</option>
+                            <option value="hijo">Hijo/Hija</option>
+                            <option value="conyuge">Cónyuge</option>
+                            <option value="hermano">Hermano/Hermana</option>
+                            <option value="amigo">Amigo/Amiga</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Preferencias de Viaje -->
+                <div class="form-section">
+                    <h3>Preferencias de Viaje</h3>
+                    <div class="form-group">
+                        <label for="travel-style">Estilo de Viaje Preferido</label>
+                        <select id="travel-style" name="travel-style">
+                            <option value="">Seleccionar...</option>
+                            <option value="aventura">Aventura</option>
+                            <option value="relax">Relax</option>
+                            <option value="cultural">Cultural</option>
+                            <option value="familiar">Familiar</option>
+                            <option value="romantico">Romántico</option>
+                            <option value="negocios">Negocios</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dietary-restrictions">Restricciones Alimentarias</label>
+                        <select id="dietary-restrictions" name="dietary-restrictions">
+                            <option value="">Seleccionar...</option>
+                            <option value="ninguna">Ninguna</option>
+                            <option value="vegetariano">Vegetariano</option>
+                            <option value="vegano">Vegano</option>
+                            <option value="celiaco">Celíaco</option>
+                            <option value="alergias">Alergias específicas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="special-needs">Necesidades Especiales</label>
+                        <textarea id="special-needs" name="special-needs" rows="3" placeholder="Movilidad reducida, asistencia médica, etc."></textarea>
+                    </div>
+                </div>
+
+                <!-- Seguridad -->
+                <div class="form-section">
+                    <h3>Seguridad de la Cuenta</h3>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirmar Contraseña</label>
+                        <input type="password" id="confirm-password" name="confirm-password" required>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">Acepto los <a href="#" onclick="openModal('terms-modal'); return false;" id="terms-link">Términos y Condiciones</a> y la <a href="#" onclick="openModal('privacy-modal'); return false;" id="privacy-link">Política de Privacidad</a></label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="newsletter" name="newsletter">
+                        <label for="newsletter">Deseo recibir ofertas y promociones por correo electrónico</label>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary" id="prev-btn" style="display: none;">Anterior</button>
+                    <button type="button" class="btn" id="next-btn">Siguiente</button>
+                    <button type="submit" class="btn" id="submit-btn" style="display: none;">Registrarse</button>
+                </div>
+            </form>
+            <p>¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Amanecer Tropical. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Terms and Conditions Modal -->
+    <div id="terms-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Términos y Condiciones de Servicio</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="last-updated">Última actualización: <span id="modal-current-date"></span></p>
+
+                <h3>1. Introducción</h3>
+                <p>Bienvenido a Amanecer Tropical. Estos términos y condiciones regulan el uso de nuestros servicios de agencia de viajes. Al utilizar nuestros servicios, aceptas cumplir con estos términos.</p>
+
+                <h3>2. Servicios Ofrecidos</h3>
+                <p>Amanecer Tropical ofrece servicios de planificación y organización de viajes, incluyendo:</p>
+                <ul>
+                    <li>Reservas de vuelos y transporte</li>
+                    <li>Reservas de alojamiento (hoteles, resorts, etc.)</li>
+                    <li>Paquetes turísticos integrales</li>
+                    <li>Excursiones y actividades locales</li>
+                    <li>Asesoramiento personalizado para viajes</li>
+                </ul>
+
+                <h3>3. Limitación de Responsabilidad</h3>
+                <p><strong>Importante:</strong> Amanecer Tropical actúa únicamente como intermediario entre usted y los proveedores de servicios turísticos (aerolíneas, hoteles, operadores turísticos, etc.). No somos responsables por:</p>
+                <ul>
+                    <li>Cancelaciones o retrasos de vuelos causados por aerolíneas</li>
+                    <li>Cambios en itinerarios por parte de proveedores externos</li>
+                    <li>Problemas de calidad en hoteles o servicios no controlados por nosotros</li>
+                    <li>Eventos de fuerza mayor (desastres naturales, conflictos políticos, pandemias)</li>
+                    <li>Pérdida o daño de equipaje durante el transporte</li>
+                    <li>Problemas de salud o accidentes durante el viaje</li>
+                    <li>Cambios en precios por fluctuaciones del mercado</li>
+                </ul>
+
+                <h3>4. Política de Cancelación</h3>
+                <p>Las políticas de cancelación varían según el proveedor del servicio:</p>
+                <ul>
+                    <li><strong>Vuelos:</strong> Sujetos a las políticas de la aerolínea correspondiente</li>
+                    <li><strong>Hoteles:</strong> Sujetos a las políticas del establecimiento</li>
+                    <li><strong>Paquetes turísticos:</strong> Cancelaciones hasta 30 días antes: reembolso del 80%</li>
+                    <li><strong>Paquetes turísticos:</strong> Cancelaciones entre 15-30 días: reembolso del 50%</li>
+                    <li><strong>Paquetes turísticos:</strong> Cancelaciones menos de 15 días: no reembolsable</li>
+                </ul>
+
+                <h3>5. Precios y Pagos</h3>
+                <p>Los precios están sujetos a cambios sin previo aviso debido a fluctuaciones en tarifas aéreas, cambios en impuestos y tasas gubernamentales, variaciones en el tipo de cambio y ajustes por temporada alta.</p>
+
+                <h3>6. Documentación Requerida</h3>
+                <p>Es responsabilidad del cliente asegurar que cuenta con pasaporte válido, visas requeridas, requisitos de vacunación y seguros de viaje adecuados.</p>
+
+                <h3>7. Ley Aplicable</h3>
+                <p>Estos términos se rigen por las leyes de Venezuela. Cualquier disputa será resuelta en los tribunales competentes de Caracas.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="decline-terms">Rechazar</button>
+                <button class="btn" id="accept-terms">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Política de Privacidad</h2>
+                <span class="close" id="privacy-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="last-updated">Última actualización: <span id="privacy-modal-current-date"></span></p>
+
+                <h3>1. Información General</h3>
+                <p>Amanecer Tropical respeta su privacidad y se compromete a proteger su información personal. Esta política de privacidad explica cómo recopilamos, utilizamos, divulgamos y salvaguardamos su información cuando utiliza nuestros servicios.</p>
+
+                <h3>2. Información que Recopilamos</h3>
+                <p>Recopilamos información que usted nos proporciona directamente:</p>
+                <ul>
+                    <li><strong>Información de registro:</strong> Nombre, fecha de nacimiento, género, nacionalidad, información de contacto</li>
+                    <li><strong>Documentación de viaje:</strong> Cédula de identidad, pasaporte, información médica si es proporcionada</li>
+                    <li><strong>Información de contacto de emergencia:</strong> Nombre y teléfono de contacto de emergencia</li>
+                    <li><strong>Preferencias de viaje:</strong> Estilo de viaje, restricciones alimentarias, necesidades especiales</li>
+                    <li><strong>Información de pago:</strong> Solo a través de procesadores de pago seguros externos</li>
+                </ul>
+
+                <h3>3. Cómo Utilizamos su Información</h3>
+                <p>Utilizamos su información para:</p>
+                <ul>
+                    <li>Procesar y gestionar sus reservas de viaje</li>
+                    <li>Coordinar con proveedores de servicios (aerolíneas, hoteles, etc.)</li>
+                    <li>Proporcionar asistencia durante su viaje</li>
+                    <li>Mejorar nuestros servicios y personalizar su experiencia</li>
+                    <li>Cumplir con requisitos legales y regulatorios</li>
+                    <li>Enviar información importante sobre su viaje</li>
+                </ul>
+
+                <h3>4. Compartir Información</h3>
+                <p>Solo compartimos su información cuando es estrictamente necesario:</p>
+                <ul>
+                    <li><strong>Proveedores de servicios:</strong> Aerolíneas, hoteles y operadores turísticos para procesar sus reservas</li>
+                    <li><strong>Autoridades gubernamentales:</strong> Cuando sea requerido por ley o para procesamiento de visas</li>
+                    <li><strong>Servicios de emergencia:</strong> Solo en caso de emergencia durante el viaje</li>
+                    <li><strong>Procesadores de pago:</strong> Para procesar transacciones de manera segura</li>
+                </ul>
+                <p><strong>No vendemos, alquilamos ni comercializamos su información personal a terceros.</strong></p>
+
+                <h3>5. Seguridad de Datos</h3>
+                <p>Implementamos medidas de seguridad técnicas y organizativas para proteger su información:</p>
+                <ul>
+                    <li>Encriptación de datos sensibles</li>
+                    <li>Acceso restringido a información personal</li>
+                    <li>Monitoreo continuo de sistemas</li>
+                    <li>Copias de seguridad seguras</li>
+                    <li>Entrenamiento del personal en protección de datos</li>
+                </ul>
+
+                <h3>6. Retención de Datos</h3>
+                <p>Retenemos su información personal solo durante el tiempo necesario para:</p>
+                <ul>
+                    <li>Completar el viaje y proporcionar servicios post-viaje</li>
+                    <li>Cumplir con obligaciones legales y regulatorias</li>
+                    <li>Resolver disputas o hacer cumplir nuestros acuerdos</li>
+                </ul>
+                <p>Después de este período, su información es eliminada de manera segura.</p>
+
+                <h3>7. Sus Derechos</h3>
+                <p>Usted tiene derecho a:</p>
+                <ul>
+                    <li>Acceder a su información personal</li>
+                    <li>Rectificar información inexacta</li>
+                    <li>Solicitar la eliminación de sus datos</li>
+                    <li>Oponerse al procesamiento de sus datos</li>
+                    <li>Solicitar la portabilidad de sus datos</li>
+                    <li>Presentar una queja ante las autoridades competentes</li>
+                </ul>
+
+                <h3>8. Cookies y Tecnologías Similares</h3>
+                <p>Utilizamos cookies y tecnologías similares para mejorar su experiencia en nuestro sitio web. Puede controlar el uso de cookies a través de la configuración de su navegador.</p>
+
+                <h3>9. Menores de Edad</h3>
+                <p>Nuestros servicios están destinados a adultos. No recopilamos intencionalmente información personal de menores de 18 años sin el consentimiento de sus padres o tutores.</p>
+
+                <h3>10. Cambios a esta Política</h3>
+                <p>Podemos actualizar esta política de privacidad periódicamente. Le notificaremos sobre cambios significativos mediante correo electrónico o un aviso destacado en nuestro sitio web.</p>
+
+                <h3>11. Contacto</h3>
+                <p>Si tiene preguntas sobre esta política de privacidad, puede contactarnos:</p>
+                <ul>
+                    <li><strong>Email:</strong> privacidad@amanecertropical.com</li>
+                    <li><strong>Teléfono:</strong> +58 212 123 4567</li>
+                    <li><strong>Dirección:</strong> Caracas, Venezuela</li>
+                </ul>
+
+                <h3>12. Ley Aplicable</h3>
+                <p>Esta política se rige por las leyes de Venezuela. Cualquier disputa relacionada con la privacidad será resuelta en los tribunales competentes de Caracas.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="decline-privacy">Cerrar</button>
+                <button class="btn" id="accept-privacy">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+    <script>
+        // Set current date in modal
+        document.getElementById('modal-current-date').textContent = new Date().toLocaleDateString('es-ES');
+        document.getElementById('privacy-modal-current-date').textContent = new Date().toLocaleDateString('es-ES');
+    </script>
+</body>
+</html>
