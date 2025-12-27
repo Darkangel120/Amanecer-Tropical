@@ -546,11 +546,10 @@ footer {
         display: none;
     }
 
-    .btn-login::after,
-    .btn-register::after {
-        content: attr(data-tooltip);
+    .btn-login .tooltip,
+    .btn-register .tooltip {
         position: absolute;
-        bottom: -35px;
+        top: 100%;
         left: 50%;
         transform: translateX(-50%);
         background: rgba(255, 126, 95, 0.9);
@@ -562,12 +561,13 @@ footer {
         pointer-events: none;
         transition: opacity 0.3s ease;
         white-space: nowrap;
-        z-index: 10;
+        z-index: 1010;
+        display: none;
     }
 
-    .btn-login.show-tooltip::after,
-    .btn-register.show-tooltip::after {
+    .show-tooltip .tooltip {
         opacity: 1;
+        display: block;
     }
 
     #about {
@@ -923,6 +923,10 @@ footer {
 .form-section {
     display: none;
     animation: fadeIn 0.5s ease-in-out;
+}
+
+.form-section:first-child {
+    display: block;
 }
 
 .form-section.active {

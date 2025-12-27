@@ -116,6 +116,16 @@ const handleMobileButtons = () => {
     const registerBtn = document.querySelector('.btn-register');
 
     const showTooltip = (button) => {
+        const tooltipText = button.getAttribute('data-tooltip');
+        let tooltipSpan = button.querySelector('.tooltip');
+        if (!tooltipSpan) {
+            tooltipSpan = document.createElement('span');
+            tooltipSpan.className = 'tooltip';
+            button.appendChild(tooltipSpan);
+        }
+        if (tooltipSpan && tooltipText) {
+            tooltipSpan.textContent = tooltipText;
+        }
         button.classList.add('show-tooltip');
         setTimeout(() => {
             button.classList.remove('show-tooltip');
