@@ -125,26 +125,19 @@ const handleMobileButtons = () => {
     const isMobile = window.innerWidth <= 768; // Match the CSS breakpoint
 
     if (isMobile) {
-        loginBtn.addEventListener('click', (e) => {
+        const handleNavigation = (button, e) => {
             e.preventDefault();
-            showTooltip(loginBtn);
-        });
+            showTooltip(button);
+            setTimeout(() => {
+                window.location.href = button.href;
+            }, 2000);
+        };
 
-        registerBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showTooltip(registerBtn);
-        });
+        loginBtn.addEventListener('click', (e) => handleNavigation(loginBtn, e));
+        registerBtn.addEventListener('click', (e) => handleNavigation(registerBtn, e));
 
-        // Touch events for mobile
-        loginBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            showTooltip(loginBtn);
-        });
-
-        registerBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            showTooltip(registerBtn);
-        });
+        loginBtn.addEventListener('touchstart', (e) => handleNavigation(loginBtn, e));
+        registerBtn.addEventListener('touchstart', (e) => handleNavigation(registerBtn, e));
     }
     // On desktop, allow default link behavior (navigation)
 };
