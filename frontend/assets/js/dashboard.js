@@ -37,4 +37,23 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = 'translateY(0) scale(1)';
         });
     });
+
+    // Sidebar toggle functionality
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const activitySidebar = document.querySelector('.activity-sidebar');
+
+    if (sidebarToggle && activitySidebar) {
+        sidebarToggle.addEventListener('click', function() {
+            activitySidebar.classList.toggle('collapsed');
+        });
+    }
+
+    // Optional: Close sidebar when clicking outside (for mobile)
+    document.addEventListener('click', function(event) {
+        if (window.innerWidth <= 768) {
+            if (!activitySidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                activitySidebar.classList.add('collapsed');
+            }
+        }
+    });
 });
