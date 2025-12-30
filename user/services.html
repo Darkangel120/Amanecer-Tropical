@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - Amanecer Tropical</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon.png">
+    <link rel="stylesheet" href="../assets/css/general.css">
+    <link rel="stylesheet" href="../assets/css/services.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="../assets/favicon.png" alt="Amanecer Tropical Logo" class="logo-icon">
+            <h1>Amanecer Tropical</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="../user/">Inicio</a></li>
+            <li><a href="services.html">Servicios</a></li>
+            <li><a href="../user/reservations.html">Reservas</a></li>
+            <li><a href="../user/profile.html">Perfil</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="../index.html" class="btn-logout" data-tooltip="Cerrar Sesión">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="btn-text">Cerrar Sesión</span>
+            </a>
+        </div>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+
+    <section class="services-hero">
+        <div class="hero-content">
+            <h1>Nuestros Servicios</h1>
+            <p>Descubre paquetes completos, vuelos, hoteles y alquiler de vehículos para tu viaje perfecto.</p>
+        </div>
+    </section>
+
+    <section class="services-tabs">
+        <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="packages">Paquetes</button>
+            <button class="tab-btn" data-tab="flights">Vuelos</button>
+            <button class="tab-btn" data-tab="hotels">Hoteles</button>
+            <button class="tab-btn" data-tab="vehicles">Vehículos</button>
+        </div>
+
+        <div id="packages" class="tab-content active">
+            <div class="services-grid">
+                <div class="service-card">
+                    <img src="../assets/img/CANAIMA-1.webp" alt="Paquete Canaima">
+                    <h3>Paquete Canaima</h3>
+                    <p>Aventura en el Salto Ángel y la selva amazónica con vuelos incluidos.</p>
+                    <div class="service-price">$1,500</div>
+                    <a href="#" class="btn">Reservar Ahora</a>
+                </div>
+                <div class="service-card">
+                    <img src="../assets/img/margarita2.jpg" alt="Paquete Margarita">
+                    <h3>Paquete Margarita</h3>
+                    <p>Relájate en las playas paradisíacas con hotel y vuelos incluidos.</p>
+                    <div class="service-price">$1,200</div>
+                    <a href="#" class="btn">Reservar Ahora</a>
+                </div>
+                <div class="service-card">
+                    <img src="../assets/img/CARACAS-1.jpg" alt="Paquete Caracas">
+                    <h3>Paquete Caracas</h3>
+                    <p>Descubre la capital con tours culturales y vuelos incluidos.</p>
+                    <div class="service-price">$800</div>
+                    <a href="#" class="btn">Reservar Ahora</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="flights" class="tab-content">
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>Vuelo Caracas - Margarita</h3>
+                    <p>Vuelo directo con todas las comodidades para tu viaje.</p>
+                    <div class="service-price">$150</div>
+                    <a href="#" class="btn">Reservar Vuelo</a>
+                </div>
+                <div class="service-card">
+                    <h3>Vuelo Caracas - Canaima</h3>
+                    <p>Conecta con la naturaleza venezolana desde la capital.</p>
+                    <div class="service-price">$200</div>
+                    <a href="#" class="btn">Reservar Vuelo</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="hotels" class="tab-content">
+            <div class="services-grid">
+                <div class="service-card">
+                    <img src="../assets/img/margarita2.jpg" alt="Hotel Margarita Resort">
+                    <h3>Margarita Resort</h3>
+                    <p>Hotel de lujo con vista al mar en Isla de Margarita.</p>
+                    <div class="service-price">$150/noche</div>
+                    <a href="#" class="btn">Reservar Hotel</a>
+                </div>
+                <div class="service-card">
+                    <img src="../assets/img/CANAIMA-1.webp" alt="Hotel Canaima Lodge">
+                    <h3>Canaima Lodge</h3>
+                    <p>Experiencia única en el corazón de la selva amazónica.</p>
+                    <div class="service-price">$120/noche</div>
+                    <a href="#" class="btn">Reservar Hotel</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="vehicles" class="tab-content">
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>Auto Compacto</h3>
+                    <p>Vehículo económico perfecto para viajes en ciudad.</p>
+                    <div class="service-price">$30/día</div>
+                    <a href="#" class="btn">Alquilar Vehículo</a>
+                </div>
+                <div class="service-card">
+                    <h3>Todo Terreno</h3>
+                    <p>Ideal para aventuras en terrenos difíciles.</p>
+                    <div class="service-price">$50/día</div>
+                    <a href="#" class="btn">Alquilar Vehículo</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Amanecer Tropical. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="../assets/js/services.js"></script>
+</body>
+</html>

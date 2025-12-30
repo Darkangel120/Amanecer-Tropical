@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Reservas - Amanecer Tropical</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon.png">
+    <link rel="stylesheet" href="../assets/css/general.css">
+    <link rel="stylesheet" href="../assets/css/reservations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="../assets/favicon.png" alt="Amanecer Tropical Logo" class="logo-icon">
+            <h1>Amanecer Tropical</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="../user/dashboard.html">Inicio</a></li>
+            <li><a href="../user/services.html">Servicios</a></li>
+            <li><a href="reservations.html">Reservas</a></li>
+            <li><a href="../user/profile.html">Perfil</a></li>
+        </ul>
+        <div class="auth-buttons">
+            <a href="../index.html" class="btn-logout" data-tooltip="Cerrar Sesión">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="btn-text">Cerrar Sesión</span>
+            </a>
+        </div>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+
+    <section class="reservations-hero">
+        <div class="hero-content">
+            <h1>Mis Reservas</h1>
+            <p>Gestiona todas tus reservas de viaje en un solo lugar.</p>
+        </div>
+    </section>
+
+    <section class="reservations-content">
+        <h2>Tus Reservas Activas</h2>
+        <div class="reservations-grid">
+            <div class="reservation-card">
+                <h3>Paquete Canaima</h3>
+                <p><strong>Fecha:</strong> 15 de Julio, 2025 - 22 de Julio, 2025</p>
+                <p><strong>Personas:</strong> 2 adultos</p>
+                <p><strong>Total:</strong> $3,000</p>
+                <span class="reservation-status status-confirmed">Confirmada</span>
+                <div style="margin-top: 1rem;">
+                    <button class="btn-modify">Modificar</button>
+                    <button class="btn-cancel">Cancelar</button>
+                </div>
+            </div>
+            <div class="reservation-card">
+                <h3>Hotel Margarita Resort</h3>
+                <p><strong>Fecha:</strong> 10 de Agosto, 2025 - 15 de Agosto, 2025</p>
+                <p><strong>Personas:</strong> 4 personas</p>
+                <p><strong>Total:</strong> $750</p>
+                <span class="reservation-status status-pending">Pendiente</span>
+                <div style="margin-top: 1rem;">
+                    <button class="btn-modify">Modificar</button>
+                    <button class="btn-cancel">Cancelar</button>
+                </div>
+            </div>
+            <div class="reservation-card">
+                <h3>Alquiler de Auto Compacto</h3>
+                <p><strong>Fecha:</strong> 20 de Septiembre, 2025 - 25 de Septiembre, 2025</p>
+                <p><strong>Personas:</strong> 2 personas</p>
+                <p><strong>Total:</strong> $150</p>
+                <span class="reservation-status status-confirmed">Confirmada</span>
+                <div style="margin-top: 1rem;">
+                    <button class="btn-modify">Modificar</button>
+                    <button class="btn-cancel">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Amanecer Tropical. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="../assets/js/reservations.js"></script>
+</body>
+</html>
