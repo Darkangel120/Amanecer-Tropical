@@ -42,6 +42,7 @@ public class DestinationService {
     }
 
     public Destination createDestination(@NonNull Destination destination) {
+        destination.setActive(true);
         return destinationRepository.save(destination);
     }
 

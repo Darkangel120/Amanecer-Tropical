@@ -158,11 +158,23 @@ const handleForms = () => {
     const loginForm = document.querySelector('#login-form');
     const registerForm = document.querySelector('#register-form');
 
+    // Password toggle functionality
+    const togglePassword = document.querySelector('#toggle-password');
+    if (togglePassword) {
+        togglePassword.addEventListener('click', () => {
+            const passwordInput = document.querySelector('#password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePassword.classList.toggle('fa-eye');
+            togglePassword.classList.toggle('fa-eye-slash');
+        });
+    }
+
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.querySelector('#login-email').value;
-            const password = document.querySelector('#login-password').value;
+            const email = document.querySelector('#email').value;
+            const password = document.querySelector('#password').value;
 
             try {
                 const response = await fetch(`${API_BASE_URL}/auth/login`, {

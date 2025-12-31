@@ -694,6 +694,29 @@ footer {
     box-shadow: 0 0 0 2px rgba(255, 126, 95, 0.2);
 }
 
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-container input {
+    padding-right: 3rem;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 0.8rem;
+    cursor: pointer;
+    color: #666;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+    color: #ff7e5f;
+}
+
 .form-group select {
     width: 100%;
     padding: 0.8rem;

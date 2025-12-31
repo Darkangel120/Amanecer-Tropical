@@ -25,13 +25,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Logout functionality
-    const logoutBtn = document.querySelector('.btn-logout');
+    const logoutBtn = document.querySelector('.logout-option');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         });
     }
 
