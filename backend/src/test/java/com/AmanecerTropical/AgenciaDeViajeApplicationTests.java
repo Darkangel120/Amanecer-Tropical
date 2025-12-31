@@ -1,10 +1,10 @@
-package amanecertropical;
+package com.AmanecerTropical;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AgenciaDeViajeAmanecerTropicalApplicationTests {
+class AgenciaDeViajeApplicationTests {
 
 	@Test
 	void contextLoads() {

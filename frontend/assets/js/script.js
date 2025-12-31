@@ -152,21 +152,76 @@ const handleMobileButtons = () => {
     // On desktop, allow default link behavior (navigation)
 };
 
+const API_BASE_URL = 'http://localhost:8080/api';
+
 const handleForms = () => {
     const loginForm = document.querySelector('#login-form');
     const registerForm = document.querySelector('#register-form');
 
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('Funcionalidad de inicio de sesión próximamente disponible. Por ahora, navega de vuelta a la página principal.');
+            const email = document.querySelector('#login-email').value;
+            const password = document.querySelector('#login-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    alert('Inicio de sesión exitoso');
+                    window.location.href = 'user/dashboard.html';
+                } else {
+                    const error = await response.text();
+                    alert('Error en el inicio de sesión: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión. Asegúrate de que el backend esté ejecutándose.');
+            }
         });
     }
 
     if (registerForm) {
-        registerForm.addEventListener('submit', (e) => {
+        registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('Funcionalidad de registro próximamente disponible. Por ahora, navega de vuelta a la página principal.');
+            const formData = new FormData(registerForm);
+            const userData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                phone: formData.get('phone'),
+                role: 'USER'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData),
+                });
+
+                if (response.ok) {
+                    alert('Registro exitoso. Ahora puedes iniciar sesión.');
+                    window.location.href = 'login.html';
+                } else {
+                    const error = await response.text();
+                    alert('Error en el registro: ' + error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión. Asegúrate de que el backend esté ejecutándose.');
+            }
         });
     }
 };
