@@ -33,11 +33,11 @@ public class DestinationService {
     }
 
     public List<Destination> getDestinationsByPriceRange(double minPrice, double maxPrice) {
-        return destinationRepository.findByPricePerNightBetween(minPrice, maxPrice);
+        return destinationRepository.findByPriceBetween(minPrice, maxPrice);
     }
 
     public List<Destination> getAvailableDestinations() {
-        return destinationRepository.findByAvailable(true);
+        return destinationRepository.findByActiveTrue();
     }
 
     public Destination createDestination(Destination destination) {

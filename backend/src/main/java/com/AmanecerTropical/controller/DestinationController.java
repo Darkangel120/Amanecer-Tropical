@@ -1,4 +1,4 @@
-nslookup repo.maven.apache.orgpackage com.AmanecerTropical.controller;
+package com.AmanecerTropical.controller;
 
 import com.AmanecerTropical.entity.Destination;
 import com.AmanecerTropical.service.DestinationService;
@@ -31,7 +31,7 @@ public class DestinationController {
 
     @GetMapping("/search")
     public ResponseEntity<List<Destination>> searchDestinations(@RequestParam(required = false) String name,
-                                                               @RequestParam(required = false) String location) {
+                                                                @RequestParam(required = false) String location) {
         List<Destination> destinations;
         if (name != null && !name.isEmpty()) {
             destinations = destinationService.getDestinationsByName(name);

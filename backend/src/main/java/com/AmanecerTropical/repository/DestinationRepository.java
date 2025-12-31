@@ -21,4 +21,10 @@ public interface DestinationRepository extends JpaRepository<Destination, Long> 
     List<Destination> searchByKeyword(@Param("keyword") String keyword);
 
     List<Destination> findByActiveTrueOrderByNameAsc();
+
+    // Additional methods to match service calls
+    List<Destination> findByNameContainingIgnoreCase(String name);
+    List<Destination> findByLocationContainingIgnoreCase(String location);
+    List<Destination> findByPriceBetween(double minPrice, double maxPrice);
+    List<Destination> findByAvailable(boolean available);
 }

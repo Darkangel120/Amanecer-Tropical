@@ -2,6 +2,7 @@ package com.AmanecerTropical.controller;
 
 import com.AmanecerTropical.entity.User;
 import com.AmanecerTropical.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -62,18 +63,24 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
-        if (user.isPresent()) {
+        try {
+            userService.getUserById(id); // Check if exists
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/role/{role}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
-        List<User> users = userService.getUsersByRole(role);
-        return ResponseEntity.ok(users);
+        try {
+            User.UserRole userRole = User.UserRole.valueOf(role.toUpperCase());
+            List<User> users = userService.getUsersByRole(userRole);
+            return ResponseEntity.ok(users);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

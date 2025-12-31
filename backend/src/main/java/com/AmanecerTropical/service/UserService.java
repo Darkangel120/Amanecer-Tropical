@@ -2,6 +2,7 @@ package com.AmanecerTropical.service;
 
 import com.AmanecerTropical.entity.User;
 import com.AmanecerTropical.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-    public List<User> getUsersByRole(String role) {
+    public List<User> getUsersByRole(User.UserRole role) {
         return userRepository.findByRole(role);
     }
 }
