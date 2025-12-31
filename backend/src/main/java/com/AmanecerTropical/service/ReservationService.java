@@ -2,8 +2,8 @@ package com.AmanecerTropical.service;
 
 import com.AmanecerTropical.entity.Reservation;
 import com.AmanecerTropical.repository.ReservationRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +22,7 @@ public class ReservationService {
         return reservationRepository.findAll();
     }
 
-    public Optional<Reservation> getReservationById(Long id) {
+    public Optional<Reservation> getReservationById(@NonNull Long id) {
         return reservationRepository.findById(id);
     }
 
@@ -42,15 +42,15 @@ public class ReservationService {
         return reservationRepository.findByUserIdAndStatus(userId, status);
     }
 
-    public Reservation createReservation(Reservation reservation) {
+    public Reservation createReservation(@NonNull Reservation reservation) {
         return reservationRepository.save(reservation);
     }
 
-    public Reservation updateReservation(Reservation reservation) {
+    public Reservation updateReservation(@NonNull Reservation reservation) {
         return reservationRepository.save(reservation);
     }
 
-    public void deleteReservation(Long id) {
+    public void deleteReservation(@NonNull Long id) {
         reservationRepository.deleteById(id);
     }
 

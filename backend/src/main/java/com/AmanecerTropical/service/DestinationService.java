@@ -3,6 +3,7 @@ package com.AmanecerTropical.service;
 import com.AmanecerTropical.entity.Destination;
 import com.AmanecerTropical.repository.DestinationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +21,7 @@ public class DestinationService {
         return destinationRepository.findAll();
     }
 
-    public Optional<Destination> getDestinationById(Long id) {
+    public Optional<Destination> getDestinationById(@NonNull Long id) {
         return destinationRepository.findById(id);
     }
 
@@ -40,19 +41,19 @@ public class DestinationService {
         return destinationRepository.findByActiveTrue();
     }
 
-    public Destination createDestination(Destination destination) {
+    public Destination createDestination(@NonNull Destination destination) {
         return destinationRepository.save(destination);
     }
 
-    public Destination updateDestination(Destination destination) {
+    public Destination updateDestination(@NonNull Destination destination) {
         return destinationRepository.save(destination);
     }
 
-    public void deleteDestination(Long id) {
+    public void deleteDestination(@NonNull Long id) {
         destinationRepository.deleteById(id);
     }
 
-    public boolean existsById(Long id) {
+    public boolean existsById(@NonNull Long id) {
         return destinationRepository.existsById(id);
     }
 

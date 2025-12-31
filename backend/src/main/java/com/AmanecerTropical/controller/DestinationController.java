@@ -3,6 +3,7 @@ package com.AmanecerTropical.controller;
 import com.AmanecerTropical.entity.Destination;
 import com.AmanecerTropical.service.DestinationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class DestinationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Destination> getDestinationById(@PathVariable Long id) {
+    public ResponseEntity<Destination> getDestinationById(@PathVariable @NonNull Long id) {
         Optional<Destination> destination = destinationService.getDestinationById(id);
         return destination.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
@@ -64,14 +65,14 @@ public class DestinationController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Destination> createDestination(@RequestBody Destination destination) {
+    public ResponseEntity<Destination> createDestination(@RequestBody @NonNull Destination destination) {
         Destination createdDestination = destinationService.createDestination(destination);
         return ResponseEntity.ok(createdDestination);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Destination> updateDestination(@PathVariable Long id, @RequestBody Destination destination) {
+    public ResponseEntity<Destination> updateDestination(@PathVariable @NonNull Long id, @RequestBody @NonNull Destination destination) {
         Optional<Destination> existingDestination = destinationService.getDestinationById(id);
         if (existingDestination.isPresent()) {
             destination.setId(id);
@@ -83,7 +84,7 @@ public class DestinationController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteDestination(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteDestination(@PathVariable @NonNull Long id) {
         Optional<Destination> destination = destinationService.getDestinationById(id);
         if (destination.isPresent()) {
             destinationService.deleteDestination(id);

@@ -2,8 +2,11 @@ package com.AmanecerTropical.service;
 
 import com.AmanecerTropical.entity.User;
 import com.AmanecerTropical.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import io.micrometer.common.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class UserService {
+public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -25,32 +28,47 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(Long id) {
+    @SuppressWarnings("null")
+    public Optional<User> getUserById(@NonNull Long id) {
         return userRepository.findById(id);
     }
 
-    public Optional<User> getUserByEmail(String email) {
+    public Optional<User> getUserByEmail(@NonNull String email) {
         return userRepository.findByEmail(email);
     }
 
-    public User createUser(User user) {
+    public User createUser(@NonNull User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
-    public User updateUser(User user) {
+    @SuppressWarnings("null")
+    public User updateUser(@NonNull User user) {
         return userRepository.save(user);
     }
 
-    public void deleteUser(Long id) {
+    @SuppressWarnings("null")
+    public void deleteUser(@NonNull Long id) {
         userRepository.deleteById(id);
     }
 
-    public boolean existsByEmail(String email) {
+    public boolean existsByEmail(@NonNull String email) {
         return userRepository.existsByEmail(email);
     }
 
-    public List<User> getUsersByRole(User.UserRole role) {
+    public List<User> getUsersByRole(@NonNull User.UserRole role) {
         return userRepository.findByRole(role);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getEmail())
+                .password(user.getPassword())
+                .roles(user.getRole().name())
+                .build();
     }
 }

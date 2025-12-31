@@ -93,14 +93,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize badge on page load
     updateNotificationBadge();
 
-    // Logout confirmation (for pages that still have logout buttons)
+    // Logout functionality (for pages that still have logout buttons)
     const logoutBtn = document.querySelector('.btn-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
-            const confirmLogout = confirm('¿Estás seguro de que quieres cerrar sesión?');
-            if (!confirmLogout) {
-                e.preventDefault();
-            }
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
         });
     }
 
