@@ -190,7 +190,7 @@ const handleForms = () => {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
                     alert('Inicio de sesión exitoso');
-                    window.location.href = 'user/dashboard.html';
+                    window.location.href = 'dashboard.html';
                 } else {
                     const error = await response.text();
                     alert('Error en el inicio de sesión: ' + error);

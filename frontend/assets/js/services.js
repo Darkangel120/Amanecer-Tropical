@@ -65,9 +65,15 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         });
     }
+
+    // Load dynamic data for all tabs
+    loadPackages();
+    loadFlights();
+    loadHotels();
+    loadVehicles();
 });
 
 async function loadDestinationDetails(destinationId) {
@@ -106,6 +112,145 @@ function displayDestinationDetails(destination) {
             destinationIdInput.value = destination.id;
         }
     }
+}
+
+async function loadPackages() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/destinations`);
+        if (response.ok) {
+            const destinations = await response.json();
+            displayPackages(destinations);
+        } else {
+            console.error('Error loading packages');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displayPackages(destinations) {
+    const packagesGrid = document.getElementById('packages-grid');
+    if (!packagesGrid) return;
+
+    packagesGrid.innerHTML = '';
+
+    destinations.forEach(destination => {
+        const packageCard = document.createElement('div');
+        packageCard.className = 'service-card';
+        packageCard.innerHTML = `
+            <img src="${destination.imageUrl}" alt="Paquete ${destination.name}">
+            <h3>Paquete ${destination.name}</h3>
+            <p>${destination.description}</p>
+            <div class="service-price">$${destination.price}</div>
+            <a href="#" class="btn" onclick="bookPackage(${destination.id})">Reservar Ahora</a>
+        `;
+        packagesGrid.appendChild(packageCard);
+    });
+}
+
+function bookPackage(destinationId) {
+    // Redirect to booking page or open modal with destination details
+    window.location.href = `services.html?destination=${destinationId}`;
+}
+
+async function loadFlights() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/flights`);
+        if (response.ok) {
+            const flights = await response.json();
+            displayFlights(flights);
+        } else {
+            console.error('Error loading flights');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displayFlights(flights) {
+    const flightsGrid = document.getElementById('flights-grid');
+    if (!flightsGrid) return;
+
+    flightsGrid.innerHTML = '';
+
+    flights.forEach(flight => {
+        const flightCard = document.createElement('div');
+        flightCard.className = 'service-card';
+        flightCard.innerHTML = `
+            <h3>${flight.origin} - ${flight.destination}</h3>
+            <p>${flight.description}</p>
+            <div class="service-price">$${flight.price}</div>
+            <a href="#" class="btn">Reservar Vuelo</a>
+        `;
+        flightsGrid.appendChild(flightCard);
+    });
+}
+
+async function loadHotels() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/hotels`);
+        if (response.ok) {
+            const hotels = await response.json();
+            displayHotels(hotels);
+        } else {
+            console.error('Error loading hotels');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displayHotels(hotels) {
+    const hotelsGrid = document.getElementById('hotels-grid');
+    if (!hotelsGrid) return;
+
+    hotelsGrid.innerHTML = '';
+
+    hotels.forEach(hotel => {
+        const hotelCard = document.createElement('div');
+        hotelCard.className = 'service-card';
+        hotelCard.innerHTML = `
+            <img src="${hotel.imageUrl}" alt="${hotel.name}">
+            <h3>${hotel.name}</h3>
+            <p>${hotel.description}</p>
+            <div class="service-price">$${hotel.price}/noche</div>
+            <a href="#" class="btn">Reservar Hotel</a>
+        `;
+        hotelsGrid.appendChild(hotelCard);
+    });
+}
+
+async function loadVehicles() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/vehicles`);
+        if (response.ok) {
+            const vehicles = await response.json();
+            displayVehicles(vehicles);
+        } else {
+            console.error('Error loading vehicles');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displayVehicles(vehicles) {
+    const vehiclesGrid = document.getElementById('vehicles-grid');
+    if (!vehiclesGrid) return;
+
+    vehiclesGrid.innerHTML = '';
+
+    vehicles.forEach(vehicle => {
+        const vehicleCard = document.createElement('div');
+        vehicleCard.className = 'service-card';
+        vehicleCard.innerHTML = `
+            <h3>${vehicle.name}</h3>
+            <p>${vehicle.description}</p>
+            <div class="service-price">$${vehicle.price}/día</div>
+            <a href="#" class="btn">Alquilar Vehículo</a>
+        `;
+        vehiclesGrid.appendChild(vehicleCard);
+    });
 }
 
 async function createReservation() {

@@ -1,5 +1,7 @@
 // General JavaScript for Shared User Menu Functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Load user information for profile dropdown
+    loadUserProfileInfo();
     // Navbar toggle for mobile
     const burger = document.querySelector('.burger');
     const nav = document.querySelector('.nav-links');
@@ -100,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         });
     }
 
@@ -116,3 +118,33 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Function to load user profile information from localStorage
+function loadUserProfileInfo() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) return;
+
+    // Update profile button avatar
+    const profileAvatar = document.querySelector('.profile-avatar');
+    if (profileAvatar && user.profileImageUrl) {
+        profileAvatar.src = user.profileImageUrl;
+    }
+
+    // Update profile menu information
+    const profileAvatarLarge = document.querySelector('.profile-avatar-large');
+    if (profileAvatarLarge) {
+        if (user.profileImageUrl) {
+            profileAvatarLarge.src = user.profileImageUrl;
+        }
+    }
+
+    const profileName = document.querySelector('.profile-details h4');
+    if (profileName && user.name) {
+        profileName.textContent = user.name;
+    }
+
+    const profileEmail = document.querySelector('.profile-details p');
+    if (profileEmail && user.email) {
+        profileEmail.textContent = user.email;
+    }
+}

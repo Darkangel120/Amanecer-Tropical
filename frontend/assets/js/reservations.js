@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         });
     }
 });
@@ -44,9 +44,10 @@ async function loadUserReservations() {
     if (!user) return;
 
     try {
+        const token = localStorage.getItem('token');
         const response = await fetch(`${API_BASE_URL}/reservations/user/${user.id}`, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -62,7 +63,7 @@ async function loadUserReservations() {
 }
 
 function displayReservations(reservations) {
-    const reservationsContainer = document.querySelector('.reservations-container');
+    const reservationsContainer = document.querySelector('.reservations-grid');
     if (!reservationsContainer) return;
 
     reservationsContainer.innerHTML = '';
@@ -77,11 +78,14 @@ function displayReservations(reservations) {
         reservationCard.className = 'reservation-card';
         reservationCard.innerHTML = `
             <h3>${reservation.destination ? reservation.destination.name : 'Destino desconocido'}</h3>
-            <p><strong>Fecha de entrada:</strong> ${new Date(reservation.checkInDate).toLocaleDateString()}</p>
-            <p><strong>Fecha de salida:</strong> ${new Date(reservation.checkOutDate).toLocaleDateString()}</p>
-            <p><strong>Huéspedes:</strong> ${reservation.numberOfGuests}</p>
+            <p><strong>Ubicación:</strong> ${reservation.destination ? reservation.destination.location : 'Ubicación desconocida'}</p>
+            <p><strong>Fecha de inicio:</strong> ${new Date(reservation.startDate).toLocaleDateString()}</p>
+            <p><strong>Fecha de fin:</strong> ${new Date(reservation.endDate).toLocaleDateString()}</p>
+            <p><strong>Número de personas:</strong> ${reservation.numberOfPeople}</p>
             <p><strong>Precio total:</strong> $${reservation.totalPrice}</p>
             <p><strong>Estado:</strong> ${reservation.status}</p>
+            ${reservation.specialRequests ? `<p><strong>Solicitudes especiales:</strong> ${reservation.specialRequests}</p>` : ''}
+            <p><strong>Fecha de creación:</strong> ${reservation.createdAt ? new Date(reservation.createdAt).toLocaleString() : 'N/A'}</p>
             <div class="reservation-actions">
                 <button class="btn-modify" data-id="${reservation.id}">Modificar</button>
                 <button class="btn-cancel" data-id="${reservation.id}">Cancelar</button>

@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         });
     }
 });
@@ -74,10 +74,40 @@ function populateProfileForm(user) {
     const nameInput = document.querySelector('#name');
     const emailInput = document.querySelector('#email');
     const phoneInput = document.querySelector('#phone');
+    const birthdateInput = document.querySelector('#birthdate');
+    const genderInput = document.querySelector('#gender');
+    const nationalityInput = document.querySelector('#nationality');
+    const addressInput = document.querySelector('#address');
+    const cityInput = document.querySelector('#city');
+    const stateInput = document.querySelector('#state');
+    const cedulaInput = document.querySelector('#cedula');
+    const passportInput = document.querySelector('#passport');
+    const passportExpiryInput = document.querySelector('#passport-expiry');
+    const emergencyNameInput = document.querySelector('#emergency-name');
+    const emergencyPhoneInput = document.querySelector('#emergency-phone');
+    const emergencyRelationshipInput = document.querySelector('#emergency-relationship');
+    const travelStyleInput = document.querySelector('#travel-style');
+    const dietaryRestrictionsInput = document.querySelector('#dietary-restrictions');
+    const specialNeedsInput = document.querySelector('#special-needs');
 
     if (nameInput) nameInput.value = user.name || '';
     if (emailInput) emailInput.value = user.email || '';
     if (phoneInput) phoneInput.value = user.phone || '';
+    if (birthdateInput) birthdateInput.value = user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : '';
+    if (genderInput) genderInput.value = user.gender || '';
+    if (nationalityInput) nationalityInput.value = user.nationality || '';
+    if (addressInput) addressInput.value = user.address || '';
+    if (cityInput) cityInput.value = user.city || '';
+    if (stateInput) stateInput.value = user.state || '';
+    if (cedulaInput) cedulaInput.value = user.cedula || '';
+    if (passportInput) passportInput.value = user.passport || '';
+    if (passportExpiryInput) passportExpiryInput.value = user.passportExpiry ? new Date(user.passportExpiry).toISOString().split('T')[0] : '';
+    if (emergencyNameInput) emergencyNameInput.value = user.emergencyName || '';
+    if (emergencyPhoneInput) emergencyPhoneInput.value = user.emergencyPhone || '';
+    if (emergencyRelationshipInput) emergencyRelationshipInput.value = user.emergencyRelationship || '';
+    if (travelStyleInput) travelStyleInput.value = user.travelStyle || '';
+    if (dietaryRestrictionsInput) dietaryRestrictionsInput.value = user.dietaryRestrictions || '';
+    if (specialNeedsInput) specialNeedsInput.value = user.specialNeeds || '';
 }
 
 async function updateUserProfile() {
@@ -88,7 +118,22 @@ async function updateUserProfile() {
     const updatedUser = {
         name: formData.get('name'),
         email: formData.get('email'),
-        phone: formData.get('phone')
+        phone: formData.get('phone'),
+        birthdate: formData.get('birthdate'),
+        gender: formData.get('gender'),
+        nationality: formData.get('nationality'),
+        address: formData.get('address'),
+        city: formData.get('city'),
+        state: formData.get('state'),
+        cedula: formData.get('cedula'),
+        passport: formData.get('passport'),
+        passportExpiry: formData.get('passport-expiry'),
+        emergencyName: formData.get('emergency-name'),
+        emergencyPhone: formData.get('emergency-phone'),
+        emergencyRelationship: formData.get('emergency-relationship'),
+        travelStyle: formData.get('travel-style'),
+        dietaryRestrictions: formData.get('dietary-restrictions'),
+        specialNeeds: formData.get('special-needs')
     };
 
     try {
