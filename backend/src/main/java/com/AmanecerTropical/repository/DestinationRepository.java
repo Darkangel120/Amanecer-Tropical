@@ -26,5 +26,4 @@ public interface DestinationRepository extends JpaRepository<Destination, Long> 
     List<Destination> findByNameContainingIgnoreCase(String name);
     List<Destination> findByLocationContainingIgnoreCase(String location);
     List<Destination> findByPriceBetween(double minPrice, double maxPrice);
-    List<Destination> findByActive(boolean active);
 }

@@ -154,6 +154,90 @@ const handleMobileButtons = () => {
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
+// Load destinations and packages on main page
+const loadMainPageData = () => {
+    if (document.getElementById('destinos-grid')) {
+        loadDestinations();
+    }
+    if (document.getElementById('paquetes-grid')) {
+        loadPackages();
+    }
+};
+
+async function loadDestinations() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/destinations`);
+        if (response.ok) {
+            const destinations = await response.json();
+            displayDestinations(destinations);
+        } else {
+            console.error('Error loading destinations');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displayDestinations(destinations) {
+    const destinosGrid = document.getElementById('destinos-grid');
+    if (!destinosGrid) return;
+
+    destinosGrid.innerHTML = '';
+
+    destinations.slice(0, 4).forEach(destination => {
+        const imageUrl = destination.imageUrl || 'assets/img/default-destination.jpg';
+        const destinationCard = document.createElement('div');
+        destinationCard.className = 'destino-card';
+        destinationCard.innerHTML = `
+            <img src="${imageUrl}" alt="${destination.name}">
+            <h3>${destination.name}</h3>
+            <p>${destination.location}</p>
+            <div class="destino-price">Desde $${destination.price}</div>
+            <a href="user/services.html?destination=${destination.id}" class="btn">Ver Detalles</a>
+        `;
+        destinosGrid.appendChild(destinationCard);
+    });
+}
+
+async function loadPackages() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/destinations`);
+        if (response.ok) {
+            const destinations = await response.json();
+            displayPackages(destinations);
+        } else {
+            console.error('Error loading packages');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displayPackages(destinations) {
+    const paquetesGrid = document.getElementById('paquetes-grid');
+    if (!paquetesGrid) return;
+
+    paquetesGrid.innerHTML = '';
+
+    destinations.forEach(destination => {
+        const imageUrl = destination.imageUrl || 'assets/img/default-destination.jpg';
+        const packageCard = document.createElement('div');
+        packageCard.className = 'paquete-card';
+        packageCard.innerHTML = `
+            <img src="${imageUrl}" alt="Paquete ${destination.name}">
+            <div class="paquete-info">
+                <h3>Paquete ${destination.name}</h3>
+                <p class="location">${destination.location}</p>
+                <p class="category">${destination.category}</p>
+                <p class="duration">${destination.durationDays} días</p>
+                <div class="paquete-price">$${destination.price}</div>
+                <a href="user/services.html?destination=${destination.id}" class="btn">Reservar Ahora</a>
+            </div>
+        `;
+        paquetesGrid.appendChild(packageCard);
+    });
+}
+
 const handleForms = () => {
     const loginForm = document.querySelector('#login-form');
     const registerForm = document.querySelector('#register-form');
@@ -410,6 +494,7 @@ const handleModal = () => {
 navSlide();
 carousel();
 handleMobileButtons();
+loadMainPageData();
 handleMultiStepForm();
 handleForms();
 handleModal();

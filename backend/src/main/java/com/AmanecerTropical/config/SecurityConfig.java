@@ -12,8 +12,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -37,13 +39,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowCredentials(false);
+                    config.addAllowedOrigin("http://127.0.0.1:5500");
+                    config.addAllowedOrigin("http://localhost:5500");
+                    config.addAllowedOrigin("http://127.0.0.1:3000");
+                    config.addAllowedOrigin("http://localhost:3000");
+                    config.addAllowedOrigin("http://localhost:8080");
+                    config.addAllowedOrigin("http://127.0.0.1:8080");
+                    config.addAllowedOrigin("file://");
+                    config.addAllowedOrigin("null");
+                    config.addAllowedMethod("*");
+                    config.addAllowedHeader("*");
+                    config.addExposedHeader("Authorization");
+                    return config;
+                }))
                 .authorizeHttpRequests(authz -> authz
-                                .requestMatchers("/api/auth/**", "/api/users").permitAll()
-                                .requestMatchers("/api/destinations").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/api/users/register", "/api/users/email/*").permitAll()
+                                .requestMatchers("/api/destinations/**", "/api/flights/**", "/api/hotels/**", "/api/vehicles/**", "/api/notifications/**").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // Only add JWT filter for authenticated endpoints
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

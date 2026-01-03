@@ -1,6 +1,9 @@
 // Services JavaScript
 const API_BASE_URL = 'http://localhost:8080/api';
 
+// Global variables for storing data
+let packagesData, hotelsData, vehiclesData;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Check authentication
     const token = localStorage.getItem('token');
@@ -119,6 +122,7 @@ async function loadPackages() {
         const response = await fetch(`${API_BASE_URL}/destinations`);
         if (response.ok) {
             const destinations = await response.json();
+            packagesData = destinations; // Store data globally
             displayPackages(destinations);
         } else {
             console.error('Error loading packages');
@@ -134,6 +138,11 @@ function displayPackages(destinations) {
 
     packagesGrid.innerHTML = '';
 
+    if (destinations.length === 0) {
+        packagesGrid.innerHTML = '<p>No hay paquetes disponibles en este momento.</p>';
+        return;
+    }
+
     destinations.forEach(destination => {
         const packageCard = document.createElement('div');
         packageCard.className = 'service-card';
@@ -142,10 +151,77 @@ function displayPackages(destinations) {
             <h3>Paquete ${destination.name}</h3>
             <p>${destination.description}</p>
             <div class="service-price">$${destination.price}</div>
-            <a href="#" class="btn" onclick="bookPackage(${destination.id})">Reservar Ahora</a>
+            <div class="card-buttons">
+                <a href="#" class="btn btn-details" onclick="viewPackageDetails(${destination.id})">Ver Detalles</a>
+                <a href="#" class="btn" onclick="bookPackage(${destination.id})">Reservar Ahora</a>
+            </div>
         `;
         packagesGrid.appendChild(packageCard);
     });
+}
+
+function viewPackageDetails(packageId) {
+    const packageData = packagesData.find(pkg => pkg.id === packageId);
+    if (!packageData) return;
+
+    const modal = document.getElementById('package-modal');
+    const modalImage = document.getElementById('modal-image');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDescription = document.getElementById('modal-description');
+    const modalPrice = document.getElementById('modal-price');
+    const includesList = document.getElementById('includes-list');
+    const itineraryList = document.getElementById('itinerary-list');
+
+    modalImage.src = packageData.imageUrl;
+    modalImage.alt = `Paquete ${packageData.name}`;
+    modalTitle.textContent = `Paquete ${packageData.name}`;
+    modalDescription.textContent = packageData.description;
+    modalPrice.textContent = `$${packageData.price}`;
+
+    // Populate includes
+    includesList.innerHTML = '';
+    try {
+        const includes = JSON.parse(packageData.includes);
+        includes.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            includesList.appendChild(li);
+        });
+    } catch (e) {
+        const li = document.createElement('li');
+        li.textContent = packageData.includes;
+        includesList.appendChild(li);
+    }
+
+    // Populate itinerary
+    itineraryList.innerHTML = '';
+    try {
+        const itinerary = JSON.parse(packageData.itinerary);
+        itinerary.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            itineraryList.appendChild(li);
+        });
+    } catch (e) {
+        const li = document.createElement('li');
+        li.textContent = packageData.itinerary;
+        itineraryList.appendChild(li);
+    }
+
+    modal.style.display = 'block';
+
+    // Close modal functionality
+    const closeBtn = modal.querySelector('.close');
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
 }
 
 function bookPackage(destinationId) {
@@ -173,6 +249,11 @@ function displayFlights(flights) {
 
     flightsGrid.innerHTML = '';
 
+    if (flights.length === 0) {
+        flightsGrid.innerHTML = '<p>No hay vuelos disponibles en este momento.</p>';
+        return;
+    }
+
     flights.forEach(flight => {
         const flightCard = document.createElement('div');
         flightCard.className = 'service-card';
@@ -191,6 +272,7 @@ async function loadHotels() {
         const response = await fetch(`${API_BASE_URL}/hotels`);
         if (response.ok) {
             const hotels = await response.json();
+            hotelsData = hotels; // Store data globally
             displayHotels(hotels);
         } else {
             console.error('Error loading hotels');
@@ -206,18 +288,40 @@ function displayHotels(hotels) {
 
     hotelsGrid.innerHTML = '';
 
+    if (hotels.length === 0) {
+        hotelsGrid.innerHTML = '<p>No hay hoteles disponibles en este momento.</p>';
+        return;
+    }
+
     hotels.forEach(hotel => {
         const hotelCard = document.createElement('div');
         hotelCard.className = 'service-card';
+        const starsHtml = generateStars(hotel.stars);
         hotelCard.innerHTML = `
             <img src="${hotel.imageUrl}" alt="${hotel.name}">
             <h3>${hotel.name}</h3>
+            <div class="hotel-stars">${starsHtml}</div>
             <p>${hotel.description}</p>
-            <div class="service-price">$${hotel.price}/noche</div>
-            <a href="#" class="btn">Reservar Hotel</a>
+            <div class="service-price">$${hotel.pricePerNight}/noche</div>
+            <div class="card-buttons">
+                <a href="#" class="btn btn-details" onclick="viewHotelDetails(${hotel.id})">Ver Detalles</a>
+                <a href="#" class="btn">Reservar Hotel</a>
+            </div>
         `;
         hotelsGrid.appendChild(hotelCard);
     });
+}
+
+function generateStars(stars) {
+    let starsHtml = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= stars) {
+            starsHtml += '<i class="fas fa-star"></i>';
+        } else {
+            starsHtml += '<i class="far fa-star"></i>';
+        }
+    }
+    return starsHtml;
 }
 
 async function loadVehicles() {
@@ -225,6 +329,7 @@ async function loadVehicles() {
         const response = await fetch(`${API_BASE_URL}/vehicles`);
         if (response.ok) {
             const vehicles = await response.json();
+            vehiclesData = vehicles; // Store data globally
             displayVehicles(vehicles);
         } else {
             console.error('Error loading vehicles');
@@ -246,11 +351,111 @@ function displayVehicles(vehicles) {
         vehicleCard.innerHTML = `
             <h3>${vehicle.name}</h3>
             <p>${vehicle.description}</p>
-            <div class="service-price">$${vehicle.price}/día</div>
-            <a href="#" class="btn">Alquilar Vehículo</a>
+            <div class="service-price">$${vehicle.pricePerDay}/día</div>
+            <div class="card-buttons">
+                <a href="#" class="btn btn-details" onclick="viewVehicleDetails(${vehicle.id})">Ver Detalles</a>
+                <a href="#" class="btn" style="font-size: 13px;">Alquilar Vehículo</a>
+            </div>
         `;
         vehiclesGrid.appendChild(vehicleCard);
     });
+}
+
+function viewHotelDetails(hotelId) {
+    // For now, we'll use the hotels data loaded globally
+    // In a real app, you might want to fetch individual hotel details
+    const hotelData = hotelsData.find(hotel => hotel.id === hotelId);
+    if (!hotelData) return;
+
+    const modal = document.getElementById('hotel-modal');
+    const modalImage = document.getElementById('hotel-modal-image');
+    const modalTitle = document.getElementById('hotel-modal-title');
+    const modalDescription = document.getElementById('hotel-modal-description');
+    const modalPrice = document.getElementById('hotel-modal-price');
+    const modalStars = document.getElementById('hotel-modal-stars');
+    const amenitiesList = document.getElementById('amenities-list');
+
+    modalImage.src = hotelData.imageUrl;
+    modalImage.alt = hotelData.name;
+    modalTitle.textContent = hotelData.name;
+    modalDescription.textContent = hotelData.description;
+    modalPrice.textContent = `$${hotelData.pricePerNight}/noche`;
+    modalStars.innerHTML = generateStars(hotelData.stars);
+
+    // Populate amenities
+    amenitiesList.innerHTML = '';
+    try {
+        const amenities = JSON.parse(hotelData.amenities);
+        amenities.forEach(amenity => {
+            const li = document.createElement('li');
+            li.textContent = amenity;
+            amenitiesList.appendChild(li);
+        });
+    } catch (e) {
+        const li = document.createElement('li');
+        li.textContent = hotelData.amenities;
+        amenitiesList.appendChild(li);
+    }
+
+    modal.style.display = 'block';
+
+    // Close modal functionality
+    const closeBtn = modal.querySelector('.close');
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+function viewVehicleDetails(vehicleId) {
+    if (!vehiclesData) {
+        alert('Vehicle data is still loading. Please wait a moment and try again.');
+        return;
+    }
+    const vehicleData = vehiclesData.find(vehicle => vehicle.id === vehicleId);
+    if (!vehicleData) {
+        alert('Vehicle data not found for ID: ' + vehicleId);
+        return;
+    }
+
+    const modal = document.getElementById('vehicle-modal');
+    const modalImage = document.getElementById('vehicle-modal-image');
+    const modalTitle = document.getElementById('vehicle-modal-title');
+    const modalDescription = document.getElementById('vehicle-modal-description');
+    const modalPrice = document.getElementById('vehicle-modal-price');
+    const vehicleCapacity = document.getElementById('vehicle-capacity');
+    const vehicleTransmission = document.getElementById('vehicle-transmission');
+    const vehicleFuel = document.getElementById('vehicle-fuel');
+
+    modalImage.src = vehicleData.imageUrl;
+    modalImage.alt = vehicleData.name;
+    modalTitle.textContent = vehicleData.name;
+    modalDescription.textContent = vehicleData.description;
+    modalPrice.textContent = `$${vehicleData.pricePerDay}/día`;
+    vehicleCapacity.textContent = vehicleData.capacity;
+    vehicleTransmission.textContent = vehicleData.transmission;
+    vehicleFuel.textContent = vehicleData.fuelType;
+
+    modal.style.display = 'block';
+
+    // Close modal functionality
+    const closeBtn = modal.querySelector('.close');
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
 }
 
 async function createReservation() {
@@ -258,13 +463,15 @@ async function createReservation() {
     const user = JSON.parse(localStorage.getItem('user'));
 
     const reservationData = {
-        userId: user.id,
-        destinationId: parseInt(formData.get('destinationId')),
-        checkInDate: formData.get('checkInDate'),
-        checkOutDate: formData.get('checkOutDate'),
-        numberOfGuests: parseInt(formData.get('numberOfGuests')),
+        user: { id: user.id },
+        destination: { id: parseInt(formData.get('destinationId')) },
+        serviceType: 'destination',
+        startDate: formData.get('checkInDate'),
+        endDate: formData.get('checkOutDate'),
+        numberOfPeople: parseInt(formData.get('numberOfGuests')),
         totalPrice: parseFloat(formData.get('totalPrice')),
-        status: 'PENDING'
+        status: 'pending',
+        specialRequests: formData.get('specialRequests') || ''
     };
 
     try {

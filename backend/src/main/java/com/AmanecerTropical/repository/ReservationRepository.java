@@ -12,7 +12,8 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    List<Reservation> findByUserId(Long userId);
+    @Query("SELECT r FROM Reservation r LEFT JOIN FETCH r.destination LEFT JOIN FETCH r.flight LEFT JOIN FETCH r.hotel LEFT JOIN FETCH r.vehicle WHERE r.user.id = :userId")
+    List<Reservation> findByUserId(@Param("userId") Long userId);
 
     List<Reservation> findByDestinationId(Long destinationId);
 
@@ -20,13 +21,29 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findByUserIdAndStatus(Long userId, String status);
 
-    @Query("SELECT r FROM Reservation r WHERE r.destination.id = :destinationId AND r.status != 'cancelled' AND ((r.startDate <= :endDate AND r.endDate >= :startDate))")
+    @Query("SELECT r FROM Reservation r WHERE " +
+           "(:destinationId IS NULL OR r.destination.id = :destinationId) AND " +
+           "(:flightId IS NULL OR r.flight.id = :flightId) AND " +
+           "(:hotelId IS NULL OR r.hotel.id = :hotelId) AND " +
+           "(:vehicleId IS NULL OR r.vehicle.id = :vehicleId) AND " +
+           "r.status != 'cancelled' AND ((r.startDate <= :endDate AND r.endDate >= :startDate))")
     List<Reservation> findOverlappingReservations(@Param("destinationId") Long destinationId,
+                                                 @Param("flightId") Long flightId,
+                                                 @Param("hotelId") Long hotelId,
+                                                 @Param("vehicleId") Long vehicleId,
                                                  @Param("startDate") LocalDate startDate,
                                                  @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT COUNT(r) FROM Reservation r WHERE r.destination.id = :destinationId AND r.status != 'cancelled' AND ((r.startDate <= :endDate AND r.endDate >= :startDate))")
+    @Query("SELECT COUNT(r) FROM Reservation r WHERE " +
+           "(:destinationId IS NULL OR r.destination.id = :destinationId) AND " +
+           "(:flightId IS NULL OR r.flight.id = :flightId) AND " +
+           "(:hotelId IS NULL OR r.hotel.id = :hotelId) AND " +
+           "(:vehicleId IS NULL OR r.vehicle.id = :vehicleId) AND " +
+           "r.status != 'cancelled' AND ((r.startDate <= :endDate AND r.endDate >= :startDate))")
     long countOverlappingReservations(@Param("destinationId") Long destinationId,
+                                     @Param("flightId") Long flightId,
+                                     @Param("hotelId") Long hotelId,
+                                     @Param("vehicleId") Long vehicleId,
                                      @Param("startDate") LocalDate startDate,
                                      @Param("endDate") LocalDate endDate);
 

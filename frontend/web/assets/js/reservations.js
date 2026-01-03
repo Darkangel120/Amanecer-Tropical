@@ -2,9 +2,23 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Reservations page loaded');
+
     // Check authentication
     const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    console.log('Token:', token ? 'present' : 'missing');
+    console.log('User:', user);
+
     if (!token) {
+        console.log('No token found, redirecting to login');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    if (!user) {
+        console.log('No user found in localStorage, redirecting to login');
         window.location.href = 'login.html';
         return;
     }
@@ -63,22 +77,51 @@ async function loadUserReservations() {
 }
 
 function displayReservations(reservations) {
+    console.log('Displaying reservations:', reservations);
+
     const reservationsContainer = document.querySelector('.reservations-grid');
-    if (!reservationsContainer) return;
+    if (!reservationsContainer) {
+        console.error('Reservations container not found');
+        return;
+    }
 
     reservationsContainer.innerHTML = '';
 
     if (reservations.length === 0) {
+        console.log('No reservations found');
         reservationsContainer.innerHTML = '<p>No tienes reservas activas.</p>';
         return;
     }
 
     reservations.forEach(reservation => {
+        let serviceName = 'Servicio desconocido';
+        let serviceLocation = 'Ubicación desconocida';
+
+        switch (reservation.serviceType) {
+            case 'destination':
+                serviceName = reservation.destination ? reservation.destination.name : 'Destino desconocido';
+                serviceLocation = reservation.destination ? reservation.destination.location : 'Ubicación desconocida';
+                break;
+            case 'flight':
+                serviceName = reservation.flight ? `${reservation.flight.airline} - ${reservation.flight.flightNumber}` : 'Vuelo desconocido';
+                serviceLocation = reservation.flight ? `${reservation.flight.origin} → ${reservation.flight.destination}` : 'Ruta desconocida';
+                break;
+            case 'hotel':
+                serviceName = reservation.hotel ? reservation.hotel.name : 'Hotel desconocido';
+                serviceLocation = reservation.hotel ? reservation.hotel.location : 'Ubicación desconocida';
+                break;
+            case 'vehicle':
+                serviceName = reservation.vehicle ? reservation.vehicle.name : 'Vehículo desconocido';
+                serviceLocation = reservation.vehicle ? `${reservation.vehicle.type} - ${reservation.vehicle.transmission}` : 'Tipo desconocido';
+                break;
+        }
+
         const reservationCard = document.createElement('div');
         reservationCard.className = 'reservation-card';
         reservationCard.innerHTML = `
-            <h3>${reservation.destination ? reservation.destination.name : 'Destino desconocido'}</h3>
-            <p><strong>Ubicación:</strong> ${reservation.destination ? reservation.destination.location : 'Ubicación desconocida'}</p>
+            <h3>${serviceName}</h3>
+            <p><strong>Tipo de servicio:</strong> ${reservation.serviceType}</p>
+            <p><strong>Ubicación/Detalles:</strong> ${serviceLocation}</p>
             <p><strong>Fecha de inicio:</strong> ${new Date(reservation.startDate).toLocaleDateString()}</p>
             <p><strong>Fecha de fin:</strong> ${new Date(reservation.endDate).toLocaleDateString()}</p>
             <p><strong>Número de personas:</strong> ${reservation.numberOfPeople}</p>

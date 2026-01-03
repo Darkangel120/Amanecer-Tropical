@@ -44,6 +44,7 @@ public class Destination {
     @NotBlank
     private String itinerary; // JSON string of itinerary
 
+    @Column(columnDefinition = "SMALLINT DEFAULT 1")
     private boolean active = true;
 
     // Constructors

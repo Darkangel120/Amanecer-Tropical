@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - Amanecer Tropical</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon.png">
+    <link rel="stylesheet" href="../assets/css/general.css">
+    <link rel="stylesheet" href="../assets/css/services.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="../assets/favicon.png" alt="Amanecer Tropical Logo" class="logo-icon">
+            <h1>Amanecer Tropical</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="../user/dashboard.html">Inicio</a></li>
+            <li><a href="services.html">Servicios</a></li>
+            <li><a href="../user/reservations.html">Reservas</a></li>
+        </ul>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+
+    <nav class="breadcrumb">
+        <ul>
+            <li><a href="../user/dashboard.html">Inicio</a></li>
+            <li class="current">Servicios</li>
+        </ul>
+    </nav>
+
+    <section class="services-tabs">
+        <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="packages">Paquetes</button>
+            <button class="tab-btn" data-tab="flights">Vuelos</button>
+            <button class="tab-btn" data-tab="hotels">Hoteles</button>
+            <button class="tab-btn" data-tab="vehicles">Vehículos</button>
+        </div>
+
+        <div id="packages" class="tab-content active">
+            <div class="services-grid" id="packages-grid">
+                <!-- Packages will be loaded dynamically -->
+            </div>
+        </div>
+
+        <div id="flights" class="tab-content">
+            <div class="services-grid" id="flights-grid">
+                <!-- Flights will be loaded dynamically -->
+            </div>
+        </div>
+
+        <div id="hotels" class="tab-content">
+            <div class="services-grid" id="hotels-grid">
+                <!-- Hotels will be loaded dynamically -->
+            </div>
+        </div>
+
+        <div id="vehicles" class="tab-content">
+            <div class="services-grid" id="vehicles-grid">
+                <!-- Vehicles will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Amanecer Tropical. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Modal for Package Details -->
+    <div id="package-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="modal-image" src="" alt="Package Image">
+            <h2 id="modal-title"></h2>
+            <p id="modal-description"></p>
+            <div id="modal-price" class="service-price"></div>
+            <div>
+            <div class="modal-sections">
+                <div class="modal-section">
+                    <h3>Lo que incluye:</h3>
+                    <ul id="includes-list"></ul>
+                </div>
+                <div class="modal-section">
+                    <h3>Itinerario:</h3>
+                    <ul id="itinerary-list"></ul>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Hotel Details -->
+    <div id="hotel-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="hotel-modal-image" src="" alt="Hotel Image">
+            <h2 id="hotel-modal-title"></h2>
+            <p id="hotel-modal-description"></p>
+            <div id="hotel-modal-price" class="service-price"></div>
+            <div id="hotel-modal-stars" class="hotel-stars"></div>
+            <div class="modal-sections">
+                <div class="modal-section">
+                    <h3>Comodidades:</h3>
+                    <ul id="amenities-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Vehicle Details -->
+    <div id="vehicle-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="vehicle-modal-image" src="" alt="Vehicle Image">
+            <h2 id="vehicle-modal-title"></h2>
+            <p id="vehicle-modal-description"></p>
+            <div id="vehicle-modal-price" class="service-price"></div>
+            <div class="modal-sections">
+                <div class="modal-section">
+                    <h3>Especificaciones:</h3>
+                    <ul>
+                        <li><strong>Capacidad:</strong> <span id="vehicle-capacity"></span></li>
+                        <li><strong>Transmisión:</strong> <span id="vehicle-transmission"></span></li>
+                        <li><strong>Combustible:</strong> <span id="vehicle-fuel"></span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/general.js"></script>
+    <script src="../assets/js/services.js"></script>
+</body>
+</html>

@@ -1,16 +1,15 @@
 package com.AmanecerTropical.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reservations")
-public class Reservation {
+@Table(name = "reviews")
+public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,53 +40,29 @@ public class Reservation {
     private String serviceType; // destination, flight, hotel, vehicle
 
     @NotNull
-    private LocalDate startDate;
-
-    @NotNull
-    private LocalDate endDate;
-
-    @NotNull
-    @Positive
-    private Integer numberOfPeople;
-
-    @NotNull
-    @Positive
-    private BigDecimal totalPrice;
+    @Min(1)
+    @Max(5)
+    private Integer rating;
 
     @NotBlank
-    private String status; // pending, confirmed, cancelled, completed
-
     @Column(length = 1000)
-    private String specialRequests;
+    private String comment;
 
     private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 
     // Constructors
-    public Reservation() {}
+    public Review() {}
 
-    public Reservation(User user, Destination destination, LocalDate startDate,
-                      LocalDate endDate, Integer numberOfPeople, BigDecimal totalPrice,
-                      String status, String serviceType) {
+    public Review(User user, Destination destination, Integer rating, String comment, String serviceType) {
         this.user = user;
         this.destination = destination;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.numberOfPeople = numberOfPeople;
-        this.totalPrice = totalPrice;
-        this.status = status;
+        this.rating = rating;
+        this.comment = comment;
         this.serviceType = serviceType;
     }
 
@@ -113,27 +88,12 @@ public class Reservation {
     public String getServiceType() { return serviceType; }
     public void setServiceType(String serviceType) { this.serviceType = serviceType; }
 
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public Integer getRating() { return rating; }
+    public void setRating(Integer rating) { this.rating = rating; }
 
-    public LocalDate getEndDate() { return endDate; }
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
-
-    public Integer getNumberOfPeople() { return numberOfPeople; }
-    public void setNumberOfPeople(Integer numberOfPeople) { this.numberOfPeople = numberOfPeople; }
-
-    public BigDecimal getTotalPrice() { return totalPrice; }
-    public void setTotalPrice(BigDecimal totalPrice) { this.totalPrice = totalPrice; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public String getSpecialRequests() { return specialRequests; }
-    public void setSpecialRequests(String specialRequests) { this.specialRequests = specialRequests; }
+    public String getComment() { return comment; }
+    public void setComment(String comment) { this.comment = comment; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

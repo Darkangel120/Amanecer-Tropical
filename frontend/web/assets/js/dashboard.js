@@ -101,10 +101,17 @@ function displayDestinations(destinations) {
 
     destinationsContainer.innerHTML = '';
 
+    if (destinations.length === 0) {
+        destinationsContainer.innerHTML = '<p>No hay destinos disponibles en este momento.</p>';
+        return;
+    }
+
     destinations.forEach(destination => {
-        // Parse includes and itinerary if they are strings
-        let includes = destination.includes;
-        let itinerary = destination.itinerary;
+        // Handle includes and itinerary - ensure they are arrays
+        let includes = destination.includes || [];
+        let itinerary = destination.itinerary || [];
+
+        // Parse if they are JSON strings
         if (typeof includes === 'string') {
             try {
                 includes = JSON.parse(includes);
@@ -120,6 +127,10 @@ function displayDestinations(destinations) {
             }
         }
 
+        // Ensure they are arrays
+        if (!Array.isArray(includes)) includes = [];
+        if (!Array.isArray(itinerary)) itinerary = [];
+
         const destinationCard = document.createElement('div');
         destinationCard.className = 'destination-card';
         destinationCard.innerHTML = `
@@ -131,18 +142,20 @@ function displayDestinations(destinations) {
                 <p class="duration"><strong>Duración:</strong> ${destination.durationDays} días</p>
                 <p class="description"><strong>Descripción:</strong> ${destination.description}</p>
                 <p class="price"><strong>Precio:</strong> $${destination.price}</p>
+                ${includes.length > 0 ? `
                 <div class="includes">
                     <strong>Incluye:</strong>
                     <ul>
                         ${includes.map(item => `<li>${item}</li>`).join('')}
                     </ul>
-                </div>
+                </div>` : ''}
+                ${itinerary.length > 0 ? `
                 <div class="itinerary">
                     <strong>Itinerario:</strong>
                     <ol>
                         ${itinerary.map(day => `<li>${day}</li>`).join('')}
                     </ol>
-                </div>
+                </div>` : ''}
                 <button class="btn-book" data-id="${destination.id}">Reservar</button>
             </div>
         `;

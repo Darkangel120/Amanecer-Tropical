@@ -97,12 +97,15 @@ public class ReservationController {
 
     @GetMapping("/overlapping")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Reservation>> findOverlappingReservations(@RequestParam Long destinationId,
+    public ResponseEntity<List<Reservation>> findOverlappingReservations(@RequestParam(required = false) Long destinationId,
+                                                                        @RequestParam(required = false) Long flightId,
+                                                                        @RequestParam(required = false) Long hotelId,
+                                                                        @RequestParam(required = false) Long vehicleId,
                                                                         @RequestParam String checkInDate,
                                                                         @RequestParam String checkOutDate) {
         LocalDate checkIn = LocalDate.parse(checkInDate);
         LocalDate checkOut = LocalDate.parse(checkOutDate);
-        List<Reservation> overlappingReservations = reservationService.getOverlappingReservations(destinationId, checkIn, checkOut);
+        List<Reservation> overlappingReservations = reservationService.getOverlappingReservations(destinationId, flightId, hotelId, vehicleId, checkIn, checkOut);
         return ResponseEntity.ok(overlappingReservations);
     }
 }
