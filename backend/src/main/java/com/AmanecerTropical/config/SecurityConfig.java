@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/users/register", "/api/users/email/*").permitAll()
                                 .requestMatchers("/api/destinations/**", "/api/flights/**", "/api/hotels/**", "/api/vehicles/**", "/api/notifications/**").permitAll()
+                                .requestMatchers("/uploads/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

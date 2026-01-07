@@ -1,3 +1,53 @@
+// Toast notification system
+function showToast(message, type = 'info', duration = 4000) {
+    // Create toast container if it doesn't exist
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    // Set icon based on type
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+
+    toast.innerHTML = `
+        <i class="toast-icon ${icons[type] || icons.info}"></i>
+        <div class="toast-content">${message}</div>
+        <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+    `;
+
+    // Add to container
+    container.appendChild(toast);
+
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    // Auto remove after duration
+    const removeToast = () => {
+        toast.classList.add('fade-out');
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.parentElement.removeChild(toast);
+            }
+        }, 300);
+    };
+
+    setTimeout(removeToast, duration);
+
+    // Allow manual removal on click
+    toast.addEventListener('click', removeToast);
+}
+
 const navSlide = () => {
     const burger = document.querySelector('.burger');
     const nav = document.querySelector('.nav-links');
@@ -171,7 +221,7 @@ async function loadDestinations() {
             const destinations = await response.json();
             displayDestinations(destinations);
         } else {
-            console.error('Error loading destinations');
+            console.error('Error al Cargar los Destinos');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -206,7 +256,7 @@ async function loadPackages() {
             const destinations = await response.json();
             displayPackages(destinations);
         } else {
-            console.error('Error loading packages');
+            console.error('Error al Cargar los Paquetes');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -273,15 +323,14 @@ const handleForms = () => {
                     const data = await response.json();
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
-                    alert('Inicio de sesión exitoso');
                     window.location.href = 'dashboard.html';
                 } else {
                     const error = await response.text();
-                    alert('Error en el inicio de sesión: ' + error);
+                    showToast('Error en el inicio de sesión: ' + error, 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error de conexión. Asegúrate de que el backend esté ejecutándose.');
+                showToast('Error de conexión.', 'error');
             }
         });
     }
@@ -290,16 +339,47 @@ const handleForms = () => {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(registerForm);
+
+            // Helper function to get value or null if empty
+            const getValueOrNull = (key) => {
+                const value = formData.get(key);
+                return value && value.trim() !== '' ? value : null;
+            };
+
+            // Check required fields
+            const requiredFields = ['name', 'email', 'password', 'phone', 'birthdate', 'gender', 'nationality', 'address', 'city', 'state', 'cedula'];
+            for (const field of requiredFields) {
+                if (!formData.get(field) || formData.get(field).trim() === '') {
+                    showToast(`El campo ${field} es obligatorio.`, 'warning');
+                    return;
+                }
+            }
+
             const userData = {
                 name: formData.get('name'),
                 email: formData.get('email'),
                 password: formData.get('password'),
                 phone: formData.get('phone'),
+                birthdate: formData.get('birthdate'),
+                gender: formData.get('gender'),
+                nationality: formData.get('nationality'),
+                address: formData.get('address'),
+                city: formData.get('city'),
+                state: formData.get('state'),
+                cedula: formData.get('cedula'),
+                passport: getValueOrNull('passport'),
+                passportExpiry: getValueOrNull('passport-expiry'),
+                emergencyName: getValueOrNull('emergency-name'),
+                emergencyPhone: getValueOrNull('emergency-phone'),
+                emergencyRelationship: getValueOrNull('emergency-relationship'),
+                travelStyle: getValueOrNull('travel-style'),
+                dietaryRestrictions: getValueOrNull('dietary-restrictions'),
+                specialNeeds: getValueOrNull('special-needs'),
                 role: 'USER'
             };
 
             try {
-                const response = await fetch(`${API_BASE_URL}/users`, {
+                const response = await fetch(`${API_BASE_URL}/users/register`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -308,15 +388,15 @@ const handleForms = () => {
                 });
 
                 if (response.ok) {
-                    alert('Registro exitoso. Ahora puedes iniciar sesión.');
+                    showToast('Registro exitoso. Ahora puedes iniciar sesión.', 'success');
                     window.location.href = 'login.html';
                 } else {
                     const error = await response.text();
-                    alert('Error en el registro: ' + error);
+                    showToast('Error en el registro: ' + error, 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error de conexión. Asegúrate de que el backend esté ejecutándose.');
+                showToast('Error de conexión.', 'error');
             }
         });
     }
@@ -381,7 +461,7 @@ const handleMultiStepForm = () => {
                 showStep(currentStep);
             }
         } else {
-            alert('Por favor, complete todos los campos requeridos antes de continuar.');
+            showToast('Por favor, complete todos los campos requeridos antes de continuar.', 'warning');
         }
     });
 

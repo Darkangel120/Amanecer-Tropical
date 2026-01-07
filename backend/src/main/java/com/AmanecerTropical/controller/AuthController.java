@@ -49,8 +49,15 @@ public class AuthController {
             } else {
                 return ResponseEntity.badRequest().body("User not found");
             }
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            // Log the specific authentication exception
+            System.err.println("Authentication failed for email: " + loginRequest.getEmail() + ", error: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Credenciales inválidas");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Invalid credentials");
+            // Log other exceptions
+            System.err.println("Unexpected error during login for email: " + loginRequest.getEmail() + ", error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error interno del servidor");
         }
     }
 

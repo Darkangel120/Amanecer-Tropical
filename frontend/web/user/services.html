@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon.png">
     <link rel="stylesheet" href="../assets/css/general.css">
     <link rel="stylesheet" href="../assets/css/services.css">
+    <link rel="stylesheet" href="../assets/css/filter-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -35,9 +36,30 @@
             <li class="current">Servicios</li>
         </ul>
     </nav>
+    
+    <!-- Reservation Sidebar -->
+    <div id="reservation-sidebar" class="reservation-sidebar">
+        <div class="sidebar-header">
+            <h3>Mi Reserva</h3>
+            <button id="clear-reservation" class="btn-clear">Limpiar</button>
+        </div>
+        <div id="reservation-items" class="reservation-items">
+            <!-- Reservation items will be added here -->
+        </div>
+        <div class="sidebar-footer">
+            <div class="total-price">
+                <strong>Total: $<span id="total-price">0</span></strong>
+            </div>
+            <button id="confirm-reservation" class="btn-confirm">Confirmar Reserva</button>
+        </div>
+    </div>
 
     <section class="services-tabs">
         <div class="tab-buttons">
+            <button id="toggle-sidebar" class="btn-toggle-sidebar">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cart-count">0</span>
+            </button>
             <button class="tab-btn active" data-tab="packages">Paquetes</button>
             <button class="tab-btn" data-tab="flights">Vuelos</button>
             <button class="tab-btn" data-tab="hotels">Hoteles</button>
@@ -45,24 +67,50 @@
         </div>
 
         <div id="packages" class="tab-content active">
+            <div class="filters">
+                <input type="text" id="packages-search" placeholder="Buscar por palabras clave...">
+                <button id="packages-filter-btn" class="btn">Buscar</button>
+            </div>
             <div class="services-grid" id="packages-grid">
                 <!-- Packages will be loaded dynamically -->
             </div>
         </div>
 
         <div id="flights" class="tab-content">
+            <div class="filters">
+                <select id="flights-origin">
+                    <option value="">Todos los origenes</option>
+                </select>
+                <select id="flights-destination">
+                    <option value="">Todos los destinos</option>
+                </select>
+                <button id="flights-filter-btn" class="btn">Buscar</button>
+            </div>
             <div class="services-grid" id="flights-grid">
                 <!-- Flights will be loaded dynamically -->
             </div>
         </div>
 
         <div id="hotels" class="tab-content">
+            <div class="filters">
+                <input type="text" id="hotels-name" placeholder="Nombre del hotel">
+                <select id="hotels-destination">
+                    <option value="">Todos los destinos</option>
+                </select>
+                <button id="hotels-filter-btn" class="btn">Buscar</button>
+            </div>
             <div class="services-grid" id="hotels-grid">
                 <!-- Hotels will be loaded dynamically -->
             </div>
         </div>
 
         <div id="vehicles" class="tab-content">
+            <div class="filters">
+                <select id="vehicles-type">
+                    <option value="">Todos los tipos</option>
+                </select>
+                <button id="vehicles-filter-btn" class="btn">Buscar</button>
+            </div>
             <div class="services-grid" id="vehicles-grid">
                 <!-- Vehicles will be loaded dynamically -->
             </div>
@@ -134,6 +182,8 @@
             </div>
         </div>
     </div>
+
+
 
     <script src="../assets/js/general.js"></script>
     <script src="../assets/js/services.js"></script>

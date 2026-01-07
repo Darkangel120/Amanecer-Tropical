@@ -1,3 +1,181 @@
+/* Reservation Sidebar */
+.reservation-sidebar {
+    position: fixed;
+    left: -320px;
+    top: 140px;
+    width: 300px;
+    height: calc(100vh - 140px);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    padding: 1rem;
+    overflow-y: auto;
+    z-index: 100;
+    border-radius: 0 15px 15px 0;
+    transition: left 0.3s ease;
+}
+
+.reservation-sidebar.show {
+    left: 0;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #ff7e5f;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+}
+
+.btn-clear {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+}
+
+.btn-clear:hover {
+    background: #c82333;
+}
+
+.reservation-items {
+    flex-grow: 1;
+    margin-bottom: 1rem;
+    height: calc(100% - 180px);
+    overflow-y: auto;
+}
+
+.reservation-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.reservation-item h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.reservation-item p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.reservation-item .price {
+    font-weight: bold;
+    color: #ff7e5f;
+}
+
+.remove-item {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-item:hover {
+    background: #c82333;
+}
+
+.sidebar-footer {
+    border-top: 2px solid #ff7e5f;
+    padding-top: 1rem;
+}
+
+.total-price {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.btn-confirm {
+    width: 100%;
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+
+.btn-confirm:hover {
+    background: #218838;
+}
+
+.btn-confirm:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Toggle Sidebar Button */
+.btn-toggle-sidebar {
+    position: fixed;
+    top: 50px;
+    left: 20px;
+    background: #ff7e5f;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.3s ease;
+    z-index: 1000;
+}
+
+.btn-toggle-sidebar:hover {
+    background: #e66b4f;
+}
+
+.cart-count {
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+/* Adjust services-tabs for sidebar */
+.reservation-sidebar.show ~ .services-tabs {
+    margin-left: 320px;
+}
+
 /* Services Specific Styles */
 .services-hero {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -9,7 +187,7 @@
     text-align: center;
     color: white;
     position: relative;
-    margin-top: 80px; /* Adjust for fixed navbar */
+    margin-top: 112px; /* Adjust for fixed navbar and breadcrumb */
 }
 
 .services-hero::before {
@@ -39,39 +217,40 @@
     padding: 2rem;
     text-align: center;
     background: rgba(255, 255, 255, 0.9);
-    margin: 2rem;
+    margin: 10rem 2rem 2rem 2rem;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
 }
 
 .tab-buttons {
+    position: fixed;
+    top: 0px;
+    left: 0px;
     display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
+    z-index: 1000;
+    flex-direction: row;
 }
 
 .tab-btn {
     padding: 0.8rem 1.5rem;
-    background: transparent;
     color: #ff7e5f;
-    border: 2px solid #ff7e5f;
-    border-radius: 25px;
+    border-radius: 10% 0% 0% 0%;
     font-weight: 500;
+    border: none;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .tab-btn.active {
-    background: #ff7e5f;
-    color: white;
+    border-radius: 10% 0% 0% 0%;
+    background: white;
+    color: grey;
 }
 
 .tab-btn:hover {
-    background: #ff7e5f;
-    color: white;
+    background: white;
+    color: grey;
     transform: translateY(-2px);
 }
 
@@ -123,6 +302,56 @@
     margin-bottom: 1rem;
     color: #555;
     line-height: 1.5;
+}
+
+/* Flight specific styles */
+.flight-details {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.flight-details li {
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+}
+
+.flight-details li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.flight-details li strong {
+    color: #ff7e5f;
+    font-weight: 600;
+    min-width: 140px;
+    display: inline-block;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.flight-details li strong::after {
+    content: ':';
+    margin-right: 0.5rem;
+    color: #333;
+}
+
+.flight-details li::before {
+    content: '\f072';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    color: #ff7e5f;
 }
 
 .service-price {

@@ -1,0 +1,86 @@
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: flex-end;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 15px;
+}
+
+.filters input[type="text"],
+.filters select {
+    padding: 0.8rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    min-width: 200px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.filters input[type="text"]:focus,
+.filters select:focus {
+    outline: none;
+    border-color: #ff7e5f;
+    box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+    transform: translateY(-1px);
+}
+
+.filters select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=''http://www.w3.org/2000/svg'' viewBox=''0 0 24 24'' fill=''none'' stroke=''%23666'' stroke-width=''2'' stroke-linecap=''round'' stroke-linejoin=''round''%3e%3cpolyline points=''6,9 12,15 18,9''%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+    padding-right: 3rem;
+    appearance: none;
+}
+
+.filters .btn {
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 126, 95, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filters .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 126, 95, 0.4);
+    background: linear-gradient(135deg, #e66b4f 0%, #e8a06c 100%);
+}
+
+.filters .btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(255, 126, 95, 0.3);
+}
+
+/* Responsive filter styles */
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+        gap: 0.8rem;
+        padding: 1rem;
+    }
+
+    .filters input[type="text"],
+    .filters select {
+        min-width: 100%;
+        width: 100%;
+    }
+
+    .filters .btn {
+        width: 100%;
+        padding: 1rem;
+    }
+}

@@ -163,15 +163,39 @@ async function loadUserProfileInfo() {
 
             // Update profile button avatar
             const profileAvatar = document.querySelector('.profile-avatar');
-            if (profileAvatar && freshUserData.profileImageUrl) {
-                profileAvatar.src = freshUserData.profileImageUrl;
+            if (profileAvatar) {
+                if (freshUserData.profilePicture && freshUserData.profilePicture.startsWith('/uploads/')) {
+                    // Profile picture is a file path from backend
+                    profileAvatar.src = `http://localhost:8080${freshUserData.profilePicture}`;
+                    profileAvatar.onerror = function() {
+                        // If profile picture fails to load, show default
+                        profileAvatar.src = '../assets/img/default-profile.png';
+                    };
+                } else if (freshUserData.profilePicture && freshUserData.profilePicture.startsWith('data:image')) {
+                    // Profile picture is base64 (fallback for old data)
+                    profileAvatar.src = freshUserData.profilePicture;
+                } else {
+                    // No profile picture, show default
+                    profileAvatar.src = '../assets/img/default-profile.png';
+                }
             }
 
             // Update profile menu information
             const profileAvatarLarge = document.querySelector('.profile-avatar-large');
             if (profileAvatarLarge) {
-                if (freshUserData.profileImageUrl) {
-                    profileAvatarLarge.src = freshUserData.profileImageUrl;
+                if (freshUserData.profilePicture && freshUserData.profilePicture.startsWith('/uploads/')) {
+                    // Profile picture is a file path from backend
+                    profileAvatarLarge.src = `http://localhost:8080${freshUserData.profilePicture}`;
+                    profileAvatarLarge.onerror = function() {
+                        // If profile picture fails to load, show default
+                        profileAvatarLarge.src = '../assets/img/default-profile.png';
+                    };
+                } else if (freshUserData.profilePicture && freshUserData.profilePicture.startsWith('data:image')) {
+                    // Profile picture is base64 (fallback for old data)
+                    profileAvatarLarge.src = freshUserData.profilePicture;
+                } else {
+                    // No profile picture, show default
+                    profileAvatarLarge.src = '../assets/img/default-profile.png';
                 }
             }
 
@@ -358,15 +382,39 @@ function updateUIFromLocalStorage() {
 
     // Update profile button avatar
     const profileAvatar = document.querySelector('.profile-avatar');
-    if (profileAvatar && user.profileImageUrl) {
-        profileAvatar.src = user.profileImageUrl;
+    if (profileAvatar) {
+        if (user.profilePicture && user.profilePicture.startsWith('/uploads/')) {
+            // Profile picture is a file path from backend
+            profileAvatar.src = `http://localhost:8080${user.profilePicture}`;
+            profileAvatar.onerror = function() {
+                // If profile picture fails to load, show default
+                profileAvatar.src = '../assets/img/default-profile.png';
+            };
+        } else if (user.profilePicture && user.profilePicture.startsWith('data:image')) {
+            // Profile picture is base64 (fallback for old data)
+            profileAvatar.src = user.profilePicture;
+        } else {
+            // No profile picture, show default
+            profileAvatar.src = '../assets/img/default-profile.png';
+        }
     }
 
     // Update profile menu information
     const profileAvatarLarge = document.querySelector('.profile-avatar-large');
     if (profileAvatarLarge) {
-        if (user.profileImageUrl) {
-            profileAvatarLarge.src = user.profileImageUrl;
+        if (user.profilePicture && user.profilePicture.startsWith('/uploads/')) {
+            // Profile picture is a file path from backend
+            profileAvatarLarge.src = `http://localhost:8080${user.profilePicture}`;
+            profileAvatarLarge.onerror = function() {
+                // If profile picture fails to load, show default
+                profileAvatarLarge.src = '../assets/img/default-profile.png';
+            };
+        } else if (user.profilePicture && user.profilePicture.startsWith('data:image')) {
+            // Profile picture is base64 (fallback for old data)
+            profileAvatarLarge.src = user.profilePicture;
+        } else {
+            // No profile picture, show default
+            profileAvatarLarge.src = '../assets/img/default-profile.png';
         }
     }
 

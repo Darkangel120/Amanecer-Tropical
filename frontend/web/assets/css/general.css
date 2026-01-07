@@ -342,7 +342,10 @@ footer {
 .breadcrumb {
     background: rgba(255, 255, 255, 0.9);
     padding: 1rem 2rem;
-    margin-top: 80px;
+    position: fixed;
+    top: 80px;
+    width: 100%;
+    z-index: 999;
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(0,0,0,0.1);
 }

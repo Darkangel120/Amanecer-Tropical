@@ -1,91 +1,35 @@
-package com.AmanecerTropical.entity;
+package com.amanecertropical.desktop.models;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "users")
 public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank
-    @Size(max = 100)
     private String name;
-
-    @NotNull
     private LocalDate birthdate;
-
-    @NotBlank
     private String gender;
-
-    @NotBlank
     private String nationality;
-
-    @NotBlank
-    @Size(max = 255)
     private String address;
-
-    @NotBlank
-    @Size(max = 100)
     private String city;
-
-    @NotBlank
     private String state;
-
-    @NotBlank
-    @Size(max = 20)
     private String phone;
-
-    @NotBlank
-    @Email
-    @Column(unique = true)
     private String email;
-
-    @NotBlank
-    @Size(max = 20)
     private String cedula;
-
-    @Size(max = 20)
     private String passport;
-
     private LocalDate passportExpiry;
-
-    @Size(max = 100)
     private String emergencyName;
-
-    @Size(max = 20)
     private String emergencyPhone;
-
-    @Size(max = 50)
     private String emergencyRelationship;
-
-    @Size(max = 50)
     private String travelStyle;
-
-    @Size(max = 255)
     private String dietaryRestrictions;
-
-    @Column(length = 1000)
     private String specialNeeds;
-
-    @Column(length = 50000)
-    private String profilePicture;
-
-    @NotBlank
-    @Size(min = 6)
     private String password;
+    private UserRole role;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role = UserRole.USER;
+    public enum UserRole {
+        USER, ADMIN
+    }
 
-    // Constructors
+    // Constructors, getters, setters
     public User() {}
 
     public User(String name, LocalDate birthdate, String gender, String nationality,
@@ -104,7 +48,7 @@ public class User {
         this.password = password;
     }
 
-    // Getters and Setters
+    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -162,16 +106,9 @@ public class User {
     public String getSpecialNeeds() { return specialNeeds; }
     public void setSpecialNeeds(String specialNeeds) { this.specialNeeds = specialNeeds; }
 
-    public String getProfilePicture() { return profilePicture; }
-    public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
-
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
     public UserRole getRole() { return role; }
     public void setRole(UserRole role) { this.role = role; }
-
-    public enum UserRole {
-        USER, ADMIN
-    }
 }
