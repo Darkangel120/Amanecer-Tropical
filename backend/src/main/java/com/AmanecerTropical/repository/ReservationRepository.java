@@ -12,43 +12,43 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    @Query("SELECT r FROM Reservation r LEFT JOIN FETCH r.destination LEFT JOIN FETCH r.flight LEFT JOIN FETCH r.hotel LEFT JOIN FETCH r.vehicle WHERE r.user.id = :userId")
-    List<Reservation> findByUserId(@Param("userId") Long userId);
+    @Query("SELECT r FROM Reservation r LEFT JOIN FETCH r.paquete LEFT JOIN FETCH r.vuelo LEFT JOIN FETCH r.hotel LEFT JOIN FETCH r.vehiculo WHERE r.usuario.id = :usuarioId")
+    List<Reservation> findByUsuarioId(@Param("usuarioId") Long usuarioId);
 
-    List<Reservation> findByDestinationId(Long destinationId);
+    List<Reservation> findByPaqueteId(Long paqueteId);
 
-    List<Reservation> findByStatus(String status);
+    List<Reservation> findByEstado(String estado);
 
-    List<Reservation> findByUserIdAndStatus(Long userId, String status);
+    List<Reservation> findByUsuarioIdAndEstado(Long usuarioId, String estado);
 
     @Query("SELECT r FROM Reservation r WHERE " +
-           "(:destinationId IS NULL OR r.destination.id = :destinationId) AND " +
-           "(:flightId IS NULL OR r.flight.id = :flightId) AND " +
+           "(:paqueteId IS NULL OR r.paquete.id = :paqueteId) AND " +
+           "(:vueloId IS NULL OR r.vuelo.id = :vueloId) AND " +
            "(:hotelId IS NULL OR r.hotel.id = :hotelId) AND " +
-           "(:vehicleId IS NULL OR r.vehicle.id = :vehicleId) AND " +
-           "r.status != 'cancelled' AND ((r.startDate <= :endDate AND r.endDate >= :startDate))")
-    List<Reservation> findOverlappingReservations(@Param("destinationId") Long destinationId,
-                                                 @Param("flightId") Long flightId,
+           "(:vehiculoId IS NULL OR r.vehiculo.id = :vehiculoId) AND " +
+           "r.estado != 'cancelado' AND ((r.fechaInicio <= :fechaFin AND r.fechaFin >= :fechaInicio))")
+    List<Reservation> findOverlappingReservations(@Param("paqueteId") Long paqueteId,
+                                                 @Param("vueloId") Long vueloId,
                                                  @Param("hotelId") Long hotelId,
-                                                 @Param("vehicleId") Long vehicleId,
-                                                 @Param("startDate") LocalDate startDate,
-                                                 @Param("endDate") LocalDate endDate);
+                                                 @Param("vehiculoId") Long vehiculoId,
+                                                 @Param("fechaInicio") LocalDate fechaInicio,
+                                                 @Param("fechaFin") LocalDate fechaFin);
 
     @Query("SELECT COUNT(r) FROM Reservation r WHERE " +
-           "(:destinationId IS NULL OR r.destination.id = :destinationId) AND " +
-           "(:flightId IS NULL OR r.flight.id = :flightId) AND " +
+           "(:paqueteId IS NULL OR r.paquete.id = :paqueteId) AND " +
+           "(:vueloId IS NULL OR r.vuelo.id = :vueloId) AND " +
            "(:hotelId IS NULL OR r.hotel.id = :hotelId) AND " +
-           "(:vehicleId IS NULL OR r.vehicle.id = :vehicleId) AND " +
-           "r.status != 'cancelled' AND ((r.startDate <= :endDate AND r.endDate >= :startDate))")
-    long countOverlappingReservations(@Param("destinationId") Long destinationId,
-                                     @Param("flightId") Long flightId,
+           "(:vehiculoId IS NULL OR r.vehiculo.id = :vehiculoId) AND " +
+           "r.estado != 'cancelado' AND ((r.fechaInicio <= :fechaFin AND r.fechaFin >= :fechaInicio))")
+    long countOverlappingReservations(@Param("paqueteId") Long paqueteId,
+                                     @Param("vueloId") Long vueloId,
                                      @Param("hotelId") Long hotelId,
-                                     @Param("vehicleId") Long vehicleId,
-                                     @Param("startDate") LocalDate startDate,
-                                     @Param("endDate") LocalDate endDate);
+                                     @Param("vehiculoId") Long vehiculoId,
+                                     @Param("fechaInicio") LocalDate fechaInicio,
+                                     @Param("fechaFin") LocalDate fechaFin);
 
-    List<Reservation> findByStartDateBetween(LocalDate start, LocalDate end);
+    List<Reservation> findByFechaInicioBetween(LocalDate start, LocalDate end);
 
-    @Query("SELECT r FROM Reservation r WHERE r.createdAt >= :startDate ORDER BY r.createdAt DESC")
-    List<Reservation> findRecentReservations(@Param("startDate") LocalDate startDate);
+    @Query("SELECT r FROM Reservation r WHERE r.fechaCreacion >= :fechaInicio ORDER BY r.fechaCreacion DESC")
+    List<Reservation> findRecentReservations(@Param("fechaInicio") LocalDate fechaInicio);
 }

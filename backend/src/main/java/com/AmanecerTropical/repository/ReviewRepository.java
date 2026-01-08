@@ -8,9 +8,12 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    List<Review> findByDestinationId(Long destinationId);
-    List<Review> findByFlightId(Long flightId);
+    List<Review> findByPaqueteId(Long paqueteId);
+    List<Review> findByVueloId(Long vueloId);
     List<Review> findByHotelId(Long hotelId);
-    List<Review> findByVehicleId(Long vehicleId);
-    List<Review> findByUserId(Long userId);
+    List<Review> findByVehiculoId(Long vehiculoId);
+    List<Review> findByUsuarioId(Long usuarioId);
+    
+    // Para estadísticas
+    List<Review> findByTipoServicio(String tipoServicio);
 }

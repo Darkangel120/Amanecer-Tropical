@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "resenas")
 public class Review {
 
     @Id
@@ -17,83 +17,85 @@ public class Review {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private User usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "destination_id")
-    private Destination destination;
+    @JoinColumn(name = "paquete_id")
+    private Package paquete;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "flight_id")
-    private Flight flight;
+    @JoinColumn(name = "vuelo_id")
+    private Flight vuelo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hotel_id")
     private Hotel hotel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicle_id")
-    private Vehicle vehicle;
+    @JoinColumn(name = "vehiculo_id")
+    private Vehicle vehiculo;
 
     @NotBlank
-    private String serviceType; // destination, flight, hotel, vehicle
+    @Column(name = "tipo_servicio")
+    private String tipoServicio; // paquete, vuelo, hotel, vehiculo
 
     @NotNull
     @Min(1)
     @Max(5)
-    private Integer rating;
+    private Integer calificacion;
 
     @NotBlank
-    @Column(length = 1000)
-    private String comment;
+    @Column(columnDefinition = "TEXT")
+    private String comentario;
 
-    private LocalDateTime createdAt;
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        fechaCreacion = LocalDateTime.now();
     }
 
     // Constructors
     public Review() {}
 
-    public Review(User user, Destination destination, Integer rating, String comment, String serviceType) {
-        this.user = user;
-        this.destination = destination;
-        this.rating = rating;
-        this.comment = comment;
-        this.serviceType = serviceType;
+    public Review(User usuario, Package paquete, Integer calificacion, String comentario, String tipoServicio) {
+        this.usuario = usuario;
+        this.paquete = paquete;
+        this.calificacion = calificacion;
+        this.comentario = comentario;
+        this.tipoServicio = tipoServicio;
     }
 
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public User getUsuario() { return usuario; }
+    public void setUsuario(User usuario) { this.usuario = usuario; }
 
-    public Destination getDestination() { return destination; }
-    public void setDestination(Destination destination) { this.destination = destination; }
+    public Package getPaquete() { return paquete; }
+    public void setPaquete(Package paquete) { this.paquete = paquete; }
 
-    public Flight getFlight() { return flight; }
-    public void setFlight(Flight flight) { this.flight = flight; }
+    public Flight getVuelo() { return vuelo; }
+    public void setVuelo(Flight vuelo) { this.vuelo = vuelo; }
 
     public Hotel getHotel() { return hotel; }
     public void setHotel(Hotel hotel) { this.hotel = hotel; }
 
-    public Vehicle getVehicle() { return vehicle; }
-    public void setVehicle(Vehicle vehicle) { this.vehicle = vehicle; }
+    public Vehicle getVehiculo() { return vehiculo; }
+    public void setVehiculo(Vehicle vehiculo) { this.vehiculo = vehiculo; }
 
-    public String getServiceType() { return serviceType; }
-    public void setServiceType(String serviceType) { this.serviceType = serviceType; }
+    public String getTipoServicio() { return tipoServicio; }
+    public void setTipoServicio(String tipoServicio) { this.tipoServicio = tipoServicio; }
 
-    public Integer getRating() { return rating; }
-    public void setRating(Integer rating) { this.rating = rating; }
+    public Integer getCalificacion() { return calificacion; }
+    public void setCalificacion(Integer calificacion) { this.calificacion = calificacion; }
 
-    public String getComment() { return comment; }
-    public void setComment(String comment) { this.comment = comment; }
+    public String getComentario() { return comentario; }
+    public void setComentario(String comentario) { this.comentario = comentario; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 }

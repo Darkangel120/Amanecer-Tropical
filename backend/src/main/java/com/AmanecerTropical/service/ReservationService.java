@@ -30,20 +30,20 @@ public class ReservationService {
         return reservationRepository.findById(id);
     }
 
-    public List<Reservation> getReservationsByUser(Long userId) {
-        return reservationRepository.findByUserId(userId);
+    public List<Reservation> getReservationsByUser(Long usuarioId) {
+        return reservationRepository.findByUsuarioId(usuarioId);
     }
 
-    public List<Reservation> getReservationsByDestination(Long destinationId) {
-        return reservationRepository.findByDestinationId(destinationId);
+    public List<Reservation> getReservationsByDestination(Long paqueteId) {
+        return reservationRepository.findByPaqueteId(paqueteId);
     }
 
-    public List<Reservation> getReservationsByStatus(String status) {
-        return reservationRepository.findByStatus(status);
+    public List<Reservation> getReservationsByStatus(String estado) {
+        return reservationRepository.findByEstado(estado);
     }
 
-    public List<Reservation> getReservationsByUserAndStatus(Long userId, String status) {
-        return reservationRepository.findByUserIdAndStatus(userId, status);
+    public List<Reservation> getReservationsByUserAndStatus(Long usuarioId, String estado) {
+        return reservationRepository.findByUsuarioIdAndEstado(usuarioId, estado);
     }
 
     public Reservation createReservation(@NonNull Reservation reservation) {
@@ -51,10 +51,15 @@ public class ReservationService {
 
         // Create notification for new reservation
         Notification notification = new Notification(
-            createdReservation.getUser(),
+            createdReservation.getUsuario(),
             "Nueva Reserva",
-            "Tu reserva para " + createdReservation.getDestination().getName() + " ha sido creada y está pendiente de confirmación.",
-            "reservation"
+            "Tu reserva para " + 
+            (createdReservation.getPaquete() != null ? createdReservation.getPaquete().getNombre() :
+             createdReservation.getVuelo() != null ? "vuelo " + createdReservation.getVuelo().getFlightNumber() :
+             createdReservation.getHotel() != null ? createdReservation.getHotel().getNombre() :
+             createdReservation.getVehiculo() != null ? createdReservation.getVehiculo().getNombre() : "servicio") + 
+            " ha sido creada y está pendiente de confirmación.",
+            "reservacion"
         );
         notificationService.saveNotification(notification);
 
@@ -65,20 +70,30 @@ public class ReservationService {
         Reservation updatedReservation = reservationRepository.save(reservation);
 
         // Create notification for status changes
-        if (reservation.getStatus().equals("confirmed")) {
+        if (reservation.getEstado().equals("confirmado")) {
             Notification notification = new Notification(
-                updatedReservation.getUser(),
+                updatedReservation.getUsuario(),
                 "Reserva Confirmada",
-                "Tu reserva para " + updatedReservation.getDestination().getName() + " ha sido confirmada.",
-                "reservation"
+                "Tu reserva para " + 
+                (updatedReservation.getPaquete() != null ? updatedReservation.getPaquete().getNombre() :
+                 updatedReservation.getVuelo() != null ? "vuelo " + updatedReservation.getVuelo().getFlightNumber() :
+                 updatedReservation.getHotel() != null ? updatedReservation.getHotel().getNombre() :
+                 updatedReservation.getVehiculo() != null ? updatedReservation.getVehiculo().getNombre() : "servicio") + 
+                " ha sido confirmada.",
+                "reservacion"
             );
             notificationService.saveNotification(notification);
-        } else if (reservation.getStatus().equals("cancelled")) {
+        } else if (reservation.getEstado().equals("cancelado")) {
             Notification notification = new Notification(
-                updatedReservation.getUser(),
+                updatedReservation.getUsuario(),
                 "Reserva Cancelada",
-                "Tu reserva para " + updatedReservation.getDestination().getName() + " ha sido cancelada.",
-                "reservation"
+                "Tu reserva para " + 
+                (updatedReservation.getPaquete() != null ? updatedReservation.getPaquete().getNombre() :
+                 updatedReservation.getVuelo() != null ? "vuelo " + updatedReservation.getVuelo().getFlightNumber() :
+                 updatedReservation.getHotel() != null ? updatedReservation.getHotel().getNombre() :
+                 updatedReservation.getVehiculo() != null ? updatedReservation.getVehiculo().getNombre() : "servicio") + 
+                " ha sido cancelada.",
+                "reservacion"
             );
             notificationService.saveNotification(notification);
         }
@@ -90,31 +105,31 @@ public class ReservationService {
         reservationRepository.deleteById(id);
     }
 
-    public boolean isDestinationAvailable(Long destinationId, LocalDate startDate, LocalDate endDate) {
-        long overlappingCount = reservationRepository.countOverlappingReservations(destinationId, null, null, null, startDate, endDate);
+    public boolean isPackageAvailable(Long paqueteId, LocalDate fechaInicio, LocalDate fechaFin) {
+        long overlappingCount = reservationRepository.countOverlappingReservations(paqueteId, null, null, null, fechaInicio, fechaFin);
         return overlappingCount == 0;
     }
 
-    public boolean isFlightAvailable(Long flightId, LocalDate startDate, LocalDate endDate) {
-        long overlappingCount = reservationRepository.countOverlappingReservations(null, flightId, null, null, startDate, endDate);
+    public boolean isFlightAvailable(Long vueloId, LocalDate fechaInicio, LocalDate fechaFin) {
+        long overlappingCount = reservationRepository.countOverlappingReservations(null, vueloId, null, null, fechaInicio, fechaFin);
         return overlappingCount == 0;
     }
 
-    public boolean isHotelAvailable(Long hotelId, LocalDate startDate, LocalDate endDate) {
-        long overlappingCount = reservationRepository.countOverlappingReservations(null, null, hotelId, null, startDate, endDate);
+    public boolean isHotelAvailable(Long hotelId, LocalDate fechaInicio, LocalDate fechaFin) {
+        long overlappingCount = reservationRepository.countOverlappingReservations(null, null, hotelId, null, fechaInicio, fechaFin);
         return overlappingCount == 0;
     }
 
-    public boolean isVehicleAvailable(Long vehicleId, LocalDate startDate, LocalDate endDate) {
-        long overlappingCount = reservationRepository.countOverlappingReservations(null, null, null, vehicleId, startDate, endDate);
+    public boolean isVehicleAvailable(Long vehiculoId, LocalDate fechaInicio, LocalDate fechaFin) {
+        long overlappingCount = reservationRepository.countOverlappingReservations(null, null, null, vehiculoId, fechaInicio, fechaFin);
         return overlappingCount == 0;
     }
 
-    public List<Reservation> getOverlappingReservations(Long destinationId, Long flightId, Long hotelId, Long vehicleId, LocalDate startDate, LocalDate endDate) {
-        return reservationRepository.findOverlappingReservations(destinationId, flightId, hotelId, vehicleId, startDate, endDate);
+    public List<Reservation> getOverlappingReservations(Long paqueteId, Long vueloId, Long hotelId, Long vehiculoId, LocalDate fechaInicio, LocalDate fechaFin) {
+        return reservationRepository.findOverlappingReservations(paqueteId, vueloId, hotelId, vehiculoId, fechaInicio, fechaFin);
     }
 
-    public List<Reservation> getRecentReservations(LocalDate startDate) {
-        return reservationRepository.findRecentReservations(startDate);
+    public List<Reservation> getRecentReservations(LocalDate fechaInicio) {
+        return reservationRepository.findRecentReservations(fechaInicio);
     }
 }

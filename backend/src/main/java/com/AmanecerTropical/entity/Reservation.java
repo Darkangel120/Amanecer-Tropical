@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reservations")
+@Table(name = "reservaciones")
 public class Reservation {
 
     @Id
@@ -18,122 +18,129 @@ public class Reservation {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private User usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "destination_id")
-    private Destination destination;
+    @JoinColumn(name = "paquete_id")
+    private Package paquete;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "flight_id")
-    private Flight flight;
+    @JoinColumn(name = "vuelo_id")
+    private Flight vuelo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hotel_id")
     private Hotel hotel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicle_id")
-    private Vehicle vehicle;
+    @JoinColumn(name = "vehiculo_id")
+    private Vehicle vehiculo;
 
     @NotBlank
-    private String serviceType; // destination, flight, hotel, vehicle
+    @Column(name = "tipo_servicio")
+    private String tipoServicio; // paquete, vuelo, hotel, vehiculo
 
     @NotNull
-    private LocalDate startDate;
+    @Column(name = "fecha_inicio")
+    private LocalDate fechaInicio;
 
     @NotNull
-    private LocalDate endDate;
+    @Column(name = "fecha_fin")
+    private LocalDate fechaFin;
 
     @NotNull
     @Positive
-    private Integer numberOfPeople;
+    @Column(name = "numero_personas")
+    private Integer numeroPersonas;
 
     @NotNull
     @Positive
-    private BigDecimal totalPrice;
+    @Column(name = "precio_total")
+    private BigDecimal precioTotal;
 
     @NotBlank
-    private String status; // pending, confirmed, cancelled, completed
+    private String estado = "pendiente"; // pendiente, confirmado, cancelado, completado
 
-    @Column(length = 1000)
-    private String specialRequests;
+    @Column(name = "solicitudes_especiales", columnDefinition = "TEXT")
+    private String solicitudesEspeciales;
 
-    private LocalDateTime createdAt;
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
 
-    private LocalDateTime updatedAt;
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        fechaCreacion = LocalDateTime.now();
+        fechaActualizacion = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        fechaActualizacion = LocalDateTime.now();
     }
 
     // Constructors
     public Reservation() {}
 
-    public Reservation(User user, Destination destination, LocalDate startDate,
-                      LocalDate endDate, Integer numberOfPeople, BigDecimal totalPrice,
-                      String status, String serviceType) {
-        this.user = user;
-        this.destination = destination;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.numberOfPeople = numberOfPeople;
-        this.totalPrice = totalPrice;
-        this.status = status;
-        this.serviceType = serviceType;
+    public Reservation(User usuario, Package paquete, LocalDate fechaInicio,
+                      LocalDate fechaFin, Integer numeroPersonas, BigDecimal precioTotal,
+                      String estado, String tipoServicio) {
+        this.usuario = usuario;
+        this.paquete = paquete;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.numeroPersonas = numeroPersonas;
+        this.precioTotal = precioTotal;
+        this.estado = estado;
+        this.tipoServicio = tipoServicio;
     }
 
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public User getUsuario() { return usuario; }
+    public void setUsuario(User usuario) { this.usuario = usuario; }
 
-    public Destination getDestination() { return destination; }
-    public void setDestination(Destination destination) { this.destination = destination; }
+    public Package getPaquete() { return paquete; }
+    public void setPaquete(Package paquete) { this.paquete = paquete; }
 
-    public Flight getFlight() { return flight; }
-    public void setFlight(Flight flight) { this.flight = flight; }
+    public Flight getVuelo() { return vuelo; }
+    public void setVuelo(Flight vuelo) { this.vuelo = vuelo; }
 
     public Hotel getHotel() { return hotel; }
     public void setHotel(Hotel hotel) { this.hotel = hotel; }
 
-    public Vehicle getVehicle() { return vehicle; }
-    public void setVehicle(Vehicle vehicle) { this.vehicle = vehicle; }
+    public Vehicle getVehiculo() { return vehiculo; }
+    public void setVehiculo(Vehicle vehiculo) { this.vehiculo = vehiculo; }
 
-    public String getServiceType() { return serviceType; }
-    public void setServiceType(String serviceType) { this.serviceType = serviceType; }
+    public String getTipoServicio() { return tipoServicio; }
+    public void setTipoServicio(String tipoServicio) { this.tipoServicio = tipoServicio; }
 
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public LocalDate getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
 
-    public LocalDate getEndDate() { return endDate; }
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+    public LocalDate getFechaFin() { return fechaFin; }
+    public void setFechaFin(LocalDate fechaFin) { this.fechaFin = fechaFin; }
 
-    public Integer getNumberOfPeople() { return numberOfPeople; }
-    public void setNumberOfPeople(Integer numberOfPeople) { this.numberOfPeople = numberOfPeople; }
+    public Integer getNumeroPersonas() { return numeroPersonas; }
+    public void setNumeroPersonas(Integer numeroPersonas) { this.numeroPersonas = numeroPersonas; }
 
-    public BigDecimal getTotalPrice() { return totalPrice; }
-    public void setTotalPrice(BigDecimal totalPrice) { this.totalPrice = totalPrice; }
+    public BigDecimal getPrecioTotal() { return precioTotal; }
+    public void setPrecioTotal(BigDecimal precioTotal) { this.precioTotal = precioTotal; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
-    public String getSpecialRequests() { return specialRequests; }
-    public void setSpecialRequests(String specialRequests) { this.specialRequests = specialRequests; }
+    public String getSolicitudesEspeciales() { return solicitudesEspeciales; }
+    public void setSolicitudesEspeciales(String solicitudesEspeciales) { this.solicitudesEspeciales = solicitudesEspeciales; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public LocalDateTime getFechaActualizacion() { return fechaActualizacion; }
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion) { this.fechaActualizacion = fechaActualizacion; }
 }

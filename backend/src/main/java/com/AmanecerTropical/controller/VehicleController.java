@@ -2,9 +2,7 @@ package com.AmanecerTropical.controller;
 
 import com.AmanecerTropical.entity.Vehicle;
 import com.AmanecerTropical.service.VehicleService;
-
 import org.springframework.lang.NonNull;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,8 +25,8 @@ public class VehicleController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Vehicle>> searchVehicles(@RequestParam @NonNull String type) {
-        List<Vehicle> vehicles = vehicleService.searchVehiclesByType(type);
+    public ResponseEntity<List<Vehicle>> searchVehicles(@RequestParam @NonNull String tipo) {
+        List<Vehicle> vehicles = vehicleService.searchVehiclesByType(tipo);
         return ResponseEntity.ok(vehicles);
     }
 

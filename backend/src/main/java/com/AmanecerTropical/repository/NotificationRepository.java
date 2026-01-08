@@ -10,10 +10,13 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findByUserIdAndReadFalse(Long userId);
-    List<Notification> findByUserIdOrderByCreatedAtDesc(Long userId);
-    List<Notification> findByUserIdAndType(Long userId, String type);
-
-    @Query("SELECT n FROM Notification n WHERE n.user.id = :userId ORDER BY n.createdAt DESC")
-    List<Notification> findNotificationsByUserId(@Param("userId") Long userId);
+    
+    @Query("SELECT n FROM Notification n WHERE n.usuario.id = :usuarioId AND n.leido = false")
+    List<Notification> findByUsuarioIdAndLeidoFalse(@Param("usuarioId") Long usuarioId);
+    
+    @Query("SELECT n FROM Notification n WHERE n.usuario.id = :usuarioId ORDER BY n.fechaCreacion DESC")
+    List<Notification> findByUsuarioIdOrderByFechaCreacionDesc(@Param("usuarioId") Long usuarioId);
+    
+    @Query("SELECT n FROM Notification n WHERE n.usuario.id = :usuarioId AND n.tipo = :tipo")
+    List<Notification> findByUsuarioIdAndTipo(@Param("usuarioId") Long usuarioId, @Param("tipo") String tipo);
 }

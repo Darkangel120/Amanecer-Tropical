@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "flights")
+@Table(name = "vuelos")
 public class Flight {
 
     @Id
@@ -16,70 +16,64 @@ public class Flight {
     private Long id;
 
     @NotBlank
+    @Column(name = "numero_vuelo")
     private String flightNumber;
 
     @NotBlank
-    private String origin;
+    private String origen;
 
     @NotBlank
-    private String destination;
+    private String destino;
 
     @NotNull
+    @Column(name = "hora_salida")
     private LocalDateTime departureTime;
 
     @NotNull
+    @Column(name = "hora_llegada")
     private LocalDateTime arrivalTime;
 
     @NotNull
     @Positive
-    private BigDecimal price;
+    private BigDecimal precio;
 
     @NotBlank
-    private String airline;
+    private String aerolinea;
 
     @NotBlank
+    @Column(name = "tipo_avion")
     private String aircraftType;
 
     @NotNull
+    @Column(name = "asientos_disponibles")
     private Integer availableSeats;
 
     @NotBlank
-    private String classType; // economy, business, first
+    @Column(name = "tipo_clase")
+    private String classType = "economica";
+
+    @ManyToOne
+    @JoinColumn(name = "agencia_vuelo_id")
+    private FlightAgency agenciaVuelo;
 
     @Column(columnDefinition = "SMALLINT DEFAULT 1")
-    private boolean active = true;
+    private boolean activo = true;
 
     // Constructors
     public Flight() {}
 
-    public Flight(String flightNumber, String origin, String destination,
-                  LocalDateTime departureTime, LocalDateTime arrivalTime,
-                  BigDecimal price, String airline, String aircraftType,
-                  Integer availableSeats, String classType) {
-        this.flightNumber = flightNumber;
-        this.origin = origin;
-        this.destination = destination;
-        this.departureTime = departureTime;
-        this.arrivalTime = arrivalTime;
-        this.price = price;
-        this.airline = airline;
-        this.aircraftType = aircraftType;
-        this.availableSeats = availableSeats;
-        this.classType = classType;
-    }
-
-    // Getters and Setters
+    // Getters and Setters (ajustados para español)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getFlightNumber() { return flightNumber; }
     public void setFlightNumber(String flightNumber) { this.flightNumber = flightNumber; }
 
-    public String getOrigin() { return origin; }
-    public void setOrigin(String origin) { this.origin = origin; }
+    public String getOrigen() { return origen; }
+    public void setOrigen(String origen) { this.origen = origen; }
 
-    public String getDestination() { return destination; }
-    public void setDestination(String destination) { this.destination = destination; }
+    public String getDestino() { return destino; }
+    public void setDestino(String destino) { this.destino = destino; }
 
     public LocalDateTime getDepartureTime() { return departureTime; }
     public void setDepartureTime(LocalDateTime departureTime) { this.departureTime = departureTime; }
@@ -87,11 +81,11 @@ public class Flight {
     public LocalDateTime getArrivalTime() { return arrivalTime; }
     public void setArrivalTime(LocalDateTime arrivalTime) { this.arrivalTime = arrivalTime; }
 
-    public BigDecimal getPrice() { return price; }
-    public void setPrice(BigDecimal price) { this.price = price; }
+    public BigDecimal getPrecio() { return precio; }
+    public void setPrecio(BigDecimal precio) { this.precio = precio; }
 
-    public String getAirline() { return airline; }
-    public void setAirline(String airline) { this.airline = airline; }
+    public String getAerolinea() { return aerolinea; }
+    public void setAerolinea(String aerolinea) { this.aerolinea = aerolinea; }
 
     public String getAircraftType() { return aircraftType; }
     public void setAircraftType(String aircraftType) { this.aircraftType = aircraftType; }
@@ -102,6 +96,9 @@ public class Flight {
     public String getClassType() { return classType; }
     public void setClassType(String classType) { this.classType = classType; }
 
-    public boolean isActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
+    public FlightAgency getAgenciaVuelo() { return agenciaVuelo; }
+    public void setAgenciaVuelo(FlightAgency agenciaVuelo) { this.agenciaVuelo = agenciaVuelo; }
+
+    public boolean isActivo() { return activo; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 }

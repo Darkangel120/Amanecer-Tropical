@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "vehicles")
+@Table(name = "vehiculos")
 public class Vehicle {
 
     @Id
@@ -15,85 +15,82 @@ public class Vehicle {
     private Long id;
 
     @NotBlank
-    private String name;
+    private String nombre;
 
     @NotBlank
-    @Column(length = 1000)
-    private String description;
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
 
     @NotBlank
-    private String type; // car, van, motorcycle, etc.
+    private String tipo; // car, van, motorcycle, etc.
 
     @NotNull
     @Positive
-    private BigDecimal pricePerDay;
+    @Column(name = "precio_por_dia")
+    private BigDecimal precioPorDia;
 
     @NotBlank
-    private String imageUrl;
+    @Column(name = "url_imagen")
+    private String urlImagen;
 
     @NotNull
-    private Integer capacity; // number of passengers
+    private Integer capacidad; // number of passengers
 
     @NotBlank
-    private String transmission; // manual, automatic
+    private String transmision; // manual, automatic
 
     @NotBlank
-    private String fuelType; // gasoline, diesel, electric
+    @Column(name = "tipo_combustible")
+    private String tipoCombustible; // gasoline, diesel, electric
 
     @NotNull
-    private Integer availableUnits;
+    @Column(name = "unidades_disponibles")
+    private Integer unidadesDisponibles;
+
+    @ManyToOne
+    @JoinColumn(name = "agencia_vehiculo_id")
+    private VehicleAgency agenciaVehiculo;
 
     @Column(columnDefinition = "SMALLINT DEFAULT 1")
-    private boolean active = true;
+    private boolean activo = true;
 
     // Constructors
     public Vehicle() {}
-
-    public Vehicle(String name, String description, String type,
-                   BigDecimal pricePerDay, String imageUrl, Integer capacity,
-                   String transmission, String fuelType, Integer availableUnits) {
-        this.name = name;
-        this.description = description;
-        this.type = type;
-        this.pricePerDay = pricePerDay;
-        this.imageUrl = imageUrl;
-        this.capacity = capacity;
-        this.transmission = transmission;
-        this.fuelType = fuelType;
-        this.availableUnits = availableUnits;
-    }
 
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public String getTipo() { return tipo; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
 
-    public BigDecimal getPricePerDay() { return pricePerDay; }
-    public void setPricePerDay(BigDecimal pricePerDay) { this.pricePerDay = pricePerDay; }
+    public BigDecimal getPrecioPorDia() { return precioPorDia; }
+    public void setPrecioPorDia(BigDecimal precioPorDia) { this.precioPorDia = precioPorDia; }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getUrlImagen() { return urlImagen; }
+    public void setUrlImagen(String urlImagen) { this.urlImagen = urlImagen; }
 
-    public Integer getCapacity() { return capacity; }
-    public void setCapacity(Integer capacity) { this.capacity = capacity; }
+    public Integer getCapacidad() { return capacidad; }
+    public void setCapacidad(Integer capacidad) { this.capacidad = capacidad; }
 
-    public String getTransmission() { return transmission; }
-    public void setTransmission(String transmission) { this.transmission = transmission; }
+    public String getTransmision() { return transmision; }
+    public void setTransmision(String transmision) { this.transmision = transmision; }
 
-    public String getFuelType() { return fuelType; }
-    public void setFuelType(String fuelType) { this.fuelType = fuelType; }
+    public String getTipoCombustible() { return tipoCombustible; }
+    public void setTipoCombustible(String tipoCombustible) { this.tipoCombustible = tipoCombustible; }
 
-    public Integer getAvailableUnits() { return availableUnits; }
-    public void setAvailableUnits(Integer availableUnits) { this.availableUnits = availableUnits; }
+    public Integer getUnidadesDisponibles() { return unidadesDisponibles; }
+    public void setUnidadesDisponibles(Integer unidadesDisponibles) { this.unidadesDisponibles = unidadesDisponibles; }
 
-    public boolean isActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
+    public VehicleAgency getAgenciaVehiculo() { return agenciaVehiculo; }
+    public void setAgenciaVehiculo(VehicleAgency agenciaVehiculo) { this.agenciaVehiculo = agenciaVehiculo; }
+
+    public boolean isActivo() { return activo; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 }

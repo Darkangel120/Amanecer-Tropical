@@ -8,6 +8,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,23 @@ public class FlightController {
         return ResponseEntity.ok(flights);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Flight>> searchFlights(@RequestParam String origen,
+                                                      @RequestParam String destino) {
+        @SuppressWarnings("null")
+        List<Flight> flights = flightService.searchFlights(origen, destino);
+        return ResponseEntity.ok(flights);
+    }
+
+    @GetMapping("/search/date")
+    public ResponseEntity<List<Flight>> searchFlightsByDate(@RequestParam String origen,
+                                                            @RequestParam String destino,
+                                                            @RequestParam String fechaSalida) {
+        LocalDate fecha = LocalDate.parse(fechaSalida);
+        @SuppressWarnings("null")
+        List<Flight> flights = flightService.searchFlightsByDate(origen, destino, fecha);
+        return ResponseEntity.ok(flights);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Flight> getFlightById(@PathVariable @NonNull Long id) {

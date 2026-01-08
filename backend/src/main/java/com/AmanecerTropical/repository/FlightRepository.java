@@ -11,10 +11,14 @@ import java.util.List;
 
 @Repository
 public interface FlightRepository extends JpaRepository<Flight, Long> {
-    @Query("SELECT f FROM Flight f WHERE f.active = true")
-    List<Flight> findByActiveTrue();
-    List<Flight> findByOriginAndDestination(String origin, String destination);
+    
+    @Query("SELECT f FROM Flight f WHERE f.activo = true")
+    List<Flight> findByActivoTrue();
+    
+    List<Flight> findByOrigenAndDestino(String origen, String destino);
 
-    @Query("SELECT f FROM Flight f WHERE f.origin = :origin AND f.destination = :destination AND DATE(f.departureTime) = :departureDate")
-    List<Flight> findByOriginDestinationAndDepartureDate(@Param("origin") String origin, @Param("destination") String destination, @Param("departureDate") LocalDate departureDate);
+    @Query("SELECT f FROM Flight f WHERE f.origen = :origen AND f.destino = :destino AND DATE(f.departureTime) = :fechaSalida")
+    List<Flight> findByOrigenAndDestinoAndFechaSalida(@Param("origen") String origen, 
+                                                     @Param("destino") String destino, 
+                                                     @Param("fechaSalida") LocalDate fechaSalida);
 }

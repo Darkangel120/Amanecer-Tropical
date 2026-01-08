@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "notifications")
+@Table(name = "notificaciones")
 public class Notification {
 
     @Id
@@ -15,57 +15,60 @@ public class Notification {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private User usuario;
 
     @NotBlank
-    private String title;
+    private String titulo;
 
     @NotBlank
-    @Column(length = 1000)
-    private String message;
+    @Column(columnDefinition = "TEXT")
+    private String mensaje;
 
     @NotBlank
-    private String type; // reservation, payment, review, general
+    private String tipo = "general"; // reservacion, pago, resena, general
 
-    private boolean read = false;
+    @Column(columnDefinition = "SMALLINT DEFAULT 0")
+    private boolean leido = false;
 
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
 
     // Constructors
     public Notification() {}
 
-    public Notification(User user, String title, String message, String type) {
-        this.user = user;
-        this.title = title;
-        this.message = message;
-        this.type = type;
+    public Notification(User usuario, String titulo, String mensaje, String tipo) {
+        this.usuario = usuario;
+        this.titulo = titulo;
+        this.mensaje = mensaje;
+        this.tipo = tipo;
+        this.fechaCreacion = LocalDateTime.now();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        fechaCreacion = LocalDateTime.now();
     }
 
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public User getUsuario() { return usuario; }
+    public void setUsuario(User usuario) { this.usuario = usuario; }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
 
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
+    public String getMensaje() { return mensaje; }
+    public void setMensaje(String mensaje) { this.mensaje = mensaje; }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public String getTipo() { return tipo; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
 
-    public boolean isRead() { return read; }
-    public void setRead(boolean read) { this.read = read; }
+    public boolean isLeido() { return leido; }
+    public void setLeido(boolean leido) { this.leido = leido; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 }

@@ -56,12 +56,22 @@ public class SecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(authz -> authz
-                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                .requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/api/users/register", "/api/users/email/*").permitAll()
-                                .requestMatchers("/api/destinations/**", "/api/flights/**", "/api/hotels/**", "/api/vehicles/**", "/api/notifications/**").permitAll()
-                                .requestMatchers("/uploads/**").permitAll()
-                                .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/users/register").permitAll()  // Permitir registro
+                        .requestMatchers("/api/packages/**").permitAll()  // Cambiado de destinations a packages
+                        .requestMatchers("/api/flights/**").permitAll()
+                        .requestMatchers("/api/hotels/**").permitAll()
+                        .requestMatchers("/api/vehicles/**").permitAll()
+                        .requestMatchers("/api/reviews/**").permitAll()  // Permitir acceso público a reseñas
+                        .requestMatchers("/api/notifications/**").authenticated()  // Notificaciones requieren autenticación
+                        .requestMatchers("/api/reservations/**").authenticated()  // Reservas requieren autenticación
+                        .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/api/users/email/*").hasRole("ADMIN")  // Solo admin puede buscar por email
+                        .requestMatchers(HttpMethod.GET, "/api/users/**").authenticated()  // Usuarios requieren autenticación
+                        .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")  // Solo admin puede eliminar
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

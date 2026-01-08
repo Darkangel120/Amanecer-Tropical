@@ -9,7 +9,9 @@ import java.util.List;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
-    @Query("SELECT v FROM Vehicle v WHERE v.active = true")
-    List<Vehicle> findByActiveTrue();
-    List<Vehicle> findByType(String type);
+    
+    @Query("SELECT v FROM Vehicle v WHERE v.activo = true")
+    List<Vehicle> findByActivoTrue();
+    
+    List<Vehicle> findByTipo(String tipo);
 }

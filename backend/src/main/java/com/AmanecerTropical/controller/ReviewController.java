@@ -17,15 +17,15 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    @GetMapping("/destination/{destinationId}")
-    public ResponseEntity<List<Review>> getReviewsByDestination(@PathVariable @NonNull Long destinationId) {
-        List<Review> reviews = reviewService.getReviewsByDestination(destinationId);
+    @GetMapping("/package/{paqueteId}")
+    public ResponseEntity<List<Review>> getReviewsByPackage(@PathVariable @NonNull Long paqueteId) {
+        List<Review> reviews = reviewService.getReviewsByDestination(paqueteId);
         return ResponseEntity.ok(reviews);
     }
 
-    @GetMapping("/flight/{flightId}")
-    public ResponseEntity<List<Review>> getReviewsByFlight(@PathVariable @NonNull Long flightId) {
-        List<Review> reviews = reviewService.getReviewsByFlight(flightId);
+    @GetMapping("/flight/{vueloId}")
+    public ResponseEntity<List<Review>> getReviewsByFlight(@PathVariable @NonNull Long vueloId) {
+        List<Review> reviews = reviewService.getReviewsByFlight(vueloId);
         return ResponseEntity.ok(reviews);
     }
 
@@ -35,17 +35,24 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
 
-    @GetMapping("/vehicle/{vehicleId}")
-    public ResponseEntity<List<Review>> getReviewsByVehicle(@PathVariable @NonNull Long vehicleId) {
-        List<Review> reviews = reviewService.getReviewsByVehicle(vehicleId);
+    @GetMapping("/vehicle/{vehiculoId}")
+    public ResponseEntity<List<Review>> getReviewsByVehicle(@PathVariable @NonNull Long vehiculoId) {
+        List<Review> reviews = reviewService.getReviewsByVehicle(vehiculoId);
         return ResponseEntity.ok(reviews);
     }
 
-    @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #userId)")
-    public ResponseEntity<List<Review>> getReviewsByUser(@PathVariable @NonNull Long userId) {
-        List<Review> reviews = reviewService.getReviewsByUser(userId);
+    @GetMapping("/user/{usuarioId}")
+    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #usuarioId)")
+    public ResponseEntity<List<Review>> getReviewsByUser(@PathVariable @NonNull Long usuarioId) {
+        List<Review> reviews = reviewService.getReviewsByUser(usuarioId);
         return ResponseEntity.ok(reviews);
+    }
+
+    @GetMapping("/average")
+    public ResponseEntity<Double> getAverageRating(@RequestParam String tipoServicio,
+                                                   @RequestParam Long servicioId) {
+        Double average = reviewService.getAverageRatingByService(tipoServicio, servicioId);
+        return ResponseEntity.ok(average);
     }
 
     @PostMapping

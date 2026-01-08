@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "hotels")
+@Table(name = "hoteles")
 public class Hotel {
 
     @Id
@@ -15,76 +15,76 @@ public class Hotel {
     private Long id;
 
     @NotBlank
-    private String name;
+    private String nombre;
 
     @NotBlank
-    @Column(length = 1000)
-    private String description;
+    @Column(columnDefinition = "TEXT")
+    private String descripcion;
 
     @NotBlank
-    private String location;
+    private String ubicacion;
 
     @NotNull
     @Positive
-    private BigDecimal pricePerNight;
+    @Column(name = "precio_por_noche")
+    private BigDecimal precioPorNoche;
 
     @NotBlank
-    private String imageUrl;
+    @Column(name = "url_imagen")
+    private String urlImagen;
 
     @NotBlank
-    private String amenities; // JSON string of amenities
+    @Column(columnDefinition = "TEXT")
+    private String comodidades;
 
     @NotNull
-    private Integer stars; // 1-5 stars
+    private Integer estrellas;
 
     @NotNull
-    private Integer availableRooms;
+    @Column(name = "habitaciones_disponibles")
+    private Integer habitacionesDisponibles;
+
+    @ManyToOne
+    @JoinColumn(name = "agencia_hotel_id")
+    private HotelAgency agenciaHotel;
 
     @Column(columnDefinition = "SMALLINT DEFAULT 1")
-    private boolean active = true;
+    private boolean activo = true;
 
     // Constructors
     public Hotel() {}
 
-    public Hotel(String name, String description, String location,
-                 BigDecimal pricePerNight, String imageUrl, String amenities,
-                 Integer stars, Integer availableRooms) {
-        this.name = name;
-        this.description = description;
-        this.location = location;
-        this.pricePerNight = pricePerNight;
-        this.imageUrl = imageUrl;
-        this.amenities = amenities;
-        this.stars = stars;
-        this.availableRooms = availableRooms;
-    }
-
-    // Getters and Setters
+    // Getters and Setters (ajustados para español)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
+    public String getUbicacion() { return ubicacion; }
+    public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
 
-    public BigDecimal getPricePerNight() { return pricePerNight; }
-    public void setPricePerNight(BigDecimal pricePerNight) { this.pricePerNight = pricePerNight; }
+    public BigDecimal getPrecioPorNoche() { return precioPorNoche; }
+    public void setPrecioPorNoche(BigDecimal precioPorNoche) { this.precioPorNoche = precioPorNoche; }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getUrlImagen() { return urlImagen; }
+    public void setUrlImagen(String urlImagen) { this.urlImagen = urlImagen; }
 
-    public String getAmenities() { return amenities; }
-    public void setAmenities(String amenities) { this.amenities = amenities; }
+    public String getComodidades() { return comodidades; }
+    public void setComodidades(String comodidades) { this.comodidades = comodidades; }
 
-    public Integer getStars() { return stars; }
-    public void setStars(Integer stars) { this.stars = stars; }
+    public Integer getEstrellas() { return estrellas; }
+    public void setEstrellas(Integer estrellas) { this.estrellas = estrellas; }
 
-    public Integer getAvailableRooms() { return availableRooms; }
-    public void setAvailableRooms(Integer availableRooms) { this.availableRooms = availableRooms; }
+    public Integer getHabitacionesDisponibles() { return habitacionesDisponibles; }
+    public void setHabitacionesDisponibles(Integer habitacionesDisponibles) { this.habitacionesDisponibles = habitacionesDisponibles; }
 
+    public HotelAgency getAgenciaHotel() { return agenciaHotel; }
+    public void setAgenciaHotel(HotelAgency agenciaHotel) { this.agenciaHotel = agenciaHotel; }
+
+    public boolean isActivo() { return activo; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 }

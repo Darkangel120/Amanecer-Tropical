@@ -23,17 +23,17 @@ public class NotificationController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #userId)")
-    public ResponseEntity<List<Notification>> getUserNotifications(@PathVariable Long userId) {
-        List<Notification> notifications = notificationService.getAllNotifications(userId);
+    @GetMapping("/user/{usuarioId}")
+    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #usuarioId)")
+    public ResponseEntity<List<Notification>> getUserNotifications(@PathVariable Long usuarioId) {
+        List<Notification> notifications = notificationService.getAllNotifications(usuarioId);
         return ResponseEntity.ok(notifications);
     }
 
-    @GetMapping("/user/{userId}/unread")
-    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #userId)")
-    public ResponseEntity<List<Notification>> getUnreadNotifications(@PathVariable Long userId) {
-        List<Notification> notifications = notificationService.getUnreadNotifications(userId);
+    @GetMapping("/user/{usuarioId}/unread")
+    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #usuarioId)")
+    public ResponseEntity<List<Notification>> getUnreadNotifications(@PathVariable Long usuarioId) {
+        List<Notification> notifications = notificationService.getUnreadNotifications(usuarioId);
         return ResponseEntity.ok(notifications);
     }
 
@@ -61,15 +61,14 @@ public class NotificationController {
     @PutMapping("/mark-all-read")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Void> markAllAsRead() {
-        // Get current user from security context
         org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        // Get user by email
+        @SuppressWarnings("null")
         Optional<User> userOptional = userService.getUserByEmail(email);
         if (userOptional.isPresent()) {
-            Long userId = userOptional.get().getId();
-            if (userId != null) {
-                notificationService.markAllAsRead(userId);
+            Long usuarioId = userOptional.get().getId();
+            if (usuarioId != null) {
+                notificationService.markAllAsRead(usuarioId);
             }
         }
         return ResponseEntity.ok().build();

@@ -27,4 +27,14 @@ public class UserSecurity {
                 .map(user -> user.getId().equals(userId))
                 .orElse(false);
     }
+    
+    // Método adicional para verificar si el usuario actual es ADMIN
+    public boolean isAdmin(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+        
+        return authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+    }
 }

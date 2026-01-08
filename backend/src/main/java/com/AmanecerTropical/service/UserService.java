@@ -2,8 +2,8 @@ package com.AmanecerTropical.service;
 
 import com.AmanecerTropical.entity.User;
 import com.AmanecerTropical.repository.UserRepository;
-import io.micrometer.common.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,72 +34,68 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    @SuppressWarnings("null")
     public Optional<User> getUserById(@NonNull Long id) {
         return userRepository.findById(id);
     }
 
     public Optional<User> getUserByEmail(@NonNull String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByCorreoElectronico(email);
+    }
+
+    public boolean existsByCedula(@NonNull String cedula) {
+        return userRepository.existsByCedula(cedula);
     }
 
     public User createUser(@NonNull User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setContrasena(passwordEncoder.encode(user.getContrasena()));
         return userRepository.save(user);
     }
 
-    @SuppressWarnings("null")
     public User updateUser(@NonNull User user) {
         // Fetch existing user to preserve password and other fields not sent in update
+        @SuppressWarnings("null")
         Optional<User> existingUserOpt = userRepository.findById(user.getId());
         if (existingUserOpt.isPresent()) {
             User existingUser = existingUserOpt.get();
-            // Preserve password
-            user.setPassword(existingUser.getPassword());
+            // Preserve password if not provided
+            if (user.getContrasena() == null || user.getContrasena().isEmpty()) {
+                user.setContrasena(existingUser.getContrasena());
+            } else {
+                user.setContrasena(passwordEncoder.encode(user.getContrasena()));
+            }
             // Preserve role if not set
-            if (user.getRole() == null) {
-                user.setRole(existingUser.getRole());
+            if (user.getRol() == null) {
+                user.setRol(existingUser.getRol());
             }
             // Handle profile picture
-            if (user.getProfilePicture() != null && user.getProfilePicture().startsWith("data:image")) {
+            if (user.getFotoPerfil() != null && user.getFotoPerfil().startsWith("data:image")) {
                 // New base64 image provided, save as file
                 try {
-                    String filePath = saveProfilePicture(user.getProfilePicture(), user.getId());
-                    user.setProfilePicture(filePath);
+                    String filePath = saveProfilePicture(user.getFotoPerfil(), user.getId());
+                    user.setFotoPerfil(filePath);
                 } catch (IOException e) {
                     System.err.println("Error saving profile picture: " + e.getMessage());
                     // Keep existing picture if save fails
-                    user.setProfilePicture(existingUser.getProfilePicture());
+                    user.setFotoPerfil(existingUser.getFotoPerfil());
                 }
-            } else if (user.getProfilePicture() == null) {
+            } else if (user.getFotoPerfil() == null) {
                 // Preserve existing profile picture
-                user.setProfilePicture(existingUser.getProfilePicture());
+                user.setFotoPerfil(existingUser.getFotoPerfil());
             }
-            // If profilePicture is already a file path, keep it as is
-            System.out.println("Updating user: " + user.getId() + ", profilePicture: " + user.getProfilePicture());
         }
-        try {
-            User savedUser = userRepository.save(user);
-            System.out.println("User saved with profilePicture: " + savedUser.getProfilePicture());
-            return savedUser;
-        } catch (Exception e) {
-            System.err.println("Error saving user: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
+        return userRepository.save(user);
     }
 
-    @SuppressWarnings("null")
     public void deleteUser(@NonNull Long id) {
         userRepository.deleteById(id);
     }
 
     public boolean existsByEmail(@NonNull String email) {
-        return userRepository.existsByEmail(email);
+        return userRepository.existsByCorreoElectronico(email);
     }
 
-    public List<User> getUsersByRole(@NonNull User.UserRole role) {
-        return userRepository.findByRole(role);
+    public List<User> getUsersByRole(@NonNull String rol) {
+        return userRepository.findByRol(rol);
     }
 
     private String saveProfilePicture(String base64Image, Long userId) throws IOException {
@@ -129,13 +125,13 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByCorreoElectronico(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con el Email: " + email));
 
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRole().name())
+                .username(user.getCorreoElectronico())
+                .password(user.getContrasena())
+                .roles(user.getRol())
                 .build();
     }
 }

@@ -28,6 +28,7 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @SuppressWarnings("null")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -39,7 +40,8 @@ public class AuthController {
             Optional<User> user = userService.getUserByEmail(userDetails.getUsername());
 
             if (user.isPresent()) {
-                String token = jwtUtil.generateToken(user.get().getEmail(), user.get().getRole().name());
+                // Usar getRol() en lugar de getRole().name() ya que ahora es String
+                String token = jwtUtil.generateToken(user.get().getCorreoElectronico(), user.get().getRol());
 
                 Map<String, Object> response = new HashMap<>();
                 response.put("token", token);
@@ -47,17 +49,62 @@ public class AuthController {
 
                 return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.badRequest().body("User not found");
+                return ResponseEntity.badRequest().body("Usuario no encontrado");
             }
         } catch (org.springframework.security.core.AuthenticationException e) {
-            // Log the specific authentication exception
             System.err.println("Authentication failed for email: " + loginRequest.getEmail() + ", error: " + e.getMessage());
             return ResponseEntity.badRequest().body("Credenciales inválidas");
         } catch (Exception e) {
-            // Log other exceptions
             System.err.println("Unexpected error during login for email: " + loginRequest.getEmail() + ", error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Error interno del servidor");
+        }
+    }
+
+    @SuppressWarnings("null")
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+        try {
+            // Verificar si el usuario ya existe
+            if (userService.existsByEmail(registerRequest.getEmail())) {
+                return ResponseEntity.badRequest().body("El correo electrónico ya está registrado");
+            }
+
+            if (userService.existsByCedula(registerRequest.getCedula())) {
+                return ResponseEntity.badRequest().body("La cédula ya está registrada");
+            }
+
+            // Crear nuevo usuario
+            User newUser = new User();
+            newUser.setNombre(registerRequest.getNombre());
+            newUser.setCorreoElectronico(registerRequest.getEmail());
+            newUser.setContrasena(registerRequest.getPassword()); // Se encriptará en el servicio
+            newUser.setCedula(registerRequest.getCedula());
+            newUser.setFechaNacimiento(registerRequest.getFechaNacimiento());
+            newUser.setGenero(registerRequest.getGenero());
+            newUser.setNacionalidad(registerRequest.getNacionalidad());
+            newUser.setDireccion(registerRequest.getDireccion());
+            newUser.setCiudad(registerRequest.getCiudad());
+            newUser.setEstado(registerRequest.getEstado());
+            newUser.setTelefono(registerRequest.getTelefono());
+            
+            // Establecer rol por defecto
+            newUser.setRol("USUARIO");
+
+            User createdUser = userService.createUser(newUser);
+
+            // Generar token para el nuevo usuario
+            String token = jwtUtil.generateToken(createdUser.getCorreoElectronico(), createdUser.getRol());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user", createdUser);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error during registration: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error al registrar usuario");
         }
     }
 
@@ -80,5 +127,53 @@ public class AuthController {
         public void setPassword(String password) {
             this.password = password;
         }
+    }
+
+    public static class RegisterRequest {
+        private String nombre;
+        private String email;
+        private String password;
+        private String cedula;
+        private java.time.LocalDate fechaNacimiento;
+        private String genero;
+        private String nacionalidad;
+        private String direccion;
+        private String ciudad;
+        private String estado;
+        private String telefono;
+
+        // Getters y Setters
+        public String getNombre() { return nombre; }
+        public void setNombre(String nombre) { this.nombre = nombre; }
+
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
+
+        public String getCedula() { return cedula; }
+        public void setCedula(String cedula) { this.cedula = cedula; }
+
+        public java.time.LocalDate getFechaNacimiento() { return fechaNacimiento; }
+        public void setFechaNacimiento(java.time.LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
+
+        public String getGenero() { return genero; }
+        public void setGenero(String genero) { this.genero = genero; }
+
+        public String getNacionalidad() { return nacionalidad; }
+        public void setNacionalidad(String nacionalidad) { this.nacionalidad = nacionalidad; }
+
+        public String getDireccion() { return direccion; }
+        public void setDireccion(String direccion) { this.direccion = direccion; }
+
+        public String getCiudad() { return ciudad; }
+        public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+
+        public String getEstado() { return estado; }
+        public void setEstado(String estado) { this.estado = estado; }
+
+        public String getTelefono() { return telefono; }
+        public void setTelefono(String telefono) { this.telefono = telefono; }
     }
 }

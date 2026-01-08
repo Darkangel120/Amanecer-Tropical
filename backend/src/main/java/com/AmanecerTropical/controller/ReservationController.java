@@ -26,17 +26,17 @@ public class ReservationController {
         return ResponseEntity.ok(reservations);
     }
 
-    @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #userId)")
-    public ResponseEntity<List<Reservation>> getReservationsByUserId(@PathVariable Long userId) {
-        List<Reservation> reservations = reservationService.getReservationsByUser(userId);
+    @GetMapping("/user/{usuarioId}")
+    @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #usuarioId)")
+    public ResponseEntity<List<Reservation>> getReservationsByUserId(@PathVariable Long usuarioId) {
+        List<Reservation> reservations = reservationService.getReservationsByUser(usuarioId);
         return ResponseEntity.ok(reservations);
     }
 
-    @GetMapping("/destination/{destinationId}")
+    @GetMapping("/package/{paqueteId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Reservation>> getReservationsByDestinationId(@PathVariable Long destinationId) {
-        List<Reservation> reservations = reservationService.getReservationsByDestination(destinationId);
+    public ResponseEntity<List<Reservation>> getReservationsByPackageId(@PathVariable Long paqueteId) {
+        List<Reservation> reservations = reservationService.getReservationsByDestination(paqueteId);
         return ResponseEntity.ok(reservations);
     }
 
@@ -86,26 +86,26 @@ public class ReservationController {
     }
 
     @GetMapping("/check-availability")
-    public ResponseEntity<Boolean> checkDestinationAvailability(@RequestParam Long destinationId,
-                                                               @RequestParam String checkInDate,
-                                                               @RequestParam String checkOutDate) {
-        LocalDate checkIn = LocalDate.parse(checkInDate);
-        LocalDate checkOut = LocalDate.parse(checkOutDate);
-        boolean available = reservationService.isDestinationAvailable(destinationId, checkIn, checkOut);
+    public ResponseEntity<Boolean> checkPackageAvailability(@RequestParam Long paqueteId,
+                                                           @RequestParam String fechaInicio,
+                                                           @RequestParam String fechaFin) {
+        LocalDate inicio = LocalDate.parse(fechaInicio);
+        LocalDate fin = LocalDate.parse(fechaFin);
+        boolean available = reservationService.isPackageAvailable(paqueteId, inicio, fin);
         return ResponseEntity.ok(available);
     }
 
     @GetMapping("/overlapping")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Reservation>> findOverlappingReservations(@RequestParam(required = false) Long destinationId,
-                                                                        @RequestParam(required = false) Long flightId,
+    public ResponseEntity<List<Reservation>> findOverlappingReservations(@RequestParam(required = false) Long paqueteId,
+                                                                        @RequestParam(required = false) Long vueloId,
                                                                         @RequestParam(required = false) Long hotelId,
-                                                                        @RequestParam(required = false) Long vehicleId,
-                                                                        @RequestParam String checkInDate,
-                                                                        @RequestParam String checkOutDate) {
-        LocalDate checkIn = LocalDate.parse(checkInDate);
-        LocalDate checkOut = LocalDate.parse(checkOutDate);
-        List<Reservation> overlappingReservations = reservationService.getOverlappingReservations(destinationId, flightId, hotelId, vehicleId, checkIn, checkOut);
+                                                                        @RequestParam(required = false) Long vehiculoId,
+                                                                        @RequestParam String fechaInicio,
+                                                                        @RequestParam String fechaFin) {
+        LocalDate inicio = LocalDate.parse(fechaInicio);
+        LocalDate fin = LocalDate.parse(fechaFin);
+        List<Reservation> overlappingReservations = reservationService.getOverlappingReservations(paqueteId, vueloId, hotelId, vehiculoId, inicio, fin);
         return ResponseEntity.ok(overlappingReservations);
     }
 }
