@@ -216,7 +216,7 @@ const loadMainPageData = () => {
 
 async function loadDestinations() {
     try {
-        const response = await fetch(`${API_BASE_URL}/destinations`);
+        const response = await fetch(`${API_BASE_URL}/packages`);
         if (response.ok) {
             const destinations = await response.json();
             displayDestinations(destinations);
@@ -235,14 +235,14 @@ function displayDestinations(destinations) {
     destinosGrid.innerHTML = '';
 
     destinations.slice(0, 4).forEach(destination => {
-        const imageUrl = destination.imageUrl || 'assets/img/default-destination.jpg';
+        const imageUrl = destination.urlImagen || 'assets/img/default-destination.jpg';
         const destinationCard = document.createElement('div');
         destinationCard.className = 'destino-card';
         destinationCard.innerHTML = `
-            <img src="${imageUrl}" alt="${destination.name}">
-            <h3>${destination.name}</h3>
-            <p>${destination.location}</p>
-            <div class="destino-price">Desde $${destination.price}</div>
+            <img src="${imageUrl}" alt="${destination.nombre}">
+            <h3>${destination.nombre}</h3>
+            <p>${destination.ubicacion}</p>
+            <div class="destino-price">Desde $${destination.precio}</div>
             <a href="user/services.html?destination=${destination.id}" class="btn">Ver Detalles</a>
         `;
         destinosGrid.appendChild(destinationCard);
@@ -251,7 +251,7 @@ function displayDestinations(destinations) {
 
 async function loadPackages() {
     try {
-        const response = await fetch(`${API_BASE_URL}/destinations`);
+        const response = await fetch(`${API_BASE_URL}/packages`);
         if (response.ok) {
             const destinations = await response.json();
             displayPackages(destinations);
@@ -270,17 +270,17 @@ function displayPackages(destinations) {
     paquetesGrid.innerHTML = '';
 
     destinations.forEach(destination => {
-        const imageUrl = destination.imageUrl || 'assets/img/default-destination.jpg';
+        const imageUrl = destination.urlImagen || 'assets/img/default-destination.jpg';
         const packageCard = document.createElement('div');
         packageCard.className = 'paquete-card';
         packageCard.innerHTML = `
-            <img src="${imageUrl}" alt="Paquete ${destination.name}">
+            <img src="${imageUrl}" alt="Paquete ${destination.nombre}">
             <div class="paquete-info">
-                <h3>Paquete ${destination.name}</h3>
-                <p class="location">${destination.location}</p>
-                <p class="category">${destination.category}</p>
-                <p class="duration">${destination.durationDays} días</p>
-                <div class="paquete-price">$${destination.price}</div>
+                <h3>Paquete ${destination.nombre}</h3>
+                <p class="location">${destination.ubicacion}</p>
+                <p class="category">${destination.categoria}</p>
+                <p class="duration">${destination.duracionDias} días</p>
+                <div class="paquete-price">$${destination.precio}</div>
                 <a href="user/services.html?destination=${destination.id}" class="btn">Reservar Ahora</a>
             </div>
         `;
@@ -356,30 +356,22 @@ const handleForms = () => {
             }
 
             const userData = {
-                name: formData.get('name'),
+                nombre: formData.get('name'),
                 email: formData.get('email'),
                 password: formData.get('password'),
-                phone: formData.get('phone'),
-                birthdate: formData.get('birthdate'),
-                gender: formData.get('gender'),
-                nationality: formData.get('nationality'),
-                address: formData.get('address'),
-                city: formData.get('city'),
-                state: formData.get('state'),
+                telefono: formData.get('phone'),
+                fechaNacimiento: formData.get('birthdate'),
+                genero: formData.get('gender'),
+                nacionalidad: formData.get('nationality'),
+                direccion: formData.get('address'),
+                ciudad: formData.get('city'),
+                estado: formData.get('estado'),
                 cedula: formData.get('cedula'),
-                passport: getValueOrNull('passport'),
-                passportExpiry: getValueOrNull('passport-expiry'),
-                emergencyName: getValueOrNull('emergency-name'),
-                emergencyPhone: getValueOrNull('emergency-phone'),
-                emergencyRelationship: getValueOrNull('emergency-relationship'),
-                travelStyle: getValueOrNull('travel-style'),
-                dietaryRestrictions: getValueOrNull('dietary-restrictions'),
-                specialNeeds: getValueOrNull('special-needs'),
-                role: 'USER'
+                rol: 'USUARIO'
             };
 
             try {
-                const response = await fetch(`${API_BASE_URL}/users/register`, {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

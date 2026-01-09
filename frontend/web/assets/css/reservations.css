@@ -88,19 +88,19 @@
     text-transform: uppercase;
 }
 
-.status-confirmed {
-    background: #d4edda;
-    color: #155724;
+.status-confirmada { 
+    color: green; 
+    font-weight: bold; 
 }
 
-.status-pending {
-    background: #fff3cd;
-    color: #856404;
+.status-pendiente { 
+    color: orange; 
+    font-weight: bold; 
 }
 
-.status-cancelled {
-    background: #f8d7da;
-    color: #721c24;
+.status-cancelada { 
+    color: red; 
+    font-weight: bold; 
 }
 
 .btn-modify {

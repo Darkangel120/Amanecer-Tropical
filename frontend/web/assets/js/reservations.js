@@ -1,4 +1,3 @@
-// Reservations JavaScript
 const API_BASE_URL = 'http://localhost:8080/api';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -28,15 +27,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const nav = document.querySelector('.nav-links');
     const navLinks = document.querySelectorAll('.nav-links li');
 
-    burger.addEventListener('click', () => {
-        nav.classList.toggle('nav-active');
-        burger.classList.toggle('toggle');
-    });
+    if (burger && nav) {
+        burger.addEventListener('click', () => {
+            nav.classList.toggle('nav-active');
+            burger.classList.toggle('toggle');
+        });
 
-    // Animate nav links
-    navLinks.forEach((link, index) => {
-        link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
-    });
+        // Animate nav links
+        navLinks.forEach((link, index) => {
+            link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
+        });
+    }
 
     // Load user reservations
     loadUserReservations();
@@ -89,46 +90,56 @@ function displayReservations(reservations) {
 
     if (reservations.length === 0) {
         console.log('No reservations found');
-        reservationsContainer.innerHTML = '<p>No tienes reservas activas.</p>';
+        reservationsContainer.innerHTML = '<p class="no-reservations">No tienes reservas activas.</p>';
         return;
     }
 
     reservations.forEach(reservation => {
         let serviceName = 'Servicio desconocido';
         let serviceLocation = 'Ubicación desconocida';
+        let serviceDetails = 'Detalles no disponibles';
 
-        switch (reservation.serviceType) {
-            case 'destination':
-                serviceName = reservation.destination ? reservation.destination.name : 'Destino desconocido';
-                serviceLocation = reservation.destination ? reservation.destination.location : 'Ubicación desconocida';
+        // Determine service type and get appropriate details
+        switch (reservation.tipoServicio) {
+            case 'paquete':
+                serviceName = reservation.paquete ? reservation.paquete.nombre : 'Paquete desconocido';
+                serviceLocation = reservation.paquete ? reservation.paquete.ubicacion : 'Ubicación desconocida';
+                serviceDetails = `Paquete turístico - ${reservation.paquete ? reservation.paquete.categoria : 'Categoría desconocida'}`;
                 break;
-            case 'flight':
-                serviceName = reservation.flight ? `${reservation.flight.airline} - ${reservation.flight.flightNumber}` : 'Vuelo desconocido';
-                serviceLocation = reservation.flight ? `${reservation.flight.origin} → ${reservation.flight.destination}` : 'Ruta desconocida';
+            case 'vuelo':
+                serviceName = reservation.vuelo ? `${reservation.vuelo.aerolinea} - ${reservation.vuelo.flightNumber}` : 'Vuelo desconocido';
+                serviceLocation = reservation.vuelo ? `${reservation.vuelo.origen} → ${reservation.vuelo.destino}` : 'Ruta desconocida';
+                serviceDetails = `Vuelo - ${reservation.vuelo ? reservation.vuelo.tipoClase : 'Clase desconocida'}`;
                 break;
             case 'hotel':
-                serviceName = reservation.hotel ? reservation.hotel.name : 'Hotel desconocido';
-                serviceLocation = reservation.hotel ? reservation.hotel.location : 'Ubicación desconocida';
+                serviceName = reservation.hotel ? reservation.hotel.nombre : 'Hotel desconocido';
+                serviceLocation = reservation.hotel ? reservation.hotel.ubicacion : 'Ubicación desconocida';
+                serviceDetails = `Hotel - ${reservation.hotel ? reservation.hotel.estrellas + ' estrellas' : 'Calificación desconocida'}`;
                 break;
-            case 'vehicle':
-                serviceName = reservation.vehicle ? reservation.vehicle.name : 'Vehículo desconocido';
-                serviceLocation = reservation.vehicle ? `${reservation.vehicle.type} - ${reservation.vehicle.transmission}` : 'Tipo desconocido';
+            case 'vehiculo':
+                serviceName = reservation.vehiculo ? reservation.vehiculo.nombre : 'Vehículo desconocido';
+                serviceLocation = reservation.vehiculo ? `${reservation.vehiculo.tipo} - ${reservation.vehiculo.transmision}` : 'Tipo desconocido';
+                serviceDetails = `Vehículo - ${reservation.vehiculo ? reservation.vehiculo.capacidad + ' personas' : 'Capacidad desconocida'}`;
                 break;
+            default:
+                serviceName = 'Servicio general';
+                serviceDetails = reservation.tipoServicio || 'Servicio';
         }
 
         const reservationCard = document.createElement('div');
         reservationCard.className = 'reservation-card';
         reservationCard.innerHTML = `
             <h3>${serviceName}</h3>
-            <p><strong>Tipo de servicio:</strong> ${reservation.serviceType}</p>
+            <p><strong>Tipo de servicio:</strong> ${reservation.tipoServicio}</p>
             <p><strong>Ubicación/Detalles:</strong> ${serviceLocation}</p>
-            <p><strong>Fecha de inicio:</strong> ${new Date(reservation.startDate).toLocaleDateString()}</p>
-            <p><strong>Fecha de fin:</strong> ${new Date(reservation.endDate).toLocaleDateString()}</p>
-            <p><strong>Número de personas:</strong> ${reservation.numberOfPeople}</p>
-            <p><strong>Precio total:</strong> $${reservation.totalPrice}</p>
-            <p><strong>Estado:</strong> ${reservation.status}</p>
-            ${reservation.specialRequests ? `<p><strong>Solicitudes especiales:</strong> ${reservation.specialRequests}</p>` : ''}
-            <p><strong>Fecha de creación:</strong> ${reservation.createdAt ? new Date(reservation.createdAt).toLocaleString() : 'N/A'}</p>
+            <p><strong>Detalles adicionales:</strong> ${serviceDetails}</p>
+            <p><strong>Fecha de inicio:</strong> ${new Date(reservation.fechaInicio).toLocaleDateString()}</p>
+            <p><strong>Fecha de fin:</strong> ${new Date(reservation.fechaFin).toLocaleDateString()}</p>
+            <p><strong>Número de personas:</strong> ${reservation.numeroPersonas}</p>
+            <p><strong>Precio total:</strong> $${reservation.precioTotal.toFixed(2)}</p>
+            <p><strong>Estado:</strong> <span class="status-${reservation.estado}">${reservation.estado}</span></p>
+            ${reservation.solicitudesEspeciales ? `<p><strong>Solicitudes especiales:</strong> ${reservation.solicitudesEspeciales}</p>` : ''}
+            <p><strong>Fecha de creación:</strong> ${reservation.fechaCreacion ? new Date(reservation.fechaCreacion).toLocaleString() : 'N/A'}</p>
             <div class="reservation-actions">
                 <button class="btn-modify" data-id="${reservation.id}">Modificar</button>
                 <button class="btn-cancel" data-id="${reservation.id}">Cancelar</button>
@@ -156,6 +167,12 @@ function displayReservations(reservations) {
 async function modifyReservation(reservationId) {
     // For now, just show an alert. In a real app, you might open a modal or redirect to a modify page
     alert(`Funcionalidad para modificar reserva ${reservationId} próximamente disponible.`);
+    
+    // In a real implementation, you would:
+    // 1. Fetch the reservation details
+    // 2. Show a modal with the current data
+    // 3. Allow the user to modify dates, number of people, etc.
+    // 4. Send a PUT request to /api/reservations/{id}
 }
 
 async function cancelReservation(reservationId) {

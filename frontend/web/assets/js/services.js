@@ -1,6 +1,12 @@
 // Services JavaScript
 const API_BASE_URL = 'http://localhost:8080/api';
 
+// Data loading limits
+const PACKAGES_LIMIT = 10;
+const HOTELS_LIMIT = 10;
+const FLIGHTS_LIMIT = 15;
+const VEHICLES_LIMIT = 8;
+
 // Global variables for storing data
 let packagesData, hotelsData, vehiclesData, flightsData;
 
@@ -90,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadDestinationDetails(destinationId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/destinations/${destinationId}`, {
+        const response = await fetch(`${API_BASE_URL}/packages/${destinationId}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -112,9 +118,9 @@ function displayDestinationDetails(destination) {
     const destinationDescription = document.querySelector('.destination-description');
     const destinationPrice = document.querySelector('.destination-price');
 
-    if (destinationTitle) destinationTitle.textContent = destination.name;
-    if (destinationDescription) destinationDescription.textContent = destination.description;
-    if (destinationPrice) destinationPrice.textContent = `$${destination.price}`;
+    if (destinationTitle) destinationTitle.textContent = destination.nombre;
+    if (destinationDescription) destinationDescription.textContent = destination.descripcion;
+    if (destinationPrice) destinationPrice.textContent = `$${destination.precio}`;
 
     // Set destination ID in form
     const bookingForm = document.querySelector('#booking-form');
@@ -128,11 +134,12 @@ function displayDestinationDetails(destination) {
 
 async function loadPackages() {
     try {
-        const response = await fetch(`${API_BASE_URL}/destinations`);
+        const response = await fetch(`${API_BASE_URL}/packages`);
         if (response.ok) {
             const destinations = await response.json();
-            packagesData = destinations; // Store data globally
-            displayPackages(destinations);
+            packagesData = destinations; // Load all packages
+            console.log(`Loaded ${packagesData.length} packages`); // Debug log
+            displayPackages(packagesData);
         } else {
             console.error('Error loading packages');
         }
@@ -156,10 +163,10 @@ function displayPackages(destinations = packagesData) {
         const packageCard = document.createElement('div');
         packageCard.className = 'service-card';
         packageCard.innerHTML = `
-            <img src="../${destination.imageUrl}" alt="Paquete ${destination.name}">
-            <h3>Paquete ${destination.name}</h3>
-            <p>${destination.description}</p>
-            <div class="service-price" style="display: flex; justify-content: center;">$${destination.price}</div>
+            <img src="../${destination.urlImagen}" alt="Paquete ${destination.nombre}">
+            <h3>Paquete ${destination.nombre}</h3>
+            <p>${destination.descripcion}</p>
+            <div class="service-price" style="display: flex; justify-content: center;">$${destination.precio}</div>
             <div class="card-buttons">
                 <a href="#" class="btn btn-details" onclick="viewPackageDetails(${destination.id})">Ver Detalles</a>
                 <a href="#" class="btn" onclick="bookPackage(${destination.id})">Reservar Ahora</a>
@@ -181,39 +188,57 @@ function viewPackageDetails(packageId) {
     const includesList = document.getElementById('includes-list');
     const itineraryList = document.getElementById('itinerary-list');
 
-    modalImage.src = packageData.imageUrl;
-    modalImage.alt = `Paquete ${packageData.name}`;
-    modalTitle.textContent = `Paquete ${packageData.name}`;
-    modalDescription.textContent = packageData.description;
-    modalPrice.textContent = `$${packageData.price}`;
+    modalImage.src = "../" + packageData.urlImagen;
+    modalImage.alt = `Paquete ${packageData.nombre}`;
+    modalTitle.textContent = `Paquete ${packageData.nombre}`;
+    modalDescription.textContent = packageData.descripcion;
+    modalPrice.textContent = `$${packageData.precio}`;
 
     // Populate includes
     includesList.innerHTML = '';
-    try {
-        const includes = JSON.parse(packageData.includes);
+    let includes = packageData.incluye;
+    console.log('Includes data:', includes, typeof includes); // Debug log
+    if (typeof includes === 'string') {
+        try {
+            includes = JSON.parse(includes);
+        } catch (e) {
+            includes = includes.split(',').map(item => item.trim());
+        }
+    }
+    console.log('Processed includes:', includes, Array.isArray(includes)); // Debug log
+    if (Array.isArray(includes)) {
         includes.forEach(item => {
             const li = document.createElement('li');
             li.textContent = item;
             includesList.appendChild(li);
         });
-    } catch (e) {
+    } else if (includes) {
         const li = document.createElement('li');
-        li.textContent = packageData.includes;
+        li.textContent = includes;
         includesList.appendChild(li);
     }
 
     // Populate itinerary
     itineraryList.innerHTML = '';
-    try {
-        const itinerary = JSON.parse(packageData.itinerary);
+    let itinerary = packageData.itinerario;
+    console.log('Itinerary data:', itinerary, typeof itinerary); // Debug log
+    if (typeof itinerary === 'string') {
+        try {
+            itinerary = JSON.parse(itinerary);
+        } catch (e) {
+            itinerary = itinerary.split(',').map(item => item.trim());
+        }
+    }
+    console.log('Processed itinerary:', itinerary, Array.isArray(itinerary)); // Debug log
+    if (Array.isArray(itinerary)) {
         itinerary.forEach(item => {
             const li = document.createElement('li');
             li.textContent = item;
             itineraryList.appendChild(li);
         });
-    } catch (e) {
+    } else if (itinerary) {
         const li = document.createElement('li');
-        li.textContent = packageData.itinerary;
+        li.textContent = itinerary;
         itineraryList.appendChild(li);
     }
 
@@ -248,10 +273,11 @@ async function loadFlights() {
         const response = await fetch(`${API_BASE_URL}/flights`);
         if (response.ok) {
             const flights = await response.json();
-            flightsData = flights; // Store data globally
-            displayFlights(flights);
-            populateFlightFilters(flights);
-            populateHotelDestinations(flights);
+            flightsData = flights; // Load all flights
+            console.log(`Loaded ${flightsData.length} flights`); // Debug log
+            displayFlights(flightsData);
+            populateFlightFilters(flightsData);
+            populateHotelDestinations(flightsData);
         } else {
             console.error('Error loading flights');
         }
@@ -277,13 +303,13 @@ function displayFlights(flights = flightsData) {
         const departureDateTime = new Date(flight.departureTime).toLocaleString('es-ES');
         const arrivalDateTime = new Date(flight.arrivalTime).toLocaleString('es-ES');
         flightCard.innerHTML = `
-            <h3>${flight.origin} - ${flight.destination}</h3>
+            <h3>${flight.origen} - ${flight.destino}</h3>
             <ul class="flight-details">
-                <li><strong>Aerolínea</strong> ${flight.airline}</li>
+                <li><strong>Aerolínea</strong> ${flight.aerolinea}</li>
                 <li><strong>Fecha y Hora de Salida</strong> ${departureDateTime}</li>
                 <li><strong>Fecha y Hora de Llegada</strong> ${arrivalDateTime} aprox</li>
             </ul>
-            <div class="service-price" style="display: flex; justify-content: center;">$${flight.price}</div>
+            <div class="service-price" style="display: flex; justify-content: center;">$${flight.precio}</div>
             <a href="#" class="btn" onclick="addToReservation('flight', ${flight.id})" style="display: flex; justify-content: center;">Reservar Vuelo</a>
         `;
         flightsGrid.appendChild(flightCard);
@@ -295,8 +321,9 @@ async function loadHotels() {
         const response = await fetch(`${API_BASE_URL}/hotels`);
         if (response.ok) {
             const hotels = await response.json();
-            hotelsData = hotels; // Store data globally
-            displayHotels(hotels);
+            hotelsData = hotels; // Load all hotels
+            console.log(`Loaded ${hotelsData.length} hotels`); // Debug log
+            displayHotels(hotelsData);
         } else {
             console.error('Error loading hotels');
         }
@@ -319,13 +346,13 @@ function displayHotels(hotels = hotelsData) {
     hotels.forEach(hotel => {
         const hotelCard = document.createElement('div');
         hotelCard.className = 'service-card';
-        const starsHtml = generateStars(hotel.stars);
+        const starsHtml = generateStars(hotel.estrellas);
         hotelCard.innerHTML = `
-            <img src="${hotel.imageUrl}" alt="${hotel.name}">
-            <h3>${hotel.name}</h3>
+            <img src="../${hotel.urlImagen}" alt="${hotel.nombre}">
+            <h3>${hotel.nombre}</h3>
             <div class="hotel-stars">${starsHtml}</div>
-            <p>${hotel.description}</p>
-            <div class="service-price"  style="display: flex; justify-content: center;">$${hotel.pricePerNight}/noche</div>
+            <p>${hotel.descripcion}</p>
+            <div class="service-price"  style="display: flex; justify-content: center;">$${hotel.precioPorNoche}/noche</div>
             <div class="card-buttons">
                 <a href="#" class="btn btn-details" onclick="viewHotelDetails(${hotel.id})">Ver Detalles</a>
                 <a href="#" class="btn" onclick="addToReservation('hotel', ${hotel.id})">Reservar Hotel</a>
@@ -353,6 +380,7 @@ async function loadVehicles() {
         if (response.ok) {
             const vehicles = await response.json();
             vehiclesData = vehicles; // Store data globally
+            console.log(`Loaded ${vehiclesData.length} vehicles`); // Debug log
             displayVehicles(vehicles);
             populateVehicleTypes(vehicles);
         } else {
@@ -373,9 +401,9 @@ function displayVehicles(vehicles = vehiclesData) {
         const vehicleCard = document.createElement('div');
         vehicleCard.className = 'service-card';
         vehicleCard.innerHTML = `
-            <h3>${vehicle.name}</h3>
-            <p>${vehicle.description}</p>
-            <div class="service-price"  style="display: flex; justify-content: center;" style="display: flex; justify-content: center;">$${vehicle.pricePerDay}/día</div>
+            <h3>${vehicle.nombre}</h3>
+            <p>${vehicle.descripcion}</p>
+            <div class="service-price"  style="display: flex; justify-content: center;" style="display: flex; justify-content: center;">$${vehicle.precioPorDia}/día</div>
             <div class="card-buttons">
                 <a href="#" class="btn btn-details" onclick="viewVehicleDetails(${vehicle.id})">Ver Detalles</a>
                 <a href="#" class="btn" onclick="addToReservation('vehicle', ${vehicle.id})" style="font-size: 13px;">Alquilar Vehículo</a>
@@ -399,17 +427,17 @@ function viewHotelDetails(hotelId) {
     const modalStars = document.getElementById('hotel-modal-stars');
     const amenitiesList = document.getElementById('amenities-list');
 
-    modalImage.src = hotelData.imageUrl;
-    modalImage.alt = hotelData.name;
-    modalTitle.textContent = hotelData.name;
-    modalDescription.textContent = hotelData.description;
-    modalPrice.textContent = `$${hotelData.pricePerNight}/noche`;
-    modalStars.innerHTML = generateStars(hotelData.stars);
+    modalImage.src = "../" + hotelData.urlImagen;
+    modalImage.alt = hotelData.nombre;
+    modalTitle.textContent = hotelData.nombre;
+    modalDescription.textContent = hotelData.descripcion;
+    modalPrice.textContent = `$${hotelData.precioPorNoche}/noche`;
+    modalStars.innerHTML = generateStars(hotelData.estrellas);
 
     // Populate amenities
     amenitiesList.innerHTML = '';
     try {
-        const amenities = JSON.parse(hotelData.amenities);
+        const amenities = JSON.parse(hotelData.comodidades);
         amenities.forEach(amenity => {
             const li = document.createElement('li');
             li.textContent = amenity;
@@ -417,7 +445,7 @@ function viewHotelDetails(hotelId) {
         });
     } catch (e) {
         const li = document.createElement('li');
-        li.textContent = hotelData.amenities;
+        li.textContent = hotelData.comodidades;
         amenitiesList.appendChild(li);
     }
 
@@ -457,14 +485,14 @@ function viewVehicleDetails(vehicleId) {
     const vehicleTransmission = document.getElementById('vehicle-transmission');
     const vehicleFuel = document.getElementById('vehicle-fuel');
 
-    modalImage.src = vehicleData.imageUrl;
-    modalImage.alt = vehicleData.name;
-    modalTitle.textContent = vehicleData.name;
-    modalDescription.textContent = vehicleData.description;
-    modalPrice.textContent = `$${vehicleData.pricePerDay}/día`;
-    vehicleCapacity.textContent = vehicleData.capacity;
-    vehicleTransmission.textContent = vehicleData.transmission;
-    vehicleFuel.textContent = vehicleData.fuelType;
+    modalImage.src = ".." + vehicleData.urlImagen;
+    modalImage.alt = vehicleData.nombre;
+    modalTitle.textContent = vehicleData.nombre;
+    modalDescription.textContent = vehicleData.descripcion;
+    modalPrice.textContent = `$${vehicleData.precioPorDia}/día`;
+    vehicleCapacity.textContent = vehicleData.capacidad;
+    vehicleTransmission.textContent = vehicleData.transmision;
+    vehicleFuel.textContent = vehicleData.TipoCombustible;
 
     modal.style.display = 'block';
 
@@ -537,41 +565,55 @@ function openReservationModal(destinationId) {
     const destinationIdInput = document.getElementById('destinationId');
     const totalPriceInput = document.getElementById('totalPrice');
 
-    modalImage.src = packageData.imageUrl;
-    modalImage.alt = `Paquete ${packageData.name}`;
-    modalTitle.textContent = `Reservar Paquete ${packageData.name}`;
-    modalDescription.textContent = packageData.description;
-    modalPrice.textContent = `$${packageData.price}`;
+    modalImage.src = "../" + packageData.urlImagen;
+    modalImage.alt = `Paquete ${packageData.nombre}`;
+    modalTitle.textContent = `Reservar Paquete ${packageData.nombre}`;
+    modalDescription.textContent = packageData.descripcion;
+    modalPrice.textContent = `$${packageData.precio}`;
     destinationIdInput.value = destinationId;
-    totalPriceInput.value = packageData.price;
+    totalPriceInput.value = packageData.precio;
 
     // Populate includes
     includesList.innerHTML = '';
-    try {
-        const includes = JSON.parse(packageData.includes);
+    let includes = packageData.incluye;
+    if (typeof includes === 'string') {
+        try {
+            includes = JSON.parse(includes);
+        } catch (e) {
+            includes = includes.split(',').map(item => item.trim());
+        }
+    }
+    if (Array.isArray(includes)) {
         includes.forEach(item => {
             const li = document.createElement('li');
             li.textContent = item;
             includesList.appendChild(li);
         });
-    } catch (e) {
+    } else {
         const li = document.createElement('li');
-        li.textContent = packageData.includes;
+        li.textContent = includes;
         includesList.appendChild(li);
     }
 
     // Populate itinerary
     itineraryList.innerHTML = '';
-    try {
-        const itinerary = JSON.parse(packageData.itinerary);
+    let itinerary = packageData.itinerario;
+    if (typeof itinerary === 'string') {
+        try {
+            itinerary = JSON.parse(itinerary);
+        } catch (e) {
+            itinerary = itinerary.split(',').map(item => item.trim());
+        }
+    }
+    if (Array.isArray(itinerary)) {
         itinerary.forEach(item => {
             const li = document.createElement('li');
             li.textContent = item;
             itineraryList.appendChild(li);
         });
-    } catch (e) {
+    } else {
         const li = document.createElement('li');
-        li.textContent = packageData.itinerary;
+        li.textContent = itinerary;
         itineraryList.appendChild(li);
     }
 
@@ -625,11 +667,11 @@ function addToReservation(type, id) {
             item = {
                 type: 'hotel',
                 id: hotel.id,
-                name: hotel.name,
-                description: hotel.description,
-                price: hotel.pricePerNight
+                name: hotel.nombre,
+                description: hotel.descripcion,
+                price: hotel.precioPorNoche
             };
-            price = hotel.pricePerNight;
+            price = hotel.precioPorNoche;
         }
     } else if (type === 'vehicle') {
         const vehicle = vehiclesData.find(v => v.id === id);
@@ -637,11 +679,11 @@ function addToReservation(type, id) {
             item = {
                 type: 'vehicle',
                 id: vehicle.id,
-                name: vehicle.name,
-                description: vehicle.description,
-                price: vehicle.pricePerDay
+                name: vehicle.nombre,
+                description: vehicle.descripcion,
+                price: vehicle.precioPorDia
             };
-            price = vehicle.pricePerDay;
+            price = vehicle.precioPorDia;
         }
     } else if (type === 'package') {
         const packageData = packagesData.find(p => p.id === id);
@@ -649,11 +691,11 @@ function addToReservation(type, id) {
             item = {
                 type: 'package',
                 id: packageData.id,
-                name: `Paquete ${packageData.name}`,
-                description: packageData.description,
-                price: packageData.price
+                name: `Paquete ${packageData.nombre}`,
+                description: packageData.descripcion,
+                price: packageData.precio
             };
-            price = packageData.price;
+            price = packageData.precio;
         }
     }
 
@@ -862,8 +904,8 @@ function populateFlightFilters(flights) {
     if (!originSelect || !destinationSelect) return;
 
     // Get unique origins and destinations
-    const origins = [...new Set(flights.map(flight => flight.origin))];
-    const destinations = [...new Set(flights.map(flight => flight.destination))];
+    const origins = [...new Set(flights.map(flight => flight.origen))];
+    const destinations = [...new Set(flights.map(flight => flight.destino))];
 
     // Populate origins
     origins.forEach(origin => {
@@ -888,7 +930,7 @@ function populateHotelDestinations(flights) {
     if (!hotelDestinationSelect) return;
 
     // Get unique destinations from flights
-    const destinations = [...new Set(flights.map(flight => flight.destination))];
+    const destinations = [...new Set(flights.map(flight => flight.destino))];
 
     // Populate hotel destinations
     destinations.forEach(destination => {
@@ -905,7 +947,7 @@ function populateVehicleTypes(vehicles) {
     if (!vehicleTypeSelect) return;
 
     // Get unique vehicle types
-    const types = [...new Set(vehicles.map(vehicle => vehicle.type))];
+    const types = [...new Set(vehicles.map(vehicle => vehicle.tipo))];
 
     // Populate vehicle types
     types.forEach(type => {
@@ -949,8 +991,8 @@ function filterPackages() {
 
     const searchTerm = searchInput.value.toLowerCase();
     const filteredPackages = packagesData.filter(pkg =>
-        pkg.name.toLowerCase().includes(searchTerm) ||
-        pkg.description.toLowerCase().includes(searchTerm)
+        pkg.nombre.toLowerCase().includes(searchTerm) ||
+        pkg.descripcion.toLowerCase().includes(searchTerm)
     );
 
     displayPackages(filteredPackages);
@@ -966,8 +1008,8 @@ function filterFlights() {
     const selectedDestination = destinationSelect.value;
 
     const filteredFlights = flightsData.filter(flight => {
-        const matchesOrigin = !selectedOrigin || flight.origin === selectedOrigin;
-        const matchesDestination = !selectedDestination || flight.destination === selectedDestination;
+        const matchesOrigin = !selectedOrigin || flight.origen === selectedOrigin;
+        const matchesDestination = !selectedDestination || flight.destino === selectedDestination;
         return matchesOrigin && matchesDestination;
     });
 
@@ -976,17 +1018,14 @@ function filterFlights() {
 
 function filterHotels() {
     const nameInput = document.getElementById('hotels-name');
-    const destinationSelect = document.getElementById('hotels-destination');
 
-    if (!nameInput || !destinationSelect || !hotelsData) return;
+    if (!nameInput || !hotelsData) return;
 
     const searchTerm = nameInput.value.toLowerCase();
-    const selectedDestination = destinationSelect.value;
 
     const filteredHotels = hotelsData.filter(hotel => {
-        const matchesName = !searchTerm || hotel.name.toLowerCase().includes(searchTerm);
-        const matchesDestination = !selectedDestination || hotel.destination === selectedDestination;
-        return matchesName && matchesDestination;
+        const matchesName = !searchTerm || hotel.nombre.toLowerCase().includes(searchTerm);
+        return matchesName;
     });
 
     displayHotels(filteredHotels);
@@ -1000,7 +1039,7 @@ function filterVehicles() {
     const selectedType = typeSelect.value;
 
     const filteredVehicles = vehiclesData.filter(vehicle =>
-        !selectedType || vehicle.type === selectedType
+        !selectedType || vehicle.tipo === selectedType
     );
 
     displayVehicles(filteredVehicles);

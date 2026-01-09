@@ -1,4 +1,3 @@
-// Update notification badge count
 function updateNotificationBadge() {
     const unreadCount = document.querySelectorAll('.notification-item.unread').length;
     const badge = document.querySelector('.notification-badge');
@@ -10,10 +9,16 @@ function updateNotificationBadge() {
 
 // General JavaScript for Shared User Menu Functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Create user menu dynamically
-    createUserMenu();
-    // Load user information for profile dropdown
-    loadUserProfileInfo();
+    // Check authentication
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
+    
+    // Only create user menu if user is logged in
+    if (user) {
+        createUserMenu();
+        loadUserProfileInfo();
+    }
+
     // Navbar toggle for mobile
     const burger = document.querySelector('.burger');
     const nav = document.querySelector('.nav-links');
@@ -86,7 +91,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Load notifications from backend
-    loadNotifications();
+    if (user) {
+        loadNotifications();
+    }
 
     // Mark all notifications as read
     const markAllReadBtn = document.querySelector('.mark-all-read');
@@ -99,7 +106,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await fetch('http://localhost:8080/api/notifications/mark-all-read', {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
                     }
                 });
 
@@ -120,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize badge on page load
     updateNotificationBadge();
 
-    // Logout functionality (for pages that still have logout buttons)
+    // Logout functionality
     const logoutBtn = document.querySelector('.btn-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
@@ -164,16 +172,16 @@ async function loadUserProfileInfo() {
             // Update profile button avatar
             const profileAvatar = document.querySelector('.profile-avatar');
             if (profileAvatar) {
-                if (freshUserData.profilePicture && freshUserData.profilePicture.startsWith('/uploads/')) {
+                if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('/uploads/')) {
                     // Profile picture is a file path from backend
-                    profileAvatar.src = `http://localhost:8080${freshUserData.profilePicture}`;
+                    profileAvatar.src = `http://localhost:8080${freshUserData.fotoPerfil}`;
                     profileAvatar.onerror = function() {
                         // If profile picture fails to load, show default
                         profileAvatar.src = '../assets/img/default-profile.png';
                     };
-                } else if (freshUserData.profilePicture && freshUserData.profilePicture.startsWith('data:image')) {
+                } else if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('data:image')) {
                     // Profile picture is base64 (fallback for old data)
-                    profileAvatar.src = freshUserData.profilePicture;
+                    profileAvatar.src = freshUserData.fotoPerfil;
                 } else {
                     // No profile picture, show default
                     profileAvatar.src = '../assets/img/default-profile.png';
@@ -183,16 +191,16 @@ async function loadUserProfileInfo() {
             // Update profile menu information
             const profileAvatarLarge = document.querySelector('.profile-avatar-large');
             if (profileAvatarLarge) {
-                if (freshUserData.profilePicture && freshUserData.profilePicture.startsWith('/uploads/')) {
+                if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('/uploads/')) {
                     // Profile picture is a file path from backend
-                    profileAvatarLarge.src = `http://localhost:8080${freshUserData.profilePicture}`;
+                    profileAvatarLarge.src = `http://localhost:8080${freshUserData.fotoPerfil}`;
                     profileAvatarLarge.onerror = function() {
                         // If profile picture fails to load, show default
                         profileAvatarLarge.src = '../assets/img/default-profile.png';
                     };
-                } else if (freshUserData.profilePicture && freshUserData.profilePicture.startsWith('data:image')) {
+                } else if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('data:image')) {
                     // Profile picture is base64 (fallback for old data)
-                    profileAvatarLarge.src = freshUserData.profilePicture;
+                    profileAvatarLarge.src = freshUserData.fotoPerfil;
                 } else {
                     // No profile picture, show default
                     profileAvatarLarge.src = '../assets/img/default-profile.png';
@@ -200,13 +208,13 @@ async function loadUserProfileInfo() {
             }
 
             const profileName = document.querySelector('.profile-details h4');
-            if (profileName && freshUserData.name) {
-                profileName.textContent = freshUserData.name;
+            if (profileName && freshUserData.nombre) {
+                profileName.textContent = freshUserData.nombre;
             }
 
             const profileEmail = document.querySelector('.profile-details p');
-            if (profileEmail && freshUserData.email) {
-                profileEmail.textContent = freshUserData.email;
+            if (profileEmail && freshUserData.correoElectronico) {
+                profileEmail.textContent = freshUserData.correoElectronico;
             }
         } else {
             console.error('Error loading fresh user data, using localStorage');
@@ -257,18 +265,18 @@ function displayNotifications(notifications) {
 
     notifications.forEach(notification => {
         const notificationItem = document.createElement('div');
-        notificationItem.className = `notification-item ${notification.read ? '' : 'unread'}`;
+        notificationItem.className = `notification-item ${notification.leido ? '' : 'unread'}`;
         notificationItem.dataset.id = notification.id;
         notificationItem.innerHTML = `
-            <i class="fas fa-${getNotificationIcon(notification.type)}"></i>
+            <i class="fas fa-${getNotificationIcon(notification.tipo)}"></i>
             <div class="notification-content">
-                <p>${notification.message}</p>
-                <span class="notification-time">${new Date(notification.createdAt).toLocaleString()}</span>
+                <p>${notification.mensaje}</p>
+                <span class="notification-time">${new Date(notification.fechaCreacion).toLocaleString()}</span>
             </div>
         `;
 
         // Add click event to mark as read
-        if (!notification.read) {
+        if (!notification.leido) {
             notificationItem.addEventListener('click', async () => {
                 await markNotificationAsRead(notification.id);
                 notificationItem.classList.remove('unread');
@@ -289,7 +297,8 @@ async function markNotificationAsRead(notificationId) {
         const response = await fetch(`http://localhost:8080/api/notifications/${notificationId}/read`, {
             method: 'PUT',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
             }
         });
 
@@ -304,11 +313,11 @@ async function markNotificationAsRead(notificationId) {
 // Helper function to get notification icon based on type
 function getNotificationIcon(type) {
     switch (type) {
-        case 'reservation':
+        case 'reservacion':
             return 'calendar-check';
-        case 'payment':
+        case 'pago':
             return 'credit-card';
-        case 'review':
+        case 'resena':
             return 'star';
         default:
             return 'bell';
@@ -322,6 +331,11 @@ function createUserMenu() {
 
     const navLinks = document.querySelector('.nav-links');
     if (!navLinks) return;
+
+    // Check if user menu already exists
+    if (document.querySelector('.user-menu')) {
+        return;
+    }
 
     // Create user menu HTML
     const userMenuHTML = `
@@ -346,11 +360,11 @@ function createUserMenu() {
             <!-- Profile Dropdown -->
             <div class="profile-dropdown">
                 <button class="profile-btn" id="profileBtn">
-                    <img src="../assets/img/default-avatar.png" alt="Perfil" class="profile-avatar">
+                    <img src="../assets/img/default-profile.png" alt="Perfil" class="profile-avatar">
                 </button>
                 <div class="profile-menu" id="profileMenu">
                     <div class="profile-info">
-                        <img src="../assets/img/default-avatar.png" alt="Perfil" class="profile-avatar-large">
+                        <img src="../assets/img/default-profile.png" alt="Perfil" class="profile-avatar-large">
                         <div class="profile-details">
                             <h4></h4>
                             <p></p>
@@ -361,7 +375,11 @@ function createUserMenu() {
                             <i class="fas fa-user"></i>
                             <span>Mi Perfil</span>
                         </a>
-                        <a href="../index.html" class="profile-option logout-option">
+                        <a href="reservations.html" class="profile-option">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Mis Reservas</span>
+                        </a>
+                        <a href="#" class="profile-option logout-option">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Cerrar Sesión</span>
                         </a>
@@ -373,6 +391,19 @@ function createUserMenu() {
 
     // Insert user menu after nav-links
     navLinks.insertAdjacentHTML('afterend', userMenuHTML);
+
+    // Add logout functionality to the newly created logout option
+    setTimeout(() => {
+        const logoutOption = document.querySelector('.logout-option');
+        if (logoutOption) {
+            logoutOption.addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '../index.html';
+            });
+        }
+    }, 100);
 }
 
 // Fallback function to load from localStorage
@@ -383,16 +414,16 @@ function updateUIFromLocalStorage() {
     // Update profile button avatar
     const profileAvatar = document.querySelector('.profile-avatar');
     if (profileAvatar) {
-        if (user.profilePicture && user.profilePicture.startsWith('/uploads/')) {
+        if (user.fotoPerfil && user.fotoPerfil.startsWith('/uploads/')) {
             // Profile picture is a file path from backend
-            profileAvatar.src = `http://localhost:8080${user.profilePicture}`;
+            profileAvatar.src = `http://localhost:8080${user.fotoPerfil}`;
             profileAvatar.onerror = function() {
                 // If profile picture fails to load, show default
                 profileAvatar.src = '../assets/img/default-profile.png';
             };
-        } else if (user.profilePicture && user.profilePicture.startsWith('data:image')) {
+        } else if (user.fotoPerfil && user.fotoPerfil.startsWith('data:image')) {
             // Profile picture is base64 (fallback for old data)
-            profileAvatar.src = user.profilePicture;
+            profileAvatar.src = user.fotoPerfil;
         } else {
             // No profile picture, show default
             profileAvatar.src = '../assets/img/default-profile.png';
@@ -402,16 +433,16 @@ function updateUIFromLocalStorage() {
     // Update profile menu information
     const profileAvatarLarge = document.querySelector('.profile-avatar-large');
     if (profileAvatarLarge) {
-        if (user.profilePicture && user.profilePicture.startsWith('/uploads/')) {
+        if (user.fotoPerfil && user.fotoPerfil.startsWith('/uploads/')) {
             // Profile picture is a file path from backend
-            profileAvatarLarge.src = `http://localhost:8080${user.profilePicture}`;
+            profileAvatarLarge.src = `http://localhost:8080${user.fotoPerfil}`;
             profileAvatarLarge.onerror = function() {
                 // If profile picture fails to load, show default
                 profileAvatarLarge.src = '../assets/img/default-profile.png';
             };
-        } else if (user.profilePicture && user.profilePicture.startsWith('data:image')) {
+        } else if (user.fotoPerfil && user.fotoPerfil.startsWith('data:image')) {
             // Profile picture is base64 (fallback for old data)
-            profileAvatarLarge.src = user.profilePicture;
+            profileAvatarLarge.src = user.fotoPerfil;
         } else {
             // No profile picture, show default
             profileAvatarLarge.src = '../assets/img/default-profile.png';
@@ -419,12 +450,12 @@ function updateUIFromLocalStorage() {
     }
 
     const profileName = document.querySelector('.profile-details h4');
-    if (profileName && user.name) {
-        profileName.textContent = user.name;
+    if (profileName && user.nombre) {
+        profileName.textContent = user.nombre;
     }
 
     const profileEmail = document.querySelector('.profile-details p');
-    if (profileEmail && user.email) {
-        profileEmail.textContent = user.email;
+    if (profileEmail && user.correoElectronico) {
+        profileEmail.textContent = user.correoElectronico;
     }
 }

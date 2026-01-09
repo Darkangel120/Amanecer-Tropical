@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadDestinations() {
     try {
-        const response = await fetch(`${API_BASE_URL}/destinations`, {
+        const response = await fetch(`${API_BASE_URL}/packages`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -134,14 +134,14 @@ function displayDestinations(destinations) {
         const destinationCard = document.createElement('div');
         destinationCard.className = 'destination-card';
         destinationCard.innerHTML = `
-            <img src="${destination.imageUrl || '../assets/img/default-destination.jpg'}" alt="${destination.name}">
+            <img src="${destination.urlImagen || '../assets/img/default-destination.jpg'}" alt="${destination.nombre}">
             <div class="destination-info">
-                <h3>${destination.name}</h3>
-                <p class="location"><strong>Ubicación:</strong> ${destination.location}</p>
-                <p class="category"><strong>Categoría:</strong> ${destination.category}</p>
-                <p class="duration"><strong>Duración:</strong> ${destination.durationDays} días</p>
-                <p class="description"><strong>Descripción:</strong> ${destination.description}</p>
-                <p class="price"><strong>Precio:</strong> $${destination.price}</p>
+                <h3>${destination.nombre}</h3>
+                <p class="location"><strong>Ubicación:</strong> ${destination.ubicacion}</p>
+                <p class="category"><strong>Categoría:</strong> ${destination.categoria}</p>
+                <p class="duration"><strong>Duración:</strong> ${destination.duracionDias} días</p>
+                <p class="description"><strong>Descripción:</strong> ${destination.descripcion}</p>
+                <p class="price"><strong>Precio:</strong> $${destination.precio}</p>
                 ${includes.length > 0 ? `
                 <div class="includes">
                     <strong>Incluye:</strong>

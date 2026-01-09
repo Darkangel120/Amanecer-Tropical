@@ -1,4 +1,3 @@
-// Profile JavaScript
 const API_BASE_URL = 'http://localhost:8080/api';
 let selectedProfilePicture = null;
 
@@ -44,15 +43,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const profilePictureInput = document.getElementById('profile-picture-input');
     const profilePictureContainer = document.querySelector('.profile-picture-container');
 
-    // Create profile picture element dynamically
-    const profilePicture = document.createElement('img');
-    profilePicture.id = 'profile-picture';
-    profilePicture.className = 'profile-picture';
-    profilePicture.alt = 'Foto de Perfil';
-    profilePicture.src = '';
-
-    // Insert the profile picture before the change button
-    profilePictureContainer.insertBefore(profilePicture, changePictureBtn);
+    // Create profile picture element dynamically if it doesn't exist
+    let profilePicture = document.getElementById('profile-picture');
+    if (!profilePicture) {
+        profilePicture = document.createElement('img');
+        profilePicture.id = 'profile-picture';
+        profilePicture.className = 'profile-picture';
+        profilePicture.alt = 'Foto de Perfil';
+        profilePicture.src = '';
+        profilePictureContainer.insertBefore(profilePicture, changePictureBtn);
+    }
 
     if (changePictureBtn && profilePictureInput) {
         changePictureBtn.addEventListener('click', function() {
@@ -126,35 +126,37 @@ function populateProfileForm(user) {
     const specialNeedsInput = document.querySelector('#special-needs');
     const profilePicture = document.getElementById('profile-picture');
 
-    if (nameInput) nameInput.value = user.name || '';
-    if (emailInput) emailInput.value = user.email || '';
-    if (phoneInput) phoneInput.value = user.phone || '';
-    if (birthdateInput) birthdateInput.value = user.birthdate ? new Date(user.birthdate).toISOString().split('T')[0] : '';
-    if (genderInput) genderInput.value = user.gender || '';
-    if (nationalityInput) nationalityInput.value = user.nationality || '';
-    if (addressInput) addressInput.value = user.address || '';
-    if (cityInput) cityInput.value = user.city || '';
-    if (stateInput) stateInput.value = user.state || '';
+    // Map backend field names to form field names
+    if (nameInput) nameInput.value = user.nombre || '';
+    if (emailInput) emailInput.value = user.correoElectronico || '';
+    if (phoneInput) phoneInput.value = user.telefono || '';
+    if (birthdateInput) birthdateInput.value = user.fechaNacimiento ? new Date(user.fechaNacimiento).toISOString().split('T')[0] : '';
+    if (genderInput) genderInput.value = user.genero || '';
+    if (nationalityInput) nationalityInput.value = user.nacionalidad || '';
+    if (addressInput) addressInput.value = user.direccion || '';
+    if (cityInput) cityInput.value = user.ciudad || '';
+    if (stateInput) stateInput.value = user.estado || '';
     if (cedulaInput) cedulaInput.value = user.cedula || '';
-    if (passportInput) passportInput.value = user.passport || '';
-    if (passportExpiryInput) passportExpiryInput.value = user.passportExpiry ? new Date(user.passportExpiry).toISOString().split('T')[0] : '';
-    if (emergencyNameInput) emergencyNameInput.value = user.emergencyName || '';
-    if (emergencyPhoneInput) emergencyPhoneInput.value = user.emergencyPhone || '';
-    if (emergencyRelationshipInput) emergencyRelationshipInput.value = user.emergencyRelationship || '';
-    if (travelStyleInput) travelStyleInput.value = user.travelStyle || '';
-    if (dietaryRestrictionsInput) dietaryRestrictionsInput.value = user.dietaryRestrictions || '';
-    if (specialNeedsInput) specialNeedsInput.value = user.specialNeeds || '';
+    if (passportInput) passportInput.value = user.pasaporte || '';
+    if (passportExpiryInput) passportExpiryInput.value = user.fechaExpiracionPasaporte ? new Date(user.fechaExpiracionPasaporte).toISOString().split('T')[0] : '';
+    if (emergencyNameInput) emergencyNameInput.value = user.nombreEmergencia || '';
+    if (emergencyPhoneInput) emergencyPhoneInput.value = user.telefonoEmergencia || '';
+    if (emergencyRelationshipInput) emergencyRelationshipInput.value = user.relacionEmergencia || '';
+    if (travelStyleInput) travelStyleInput.value = user.estiloViaje || '';
+    if (dietaryRestrictionsInput) dietaryRestrictionsInput.value = user.restriccionesDieteticas || '';
+    if (specialNeedsInput) specialNeedsInput.value = user.necesidadesEspeciales || '';
+    
     if (profilePicture) {
-        if (user.profilePicture && user.profilePicture.startsWith('/uploads/')) {
+        if (user.fotoPerfil && user.fotoPerfil.startsWith('/uploads/')) {
             // Profile picture is a file path from backend
-            profilePicture.src = `http://localhost:8080${user.profilePicture}`;
+            profilePicture.src = `http://localhost:8080${user.fotoPerfil}`;
             profilePicture.onerror = function() {
                 // If profile picture fails to load, show default
                 profilePicture.src = '../assets/img/default-profile.png';
             };
-        } else if (user.profilePicture && user.profilePicture.startsWith('data:image')) {
+        } else if (user.fotoPerfil && user.fotoPerfil.startsWith('data:image')) {
             // Profile picture is base64 (fallback for old data)
-            profilePicture.src = user.profilePicture;
+            profilePicture.src = user.fotoPerfil;
         } else {
             // No profile picture, show default
             profilePicture.src = '../assets/img/default-profile.png';
@@ -174,39 +176,44 @@ async function updateUserProfile() {
         return value && value.trim() !== '' ? value : null;
     };
 
-    // Check required fields
-    const requiredFields = ['name', 'email', 'phone', 'birthdate', 'gender', 'nationality', 'address', 'city', 'state', 'cedula'];
+    // Check required fields (match backend validation)
+    const requiredFields = [
+        'name', 'email', 'phone', 'birthdate', 'gender', 
+        'nationality', 'address', 'city', 'state', 'cedula'
+    ];
+    
     for (const field of requiredFields) {
         if (!formData.get(field) || formData.get(field).trim() === '') {
-            alert(`El campo ${field} es obligatorio.`);
+            alert(`El campo ${getFieldLabel(field)} es obligatorio.`);
             return;
         }
     }
 
+    // Map form fields to backend field names
     const updatedUser = {
-        name: formData.get('name'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        birthdate: formData.get('birthdate'),
-        gender: formData.get('gender'),
-        nationality: formData.get('nationality'),
-        address: formData.get('address'),
-        city: formData.get('city'),
-        state: formData.get('state'),
+        nombre: formData.get('name'),
+        correoElectronico: formData.get('email'),
+        telefono: formData.get('phone'),
+        fechaNacimiento: formData.get('birthdate'),
+        genero: formData.get('gender'),
+        nacionalidad: formData.get('nationality'),
+        direccion: formData.get('address'),
+        ciudad: formData.get('city'),
+        estado: formData.get('state'),
         cedula: formData.get('cedula'),
-        passport: getValueOrNull('passport'),
-        passportExpiry: getValueOrNull('passport-expiry'),
-        emergencyName: getValueOrNull('emergency-name'),
-        emergencyPhone: getValueOrNull('emergency-phone'),
-        emergencyRelationship: getValueOrNull('emergency-relationship'),
-        travelStyle: getValueOrNull('travel-style'),
-        dietaryRestrictions: getValueOrNull('dietary-restrictions'),
-        specialNeeds: getValueOrNull('special-needs')
+        pasaporte: getValueOrNull('passport'),
+        fechaExpiracionPasaporte: getValueOrNull('passport-expiry'),
+        nombreEmergencia: getValueOrNull('emergency-name'),
+        telefonoEmergencia: getValueOrNull('emergency-phone'),
+        relacionEmergencia: getValueOrNull('emergency-relationship'),
+        estiloViaje: getValueOrNull('travel-style'),
+        restriccionesDieteticas: getValueOrNull('dietary-restrictions'),
+        necesidadesEspeciales: getValueOrNull('special-needs')
     };
 
     // Only include profilePicture if a new one was selected
     if (selectedProfilePicture) {
-        updatedUser.profilePicture = selectedProfilePicture;
+        updatedUser.fotoPerfil = selectedProfilePicture;
     }
 
     try {
@@ -222,23 +229,27 @@ async function updateUserProfile() {
         if (response.ok) {
             const updatedUserData = await response.json();
             localStorage.setItem('user', JSON.stringify(updatedUserData));
+            
             // Update the profile picture display if it was changed
-            if (updatedUserData.profilePicture) {
+            if (updatedUserData.fotoPerfil) {
                 const profilePicture = document.getElementById('profile-picture');
                 if (profilePicture) {
-                    if (updatedUserData.profilePicture.startsWith('/uploads/')) {
-                        profilePicture.src = `http://localhost:8080${updatedUserData.profilePicture}`;
+                    if (updatedUserData.fotoPerfil.startsWith('/uploads/')) {
+                        profilePicture.src = `http://localhost:8080${updatedUserData.fotoPerfil}`;
                         profilePicture.onerror = function() {
                             profilePicture.src = '../assets/img/default-profile.png';
                         };
-                    } else if (updatedUserData.profilePicture.startsWith('data:image')) {
-                        profilePicture.src = updatedUserData.profilePicture;
+                    } else if (updatedUserData.fotoPerfil.startsWith('data:image')) {
+                        profilePicture.src = updatedUserData.fotoPerfil;
                     } else {
                         profilePicture.src = '../assets/img/default-profile.png';
                     }
                 }
             }
+            
             alert('Perfil actualizado exitosamente');
+            // Reset selected picture
+            selectedProfilePicture = null;
         } else {
             const error = await response.text();
             alert('Error al actualizar el perfil: ' + error);
@@ -247,6 +258,23 @@ async function updateUserProfile() {
         console.error('Error:', error);
         alert('Error de conexión');
     }
+}
+
+// Helper function to get field labels
+function getFieldLabel(fieldName) {
+    const labels = {
+        'name': 'Nombre',
+        'email': 'Correo Electrónico',
+        'phone': 'Teléfono',
+        'birthdate': 'Fecha de Nacimiento',
+        'gender': 'Género',
+        'nationality': 'Nacionalidad',
+        'address': 'Dirección',
+        'city': 'Ciudad',
+        'state': 'Estado',
+        'cedula': 'Cédula'
+    };
+    return labels[fieldName] || fieldName;
 }
 
 // Function to resize image
