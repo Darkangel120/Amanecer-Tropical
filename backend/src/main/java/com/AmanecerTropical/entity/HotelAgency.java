@@ -1,5 +1,6 @@
 package com.AmanecerTropical.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -34,6 +35,7 @@ public class HotelAgency {
     private boolean activo = true;
 
     @OneToMany(mappedBy = "agenciaHotel")
+    @JsonIgnore
     private List<Hotel> hoteles;
 
     // Getters and Setters

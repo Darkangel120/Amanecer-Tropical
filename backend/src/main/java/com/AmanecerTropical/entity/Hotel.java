@@ -1,5 +1,6 @@
 package com.AmanecerTropical.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -45,6 +46,7 @@ public class Hotel {
     private Integer habitacionesDisponibles;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "agencia_hotel_id")
     private HotelAgency agenciaHotel;
 

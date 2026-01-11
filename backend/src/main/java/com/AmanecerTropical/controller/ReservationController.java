@@ -1,16 +1,21 @@
 package com.AmanecerTropical.controller;
 
 import com.AmanecerTropical.entity.Reservation;
+import com.AmanecerTropical.entity.Flight;
+import com.AmanecerTropical.entity.Hotel;
 import com.AmanecerTropical.service.ReservationService;
+import com.AmanecerTropical.service.FlightService;
+import com.AmanecerTropical.service.HotelService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -18,6 +23,12 @@ public class ReservationController {
 
     @Autowired
     private ReservationService reservationService;
+
+    @Autowired
+    private FlightService flightService;
+
+    @Autowired
+    private HotelService hotelService;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -48,8 +59,8 @@ public class ReservationController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<Reservation> createReservation(@RequestBody @NonNull Reservation reservation) {
+    @PreAuthorize("hasRole('USUARIO') or hasRole('ADMIN')")
+    public ResponseEntity<Reservation> createReservation(@Valid @RequestBody @NonNull Reservation reservation) {
         try {
             Reservation createdReservation = reservationService.createReservation(reservation);
             return ResponseEntity.ok(createdReservation);
@@ -60,7 +71,7 @@ public class ReservationController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @reservationSecurity.hasReservationAccess(authentication, #id)")
-    public ResponseEntity<Reservation> updateReservation(@PathVariable @NonNull Long id, @RequestBody @NonNull Reservation reservation) {
+    public ResponseEntity<Reservation> updateReservation(@PathVariable @NonNull Long id, @Valid @RequestBody @NonNull Reservation reservation) {
         Optional<Reservation> existingReservation = reservationService.getReservationById(id);
         if (existingReservation.isPresent()) {
             reservation.setId(id);
@@ -107,5 +118,128 @@ public class ReservationController {
         LocalDate fin = LocalDate.parse(fechaFin);
         List<Reservation> overlappingReservations = reservationService.getOverlappingReservations(paqueteId, vueloId, hotelId, vehiculoId, inicio, fin);
         return ResponseEntity.ok(overlappingReservations);
+    }
+
+    /**
+     * Endpoint para validar compatibilidad de servicios antes de crear reserva combinada
+     */
+    @PostMapping("/validate-compatibility")
+    @PreAuthorize("hasRole('USUARIO') or hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> validateServicesCompatibility(
+            @RequestBody Map<String, List<Long>> serviceIds) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            List<Long> flightIds = serviceIds.getOrDefault("vuelos", new ArrayList<>());
+            List<Long> hotelIds = serviceIds.getOrDefault("hoteles", new ArrayList<>());
+            List<Long> vehicleIds = serviceIds.getOrDefault("vehiculos", new ArrayList<>());
+            
+            // Verificar ubicaciones
+            String commonLocation = null;
+            boolean compatible = true;
+            
+            // Si hay vuelos, usar el destino como ubicación base
+            if (!flightIds.isEmpty()) {
+                @SuppressWarnings("null")
+                Optional<Flight> flight = flightService.getFlightById(flightIds.get(0));
+                if (flight.isPresent()) {
+                    commonLocation = flight.get().getDestino();
+                }
+            }
+            
+            // Verificar hoteles
+            if (!hotelIds.isEmpty()) {
+                for (Long hotelId : hotelIds) {
+                    @SuppressWarnings("null")
+                    Optional<Hotel> hotel = hotelService.getHotelById(hotelId);
+                    if (hotel.isPresent()) {
+                        String hotelLocation = hotel.get().getUbicacion();
+                        if (commonLocation == null) {
+                            commonLocation = hotelLocation;
+                        } else if (!locationMatches(commonLocation, hotelLocation)) {
+                            compatible = false;
+                            response.put("reason", "Las ubicaciones de los servicios no coinciden");
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            response.put("compatible", compatible);
+            response.put("location", commonLocation != null ? commonLocation : "No especificada");
+            response.put("services", Map.of(
+                "vuelos", flightIds.size(),
+                "hoteles", hotelIds.size(),
+                "vehiculos", vehicleIds.size()
+            ));
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            response.put("compatible", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * Método auxiliar para verificar si dos ubicaciones coinciden
+     */
+    private boolean locationMatches(String location1, String location2) {
+        if (location1 == null || location2 == null) return false;
+        
+        String loc1 = location1.toLowerCase().trim();
+        String loc2 = location2.toLowerCase().trim();
+        
+        // Coincidencia exacta
+        if (loc1.equals(loc2)) return true;
+        
+        // Verificar si una contiene a la otra
+        if (loc1.contains(loc2) || loc2.contains(loc1)) return true;
+        
+        // Podrías agregar más lógica aquí para manejar casos como
+        // "San José, Costa Rica" vs "San José"
+        
+        return false;
+    }
+
+    /**
+     * Endpoint para crear múltiples reservaciones en una transacción
+     */
+    @PostMapping("/batch")
+    @PreAuthorize("hasRole('USUARIO') or hasRole('ADMIN')")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> createBatchReservations(
+            @Valid @RequestBody List<Reservation> reservations) {
+        
+        Map<String, Object> response = new HashMap<>();
+        List<Reservation> createdReservations = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
+        
+        for (int i = 0; i < reservations.size(); i++) {
+            try {
+                Reservation reservation = reservations.get(i);
+                @SuppressWarnings("null")
+                Reservation created = reservationService.createReservation(reservation);
+                createdReservations.add(created);
+            } catch (Exception e) {
+                errors.add("Reservación " + (i + 1) + ": " + e.getMessage());
+            }
+        }
+        
+        response.put("success", createdReservations.size());
+        response.put("errors", errors.size());
+        response.put("reservations", createdReservations);
+        
+        if (!errors.isEmpty()) {
+            response.put("errorMessages", errors);
+        }
+        
+        if (createdReservations.isEmpty()) {
+            return ResponseEntity.badRequest().body(response);
+        }
+        
+        return ResponseEntity.ok(response);
     }
 }

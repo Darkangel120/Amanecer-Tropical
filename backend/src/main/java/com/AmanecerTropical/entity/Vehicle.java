@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "vehiculos")
 public class Vehicle {
@@ -20,6 +22,9 @@ public class Vehicle {
     @NotBlank
     @Column(columnDefinition = "TEXT")
     private String descripcion;
+    
+    @NotBlank
+    private String ubicacion;
 
     @NotBlank
     private String tipo; // car, van, motorcycle, etc.
@@ -48,6 +53,7 @@ public class Vehicle {
     private Integer unidadesDisponibles;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "agencia_vehiculo_id")
     private VehicleAgency agenciaVehiculo;
 
@@ -66,6 +72,9 @@ public class Vehicle {
 
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public String getUbicacion() { return ubicacion; }
+    public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
 
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }

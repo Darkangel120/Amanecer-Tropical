@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../assets/css/services.css">
     <link rel="stylesheet" href="../assets/css/filter-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/FontAwesome/fontawesome-free-6.7.2-web/css/all.css">
 </head>
 <body>
     <nav class="navbar">
@@ -19,9 +19,9 @@
             <h1>Amanecer Tropical</h1>
         </div>
         <ul class="nav-links">
-            <li><a href="../user/dashboard.html">Inicio</a></li>
+            <li><a href="../index.html">Inicio</a></li>
             <li><a href="services.html">Servicios</a></li>
-            <li><a href="../user/reservations.html">Reservas</a></li>
+            <li><a href="reservations.html">Reservas</a></li>
         </ul>
         <div class="burger">
             <div class="line1"></div>
@@ -183,7 +183,93 @@
         </div>
     </div>
 
+    <!-- Reservation Confirmation Modal -->
+    <div id="reservation-confirm-modal" class="modal">
+        <div class="modal-content reservation-confirm-modal-content">
+            <span class="close" id="reservation-confirm-close">&times;</span>
+            <h2>Confirmar Reserva</h2>
+            <div id="reservation-details" class="reservation-details">
+                <!-- Reservation items will be displayed here -->
+            </div>
+            <div class="reservation-total">
+                <strong>Total: $<span id="reservation-total">0.00</span></strong>
+            </div>
+            <form id="reservation-form" class="reservation-form">
+                <div class="form-group">
+                    <label for="fecha-inicio">Fecha de Inicio:</label>
+                    <input type="date" id="fecha-inicio" name="fecha-inicio" required>
+                </div>
+                <div class="form-group">
+                    <label for="fecha-fin">Fecha de Fin:</label>
+                    <input type="date" id="fecha-fin" name="fecha-fin" required>
+                </div>
+                <div class="form-group">
+                    <label for="numero-personas">Número de Personas:</label>
+                    <input type="number" id="numero-personas" name="numero-personas" min="1" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="solicitudes-especiales">Solicitudes Especiales:</label>
+                    <textarea id="solicitudes-especiales" name="solicitudes-especiales" rows="3"></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" id="cancel-reservation-btn" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" id="confirm-reservation-btn" class="btn btn-primary">Proceder al Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content payment-modal-content">
+            <span class="close">&times;</span>
+            <button id="back-to-confirmation" class="back-arrow-btn" title="Volver a Confirmación">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>Información de Pago</h2>
+            <div id="payment-summary">
+                <!-- Payment summary will be displayed here -->
+            </div>
+            <form id="payment-form">
+                <div class="form-group">
+                    <label for="payment-method">Método de Pago:</label>
+                    <select id="payment-method" required>
+                        <option value="">Seleccionar método</option>
+                        <option value="transferencia">Transferencia Bancaria</option>
+                        <option value="pagomovil">Pago Móvil</option>
+                    </select>
+                </div>
+                <div id="transferencia-details" class="payment-details" style="display: none;">
+                    <div class="form-group">
+                        <h4>Datos para Transferencia Bancaria</h4>
+                        <p><strong>Banco:</strong> Banco de Venezuela</p>
+                        <p><strong>Número de Cuenta:</strong> 0102-1234-5678-9012-3456</p>
+                        <p><strong>Titular:</strong> Amanecer Tropical S.A.</p>
+                        <p><strong>Cédula/RIF:</strong> J-12345678-9</p>
+                    </div>
+                </div>
+                <div id="pagomovil-details" class="payment-details" style="display: none;">
+                    <div class="form-group">
+                        <h4>Datos para Pago Móvil</h4>
+                        <p><strong>Banco:</strong> Banco de Venezuela</p>
+                        <p><strong>Teléfono:</strong> 0414-123-4567</p>
+                        <p><strong>Cédula:</strong> V-12.345.678</p>
+                    </div>
+                </div>
+                <div id="payment-reference-group" class="form-group" style="display: none;">
+                    <label for="payment-reference">Referencia de Pago:</label>
+                    <input type="text" id="payment-reference" name="payment-reference" placeholder="Ingrese la referencia del pago" required>
+                    <small style="color: #666; font-size: 12px;">Ingrese la referencia que recibió después de realizar el pago</small>
+                </div>
+                <div class="form-group payment-total">
+                    <strong>Total a Pagar: <span id="payment-total">0</span></strong>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn btn-primary">Confirmar Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="../assets/js/general.js"></script>
     <script src="../assets/js/services.js"></script>

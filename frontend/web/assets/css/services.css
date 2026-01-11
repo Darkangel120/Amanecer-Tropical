@@ -355,7 +355,7 @@
 }
 
 .service-price {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: bold;
     color: #ff7e5f;
     margin-bottom: 1rem;
@@ -438,59 +438,144 @@
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.4) 100%);
+    backdrop-filter: blur(8px);
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+    to {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+    }
 }
 
 .modal-content {
-    background-color: #fff;
-    margin: 5% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    margin: 3% auto;
+    padding: 2rem;
+    border: none;
+    width: 85%;
+    max-width: 800px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
     text-align: center;
+    position: relative;
+    animation: modalSlideIn 0.4s ease-out;
+    overflow: hidden;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff7e5f 0%, #feb47b 50%, #ff7e5f 100%);
 }
 
 .modal-content img {
     width: 100%;
     height: 300px;
     object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.modal-content img:hover {
+    transform: scale(1.02);
 }
 
 .modal-content h2 {
     margin-bottom: 1rem;
     color: #333;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1.8rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.modal-content h2::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #ff7e5f, #feb47b);
+    border-radius: 2px;
 }
 
 .modal-content p {
-    margin-bottom: 1rem;
-    color: #555;
-    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    color: #666;
+    line-height: 1.6;
+    font-size: 1.1rem;
 }
 
 .modal-content .modal-sections {
     display: flex;
     gap: 2rem;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
 }
 
 .modal-content .modal-section {
     flex: 1;
-    box-shadow: 0 4px 6px rgba(255, 126, 95, 0.2);
+    min-width: 250px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 25px rgba(255, 126, 95, 0.15);
     border-radius: 20px;
-    padding: 10px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-content .modal-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff7e5f 0%, #feb47b 50%, #ff7e5f 100%);
+}
+
+.modal-content .modal-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(255, 126, 95, 0.25);
 }
 
 .modal-content h3 {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
     color: #ff7e5f;
-    font-weight: 600;
-    font-size: 1.2rem;
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
 }
 
 .modal-content ul {
@@ -502,38 +587,89 @@
 }
 
 .modal-content ul li {
-    margin-bottom: 0.75rem;
-    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
     position: relative;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(248, 249, 250, 0.8) 0%, rgba(255, 255, 255, 0.8) 100%);
+    border-radius: 12px;
     border-left: 4px solid #ff7e5f;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content ul li:hover {
+    transform: translateX(5px);
 }
 
 .modal-content ul li:before {
     content: '✓';
     position: absolute;
     left: 0.5rem;
-    top: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
     color: #ff7e5f;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    background: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(255, 126, 95, 0.3);
 }
 
 .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #666;
+    font-size: 32px;
     font-weight: bold;
     cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10;
 }
 
 .close:hover,
 .close:focus {
-    color: black;
+    color: #ff7e5f;
+    background: white;
+    transform: rotate(90deg) scale(1.1);
     text-decoration: none;
+    box-shadow: 0 6px 20px rgba(255, 126, 95, 0.3);
+}
+
+/* Back Arrow Button in Payment Modal */
+.back-arrow-btn {
+    position: absolute;
+    background: #ff7e5f;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+    z-index: 10;
+}
+
+.back-arrow-btn:hover {
+    background: #e66b4f;
 }
 
 @media (max-width: 768px) {

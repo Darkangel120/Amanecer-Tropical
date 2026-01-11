@@ -7,6 +7,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class PackageController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Package> createPackage(@RequestBody @NonNull Package pkg) {
+    public ResponseEntity<Package> createPackage(@Valid @RequestBody @NonNull Package pkg) {
         Package createdPackage = packageService.createPackage(pkg);
         return ResponseEntity.ok(createdPackage);
     }

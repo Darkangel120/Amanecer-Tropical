@@ -100,7 +100,7 @@ public class UserService implements UserDetailsService {
 
     private String saveProfilePicture(String base64Image, Long userId) throws IOException {
         // Create uploads directory if it doesn't exist
-        Path uploadDir = Paths.get("src/main/resources/static/uploads/profile-pictures");
+        Path uploadDir = Paths.get("src/main/resources/static/uploads/profile-pictures").toAbsolutePath();
         if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }

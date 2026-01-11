@@ -2,6 +2,7 @@ package com.AmanecerTropical.controller;
 
 import com.AmanecerTropical.entity.Flight;
 import com.AmanecerTropical.service.FlightService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -51,7 +52,7 @@ public class FlightController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Flight> createFlight(@RequestBody @NonNull Flight flight) {
+    public ResponseEntity<Flight> createFlight(@Valid @RequestBody @NonNull Flight flight) {
         Flight createdFlight = flightService.saveFlight(flight);
         return ResponseEntity.ok(createdFlight);
     }

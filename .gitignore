@@ -35,3 +35,5 @@ build/
 TODO.md
 db
 AMANECER_TROPICAL.FDB
+backend/src/main/resources/static/uploads/
+FontAwesome/

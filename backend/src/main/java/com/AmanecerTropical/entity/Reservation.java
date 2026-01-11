@@ -1,5 +1,6 @@
 package com.AmanecerTropical.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,59 +8,66 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "reservaciones")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotNull(message = "El usuario es requerido")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnoreProperties({"contrasena", "password", "hibernateLazyInitializer", "handler"})
     private User usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paquete_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Package paquete;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vuelo_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Flight vuelo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hotel_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Hotel hotel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehiculo_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Vehicle vehiculo;
 
-    @NotBlank
+    @NotBlank(message = "El tipo de servicio es requerido")
     @Column(name = "tipo_servicio")
     private String tipoServicio; // paquete, vuelo, hotel, vehiculo
 
-    @NotNull
+    @NotNull(message = "La fecha de inicio es requerida")
     @Column(name = "fecha_inicio")
     private LocalDate fechaInicio;
 
-    @NotNull
+    @NotNull(message = "La fecha de fin es requerida")
     @Column(name = "fecha_fin")
     private LocalDate fechaFin;
 
-    @NotNull
-    @Positive
+    @NotNull(message = "El número de personas es requerido")
+    @Positive(message = "El número de personas debe ser positivo")
     @Column(name = "numero_personas")
     private Integer numeroPersonas;
 
-    @NotNull
-    @Positive
+    @NotNull(message = "El precio total es requerido")
+    @Positive(message = "El precio total debe ser positivo")
     @Column(name = "precio_total")
     private BigDecimal precioTotal;
 
-    @NotBlank
+    @NotBlank(message = "El estado es requerido")
     private String estado = "pendiente"; // pendiente, confirmado, cancelado, completado
 
     @Column(name = "solicitudes_especiales", columnDefinition = "TEXT")
@@ -71,10 +79,19 @@ public class Reservation {
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
+    @OneToMany(mappedBy = "reservacion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"reservacion", "hibernateLazyInitializer", "handler"})
+    private List<Payment> pagos;
+
     @PrePersist
     protected void onCreate() {
         fechaCreacion = LocalDateTime.now();
         fechaActualizacion = LocalDateTime.now();
+        
+        // Validación: Al menos uno de los servicios debe estar presente
+        if (paquete == null && vuelo == null && hotel == null && vehiculo == null) {
+            throw new IllegalStateException("Debe especificar al menos un servicio (paquete, vuelo, hotel o vehículo)");
+        }
     }
 
     @PreUpdate
@@ -143,4 +160,7 @@ public class Reservation {
 
     public LocalDateTime getFechaActualizacion() { return fechaActualizacion; }
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) { this.fechaActualizacion = fechaActualizacion; }
+
+    public List<Payment> getPagos() { return pagos; }
+    public void setPagos(List<Payment> pagos) { this.pagos = pagos; }
 }

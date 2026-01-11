@@ -2,6 +2,7 @@ package com.AmanecerTropical.controller;
 
 import com.AmanecerTropical.entity.Review;
 import com.AmanecerTropical.service.ReviewService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -57,7 +58,7 @@ public class ReviewController {
 
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<Review> createReview(@RequestBody @NonNull Review review) {
+    public ResponseEntity<Review> createReview(@Valid @RequestBody @NonNull Review review) {
         Review createdReview = reviewService.saveReview(review);
         return ResponseEntity.ok(createdReview);
     }

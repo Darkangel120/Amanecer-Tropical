@@ -13,6 +13,37 @@ let packagesData, hotelsData, vehiclesData, flightsData;
 // Reservation sidebar data
 let reservationItems = [];
 
+// Currency exchange rate
+let usdToVesRate = 36.50; // Default fallback rate
+
+// Function to load exchange rate from API
+async function loadExchangeRate() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/currency/rate`);
+        if (response.ok) {
+            const data = await response.json();
+            usdToVesRate = data.usdToVesRate;
+            console.log(`Exchange rate loaded: 1 USD = ${usdToVesRate} VES`);
+            // Refresh displays to show updated prices
+            if (packagesData) displayPackages(packagesData);
+            if (flightsData) displayFlights(flightsData);
+            if (hotelsData) displayHotels(hotelsData);
+            if (vehiclesData) displayVehicles(vehiclesData);
+        } else {
+            console.warn('Failed to load exchange rate, using default rate');
+        }
+    } catch (error) {
+        console.error('Error loading exchange rate:', error);
+    }
+}
+
+// Function to format price in both currencies
+function formatPrice(usdPrice) {
+    const usd = parseFloat(usdPrice);
+    const ves = usd * usdToVesRate;
+    return `$${usd.toFixed(2)} USD / Bs${ves.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Check authentication
     const token = localStorage.getItem('token');
@@ -92,6 +123,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize sidebar toggle
     initializeSidebarToggle();
+
+    // Initialize QR button
+    initializeQRButton();
+
+    // Load exchange rate
+    loadExchangeRate();
 });
 
 async function loadDestinationDetails(destinationId) {
@@ -120,7 +157,7 @@ function displayDestinationDetails(destination) {
 
     if (destinationTitle) destinationTitle.textContent = destination.nombre;
     if (destinationDescription) destinationDescription.textContent = destination.descripcion;
-    if (destinationPrice) destinationPrice.textContent = `$${destination.precio}`;
+    if (destinationPrice) destinationPrice.textContent = formatPrice(destination.precio);
 
     // Set destination ID in form
     const bookingForm = document.querySelector('#booking-form');
@@ -166,7 +203,7 @@ function displayPackages(destinations = packagesData) {
             <img src="../${destination.urlImagen}" alt="Paquete ${destination.nombre}">
             <h3>Paquete ${destination.nombre}</h3>
             <p>${destination.descripcion}</p>
-            <div class="service-price" style="display: flex; justify-content: center;">$${destination.precio}</div>
+            <div class="service-price" style="display: flex; justify-content: center;">${formatPrice(destination.precio)}</div>
             <div class="card-buttons">
                 <a href="#" class="btn btn-details" onclick="viewPackageDetails(${destination.id})">Ver Detalles</a>
                 <a href="#" class="btn" onclick="bookPackage(${destination.id})">Reservar Ahora</a>
@@ -192,7 +229,7 @@ function viewPackageDetails(packageId) {
     modalImage.alt = `Paquete ${packageData.nombre}`;
     modalTitle.textContent = `Paquete ${packageData.nombre}`;
     modalDescription.textContent = packageData.descripcion;
-    modalPrice.textContent = `$${packageData.precio}`;
+    modalPrice.textContent = formatPrice(packageData.precio);
 
     // Populate includes
     includesList.innerHTML = '';
@@ -277,7 +314,6 @@ async function loadFlights() {
             console.log(`Loaded ${flightsData.length} flights`); // Debug log
             displayFlights(flightsData);
             populateFlightFilters(flightsData);
-            populateHotelDestinations(flightsData);
         } else {
             console.error('Error loading flights');
         }
@@ -309,7 +345,7 @@ function displayFlights(flights = flightsData) {
                 <li><strong>Fecha y Hora de Salida</strong> ${departureDateTime}</li>
                 <li><strong>Fecha y Hora de Llegada</strong> ${arrivalDateTime} aprox</li>
             </ul>
-            <div class="service-price" style="display: flex; justify-content: center;">$${flight.precio}</div>
+            <div class="service-price" style="display: flex; justify-content: center;">${formatPrice(flight.precio)}</div>
             <a href="#" class="btn" onclick="addToReservation('flight', ${flight.id})" style="display: flex; justify-content: center;">Reservar Vuelo</a>
         `;
         flightsGrid.appendChild(flightCard);
@@ -324,6 +360,7 @@ async function loadHotels() {
             hotelsData = hotels; // Load all hotels
             console.log(`Loaded ${hotelsData.length} hotels`); // Debug log
             displayHotels(hotelsData);
+            populateHotelDestinations(hotelsData);
         } else {
             console.error('Error loading hotels');
         }
@@ -352,7 +389,7 @@ function displayHotels(hotels = hotelsData) {
             <h3>${hotel.nombre}</h3>
             <div class="hotel-stars">${starsHtml}</div>
             <p>${hotel.descripcion}</p>
-            <div class="service-price"  style="display: flex; justify-content: center;">$${hotel.precioPorNoche}/noche</div>
+            <div class="service-price"  style="display: flex; justify-content: center;">${formatPrice(hotel.precioPorNoche)}/noche</div>
             <div class="card-buttons">
                 <a href="#" class="btn btn-details" onclick="viewHotelDetails(${hotel.id})">Ver Detalles</a>
                 <a href="#" class="btn" onclick="addToReservation('hotel', ${hotel.id})">Reservar Hotel</a>
@@ -402,8 +439,9 @@ function displayVehicles(vehicles = vehiclesData) {
         vehicleCard.className = 'service-card';
         vehicleCard.innerHTML = `
             <h3>${vehicle.nombre}</h3>
+            <p>${vehicle.ubicacion}</p>
             <p>${vehicle.descripcion}</p>
-            <div class="service-price"  style="display: flex; justify-content: center;" style="display: flex; justify-content: center;">$${vehicle.precioPorDia}/día</div>
+            <div class="service-price"  style="display: flex; justify-content: center;">${formatPrice(vehicle.precioPorDia)}/día</div>
             <div class="card-buttons">
                 <a href="#" class="btn btn-details" onclick="viewVehicleDetails(${vehicle.id})">Ver Detalles</a>
                 <a href="#" class="btn" onclick="addToReservation('vehicle', ${vehicle.id})" style="font-size: 13px;">Alquilar Vehículo</a>
@@ -431,7 +469,7 @@ function viewHotelDetails(hotelId) {
     modalImage.alt = hotelData.nombre;
     modalTitle.textContent = hotelData.nombre;
     modalDescription.textContent = hotelData.descripcion;
-    modalPrice.textContent = `$${hotelData.precioPorNoche}/noche`;
+    modalPrice.textContent = `${formatPrice(hotelData.precioPorNoche)}/noche`;
     modalStars.innerHTML = generateStars(hotelData.estrellas);
 
     // Populate amenities
@@ -489,7 +527,7 @@ function viewVehicleDetails(vehicleId) {
     modalImage.alt = vehicleData.nombre;
     modalTitle.textContent = vehicleData.nombre;
     modalDescription.textContent = vehicleData.descripcion;
-    modalPrice.textContent = `$${vehicleData.precioPorDia}/día`;
+    modalPrice.textContent = `${formatPrice(vehicleData.precioPorDia)}/día`;
     vehicleCapacity.textContent = vehicleData.capacidad;
     vehicleTransmission.textContent = vehicleData.transmision;
     vehicleFuel.textContent = vehicleData.TipoCombustible;
@@ -515,15 +553,15 @@ async function createReservation() {
     const user = JSON.parse(localStorage.getItem('user'));
 
     const reservationData = {
-        user: { id: user.id },
-        destination: { id: parseInt(formData.get('destinationId')) },
-        serviceType: 'destination',
-        startDate: formData.get('checkInDate'),
-        endDate: formData.get('checkOutDate'),
-        numberOfPeople: parseInt(formData.get('numberOfGuests')),
-        totalPrice: parseFloat(formData.get('totalPrice')),
-        status: 'pending',
-        specialRequests: formData.get('specialRequests') || ''
+        usuario: { id: user.id },
+        paquete: { id: parseInt(formData.get('destinationId')) },
+        tipoServicio: 'paquete',
+        fechaInicio: formData.get('checkInDate'),
+        fechaFin: formData.get('checkOutDate'),
+        numeroPersonas: parseInt(formData.get('numberOfGuests')),
+        precioTotal: parseFloat(formData.get('totalPrice')),
+        estado: 'pendiente',
+        solicitudesEspeciales: formData.get('specialRequests') || ''
     };
 
     try {
@@ -569,7 +607,7 @@ function openReservationModal(destinationId) {
     modalImage.alt = `Paquete ${packageData.nombre}`;
     modalTitle.textContent = `Reservar Paquete ${packageData.nombre}`;
     modalDescription.textContent = packageData.descripcion;
-    modalPrice.textContent = `$${packageData.precio}`;
+    modalPrice.textContent = formatPrice(packageData.precio);
     destinationIdInput.value = destinationId;
     totalPriceInput.value = packageData.precio;
 
@@ -652,15 +690,15 @@ function addToReservation(type, id) {
     let price = 0;
 
     if (type === 'flight') {
-        // For now, we'll use a placeholder since flights don't have individual data
+        const flight = flightsData.find(f => f.id === id);
         item = {
             type: 'flight',
-            id: id,
-            name: 'Vuelo Reservado',
-            description: 'Vuelo seleccionado',
-            price: 150 // Placeholder price
+            id: flight.id,
+            name: `${flight.origen} - ${flight.destino}`,
+            description: `Aerolinea ${flight.aerolinea}`,
+            price: flight.precio
         };
-        price = 150;
+        price = flight.precio;
     } else if (type === 'hotel') {
         const hotel = hotelsData.find(h => h.id === id);
         if (hotel) {
@@ -716,70 +754,100 @@ function removeFromReservation(index) {
     updateReservationSidebar();
 }
 
+// Función para actualizar la visualización del sidebar con info de compatibilidad
 function updateReservationSidebar() {
     const reservationItemsContainer = document.getElementById('reservation-items');
     const totalPriceElement = document.getElementById('total-price');
     const confirmBtn = document.getElementById('confirm-reservation');
     const cartCountElement = document.getElementById('cart-count');
 
+    if (!reservationItemsContainer) return;
+
     reservationItemsContainer.innerHTML = '';
 
     let totalPrice = 0;
 
-    // Separate packages from other services
+    // Separar paquetes de otros servicios
     const packages = reservationItems.filter(item => item.type === 'package');
     const otherServices = reservationItems.filter(item => item.type !== 'package');
 
-    // Add packages section if any
+    // Agregar sección de paquetes si hay
     if (packages.length > 0) {
         const packagesSection = document.createElement('div');
         packagesSection.className = 'reservation-section';
-        packagesSection.innerHTML = '<h4>Paquetes</h4>';
+        packagesSection.innerHTML = '<h4>📦 Paquetes</h4>';
         reservationItemsContainer.appendChild(packagesSection);
 
-        packages.forEach((item, index) => {
+        packages.forEach((item) => {
             const itemElement = document.createElement('div');
             itemElement.className = 'reservation-item';
             itemElement.innerHTML = `
                 <h4>${item.name}</h4>
-                <p>${item.description}</p>
-                <p class="price">$${item.price}</p>
+                <p>${item.description.substring(0, 50)}...</p>
+                <p class="price">${formatPrice(item.price)}</p>
                 <button class="remove-item" onclick="removeFromReservation(${reservationItems.indexOf(item)})">×</button>
             `;
             packagesSection.appendChild(itemElement);
-            totalPrice += item.price;
+            totalPrice += parseFloat(item.price);
         });
     }
 
-    // Add other services section if any
+    // Agregar sección de servicios personalizados si hay
     if (otherServices.length > 0) {
         const servicesSection = document.createElement('div');
         servicesSection.className = 'reservation-section';
-        servicesSection.innerHTML = '<h4>Reserva Personalizada</h4>';
+        servicesSection.innerHTML = '<h4> Reserva Personalizada</h4>';
         reservationItemsContainer.appendChild(servicesSection);
 
-        otherServices.forEach((item, index) => {
+        otherServices.forEach((item) => {
+            const icon = item.type === 'flight' ? '<i class="fa-solid fa-plane"></i>' : item.type === 'hotel' ? '<i class="fa-solid fa-hotel"></i>' : '<i class="fa-solid fa-car"></i>';
             const itemElement = document.createElement('div');
             itemElement.className = 'reservation-item';
             itemElement.innerHTML = `
-                <h4>${item.name}</h4>
-                <p>${item.description}</p>
-                <p class="price">$${item.price}</p>
+                <h4>${icon} ${item.name}</h4>
+                <p>${item.description.substring(0, 50)}...</p>
+                <p class="price">${formatPrice(item.price)}</p>
                 <button class="remove-item" onclick="removeFromReservation(${reservationItems.indexOf(item)})">×</button>
             `;
             servicesSection.appendChild(itemElement);
-            totalPrice += item.price;
+            totalPrice += parseFloat(item.price);
         });
+
+        // Agregar mensaje de info si hay múltiples servicios
+        if (otherServices.length > 1) {
+            const compatibility = checkServicesCompatibilityImproved(otherServices);
+            const infoElement = document.createElement('div');
+            infoElement.className = 'custom-reservation-info';
+            infoElement.style.cssText = compatibility.compatible 
+                ? 'background: #d4edda; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 12px; border: 1px solid #c3e6cb;'
+                : 'background: #fff3cd; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 12px; border: 1px solid #ffc107;';
+            
+            if (compatibility.compatible) {
+                infoElement.innerHTML = `
+                    <p style="margin: 0;"><strong>✓ Servicios Compatibles</strong></p>
+                    <p style="margin: 5px 0 0 0;">Lugar: ${compatibility.location}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 11px;">Se crearán como reserva combinada</p>
+                `;
+            } else {
+                infoElement.innerHTML = `
+                    <p style="margin: 0;"><strong>⚠️ Ubicaciones Diferentes</strong></p>
+                    <p style="margin: 5px 0 0 0; font-size: 11px;">Se crearán reservas separadas</p>
+                `;
+            }
+            servicesSection.appendChild(infoElement);
+        }
     }
 
-    totalPriceElement.textContent = totalPrice;
+    if (totalPriceElement) {
+        totalPriceElement.textContent = formatPrice(totalPrice.toFixed(2));
+    }
 
-    // Update cart count
+    // Actualizar contador del carrito
     if (cartCountElement) {
         cartCountElement.textContent = reservationItems.length;
     }
 
-    // Enable/disable confirm button
+    // Habilitar/deshabilitar botón de confirmar
     if (confirmBtn) {
         confirmBtn.disabled = reservationItems.length === 0;
     }
@@ -790,36 +858,315 @@ function clearReservation() {
     updateReservationSidebar();
 }
 
-async function confirmReservation() {
+// Función principal para confirmar reservación con soporte para reservas combinadas
+function confirmReservation() {
     if (reservationItems.length === 0) {
         alert('No hay servicios en la reserva.');
         return;
     }
 
+    // Mostrar el modal de confirmación de reserva
+    showReservationConfirmationModal();
+}
+
+// Función para mostrar el modal de confirmación de reserva
+function showReservationConfirmationModal() {
+    const modal = document.getElementById('reservation-confirm-modal');
+    if (!modal) return;
+
+    // Calcular total
+    const totalPrice = reservationItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
+
+    // Llenar el modal con los detalles de la reserva
+    const reservationDetails = document.getElementById('reservation-details');
+    const reservationTotal = document.getElementById('reservation-total');
+
+    if (reservationDetails) {
+        reservationDetails.innerHTML = '';
+
+        // Separar paquetes de otros servicios
+        const packages = reservationItems.filter(item => item.type === 'package');
+        const otherServices = reservationItems.filter(item => item.type !== 'package');
+
+        if (packages.length > 0) {
+            const packagesSection = document.createElement('div');
+            packagesSection.innerHTML = '<h4>📦 Paquetes</h4>';
+            packages.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'reservation-item-detail';
+                itemDiv.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>${formatPrice(item.price)}</span>
+                `;
+                packagesSection.appendChild(itemDiv);
+            });
+            reservationDetails.appendChild(packagesSection);
+        }
+
+        if (otherServices.length > 0) {
+            const servicesSection = document.createElement('div');
+            servicesSection.innerHTML = '<h4>🔧 Servicios Personalizados</h4>';
+            otherServices.forEach(item => {
+                const icon = item.type === 'flight' ? '✈️' : item.type === 'hotel' ? '🏨' : '🚗';
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'reservation-item-detail';
+                itemDiv.innerHTML = `
+                    <span>${icon} ${item.name}</span>
+                    <span>${formatPrice(item.price)}</span>
+                `;
+                servicesSection.appendChild(itemDiv);
+            });
+            reservationDetails.appendChild(servicesSection);
+        }
+    }
+
+    if (reservationTotal) {
+        reservationTotal.textContent = formatPrice(totalPrice.toFixed(2));
+    }
+
+    // Configurar el formulario de reserva
+    const reservationForm = document.getElementById('reservation-form');
+    if (reservationForm) {
+        reservationForm.onsubmit = function(e) {
+            e.preventDefault();
+            modal.style.display = 'none';
+            const formData = new FormData(reservationForm);
+            const reservationData = {
+                fechaInicio: formData.get('fecha-inicio'),
+                fechaFin: formData.get('fecha-fin'),
+                numeroPersonas: parseInt(formData.get('numero-personas')),
+                solicitudesEspeciales: formData.get('solicitudes-especiales') || ''
+            };
+            showPaymentModal(totalPrice, reservationData);
+        };
+    }
+
+    // Configurar el botón de cancelar
+    const cancelBtn = document.getElementById('cancel-reservation-btn');
+    if (cancelBtn) {
+        cancelBtn.onclick = function() {
+            modal.style.display = 'none';
+        };
+    }
+
+    // Configurar el botón de cerrar (X)
+    const closeBtn = document.getElementById('reservation-confirm-close');
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        };
+    }
+
+    modal.style.display = 'block';
+
+    // Cerrar modal al hacer clic fuera
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+// Función para mostrar el modal de pago
+function showPaymentModal(totalAmount, reservationData) {
+    const modal = document.getElementById('payment-modal');
+    if (!modal) return;
+
+    // Llenar el resumen de pago
+    const paymentSummary = document.getElementById('payment-summary');
+    if (paymentSummary) {
+        paymentSummary.innerHTML = '';
+
+        // Mostrar detalles de la reserva
+        const summaryDiv = document.createElement('div');
+        summaryDiv.innerHTML = `
+            <h3>Resumen de la Reserva</h3>
+            <p><strong>Fecha:</strong> ${reservationData.fechaInicio} - ${reservationData.fechaFin}</p>
+            <p><strong>Número de Personas:</strong> ${reservationData.numeroPersonas}</p>
+            ${reservationData.solicitudesEspeciales ? `<p><strong>Solicitudes Especiales:</strong> ${reservationData.solicitudesEspeciales}</p>` : ''}
+        `;
+        paymentSummary.appendChild(summaryDiv);
+
+        // Mostrar items de la reserva
+        const itemsDiv = document.createElement('div');
+        itemsDiv.innerHTML = '<h4>Servicios Reservados:</h4>';
+        reservationItems.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'payment-item';
+            itemDiv.innerHTML = `
+                <span>${item.name}</span>
+                <span>${formatPrice(item.price)}</span>
+            `;
+            itemsDiv.appendChild(itemDiv);
+        });
+        paymentSummary.appendChild(itemsDiv);
+    }
+
+    // Establecer el monto total en el modal
+    const totalAmountElement = document.getElementById('payment-total');
+    if (totalAmountElement) {
+        totalAmountElement.textContent = formatPrice(totalAmount.toFixed(2));
+    }
+
+    // Configurar el formulario de pago
+    const paymentForm = document.getElementById('payment-form');
+    if (paymentForm) {
+        paymentForm.onsubmit = async function(e) {
+            e.preventDefault();
+            await processPayment(totalAmount, reservationData);
+        };
+    }
+
+    // Configurar el botón de cerrar
+    const closeBtn = modal.querySelector('.close');
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        };
+    }
+
+    // Configurar el cambio de método de pago
+    const paymentMethodSelect = document.getElementById('payment-method');
+    if (paymentMethodSelect) {
+        paymentMethodSelect.addEventListener('change', function() {
+            const selectedMethod = this.value;
+            const transferenciaDetails = document.getElementById('transferencia-details');
+            const pagomovilDetails = document.getElementById('pagomovil-details');
+            const paymentReferenceGroup = document.getElementById('payment-reference-group');
+
+            // Ocultar todos los detalles primero
+            if (transferenciaDetails) transferenciaDetails.style.display = 'none';
+            if (pagomovilDetails) pagomovilDetails.style.display = 'none';
+            if (paymentReferenceGroup) paymentReferenceGroup.style.display = 'none';
+
+            // Mostrar los detalles correspondientes
+            if (selectedMethod === 'transferencia' && transferenciaDetails) {
+                transferenciaDetails.style.display = 'block';
+                paymentReferenceGroup.style.display = 'block';
+            } else if (selectedMethod === 'pagomovil' && pagomovilDetails) {
+                pagomovilDetails.style.display = 'block';
+                paymentReferenceGroup.style.display = 'block';
+            }
+        });
+    }
+
+    // Configurar el botón de volver a confirmación
+    const backToConfirmationBtn = document.getElementById('back-to-confirmation');
+    if (backToConfirmationBtn) {
+        backToConfirmationBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+            showReservationConfirmationModal();
+        });
+    }
+
+    modal.style.display = 'block';
+
+    // Cerrar modal al hacer clic fuera
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+// Función para procesar el pago y crear la reserva
+async function processPayment(totalAmount, reservationData) {
     const user = JSON.parse(localStorage.getItem('user'));
 
-    // Separate packages from other services
+    if (!user || !user.id) {
+        alert('Error: Usuario no autenticado');
+        return;
+    }
+
+    // Obtener datos del formulario de pago
+    const paymentForm = document.getElementById('payment-form');
+    const formData = new FormData(paymentForm);
+
+    const paymentData = {
+        metodoPago: formData.get('payment-method'),
+        referenciaPago: formData.get('payment-reference'),
+        datosPago: JSON.stringify({
+            cardNumber: formData.get('card-number'),
+            expiryDate: formData.get('expiry-date'),
+            cvv: formData.get('cvv'),
+            cardHolder: formData.get('card-holder')
+        }),
+        monto: totalAmount
+    };
+
+    try {
+        // Primero procesar el pago
+        const paymentResponse = await fetch(`${API_BASE_URL}/payments/process`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(paymentData)
+        });
+
+        if (!paymentResponse.ok) {
+            throw new Error('Error al procesar el pago');
+        }
+
+        const paymentResult = await paymentResponse.json();
+
+        // Si el pago fue exitoso, crear las reservas
+        await createReservationsAfterPayment(user.id, totalAmount, reservationData);
+
+        // Cerrar modal de pago
+        document.getElementById('payment-modal').style.display = 'none';
+
+        // Mostrar éxito
+        alert('¡Pago procesado exitosamente! Su reserva ha sido confirmada.');
+        clearReservation();
+        window.location.href = 'reservations.html';
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al procesar el pago: ' + error.message);
+    }
+}
+
+// Función para crear reservas después del pago exitoso
+async function createReservationsAfterPayment(userId, totalAmount, reservationData) {
+    // Separar paquetes de servicios personalizados
     const packages = reservationItems.filter(item => item.type === 'package');
-    const otherServices = reservationItems.filter(item => item.type !== 'package');
+    const customServices = reservationItems.filter(item => item.type !== 'package');
+
+    // Mostrar alerta con los datos del modal para confirmación
+    alert(`Datos de la reserva:\nFecha de inicio: ${reservationData.fechaInicio}\nFecha de fin: ${reservationData.fechaFin}\nNúmero de personas: ${reservationData.numeroPersonas}`);
+
+    // Usar fechas y número de personas del modal
+    const fechaInicio = reservationData.fechaInicio;
+    const fechaFin = reservationData.fechaFin;
+    const numeroPersonas = reservationData.numeroPersonas;
+
+    // Validar fechas
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFin);
+    if (fin <= inicio) {
+        throw new Error('La fecha de fin debe ser posterior a la fecha de inicio');
+    }
 
     let successCount = 0;
     let errorMessages = [];
 
-    // Handle packages separately (create individual reservations)
+    // 1. Procesar paquetes individuales
     for (const packageItem of packages) {
-        const reservationData = {
-            user: { id: user.id },
-            destination: { id: packageItem.id },
-            serviceType: 'destination',
-            startDate: new Date().toISOString().split('T')[0], // Default to today
-            endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 7 days later
-            numberOfPeople: 2, // Default number of people
-            totalPrice: packageItem.price,
-            status: 'pending',
-            specialRequests: `Paquete: ${packageItem.name}`
-        };
-
         try {
+            const reservationData = {
+                usuario: { id: userId },
+                paquete: { id: packageItem.id },
+                tipoServicio: 'paquete',
+                fechaInicio: fechaInicio,
+                fechaFin: fechaFin,
+                numeroPersonas: numeroPersonas,
+                precioTotal: parseFloat(packageItem.price),
+                estado: 'pendiente',
+                solicitudesEspeciales: `Paquete: ${packageItem.name}`
+            };
+
             const response = await fetch(`${API_BASE_URL}/reservations`, {
                 method: 'POST',
                 headers: {
@@ -833,54 +1180,415 @@ async function confirmReservation() {
                 successCount++;
             } else {
                 const error = await response.text();
-                errorMessages.push(`Error en paquete ${packageItem.name}: ${error}`);
+                errorMessages.push(`Paquete ${packageItem.name}: ${error}`);
             }
         } catch (error) {
-            console.error('Error:', error);
-            errorMessages.push(`Error de conexión en paquete ${packageItem.name}`);
+            errorMessages.push(`Paquete ${packageItem.name}: ${error.message}`);
         }
     }
 
-    // Handle other services as combined reservation
-    if (otherServices.length > 0) {
-        const totalPrice = otherServices.reduce((sum, item) => sum + item.price, 0);
-        const reservationData = {
-            user: { id: user.id },
-            serviceType: 'combined',
-            totalPrice: totalPrice,
-            status: 'pending',
-            specialRequests: `Servicios incluidos: ${otherServices.map(item => item.name).join(', ')}`
-        };
+    // 2. Procesar servicios personalizados
+    if (customServices.length > 0) {
+        // Verificar si hay servicios compatibles para combinar
+        const compatibility = checkServicesCompatibilityImproved(customServices);
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/reservations`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify(reservationData)
-            });
+        console.log('Compatibilidad de servicios:', compatibility);
 
-            if (response.ok) {
-                successCount++;
-            } else {
-                const error = await response.text();
-                errorMessages.push(`Error en servicios combinados: ${error}`);
+        if (compatibility.compatible && customServices.length > 1) {
+            // Crear una reservación personalizada combinada
+            try {
+                const totalPrice = customServices.reduce((sum, service) => sum + parseFloat(service.price), 0);
+                const servicesList = [];
+                if (customServices.filter(s => s.type === 'flight').length > 0) servicesList.push(`${customServices.filter(s => s.type === 'flight').length} vuelo(s)`);
+                if (customServices.filter(s => s.type === 'hotel').length > 0) servicesList.push(`${customServices.filter(s => s.type === 'hotel').length} hotel(es)`);
+                if (customServices.filter(s => s.type === 'vehicle').length > 0) servicesList.push(`${customServices.filter(s => s.type === 'vehicle').length} vehículo(s)`);
+
+                const description = `Reserva Personalizada en ${compatibility.location}: ${servicesList.join(', ')}. Servicios incluidos: ${customServices.map(s => s.name).join(', ')}`;
+
+                const serviceRefs = {
+                    vuelo: customServices.find(s => s.type === 'flight') ? { id: customServices.find(s => s.type === 'flight').id } : null,
+                    hotel: customServices.find(s => s.type === 'hotel') ? { id: customServices.find(s => s.type === 'hotel').id } : null,
+                    vehiculo: customServices.find(s => s.type === 'vehicle') ? { id: customServices.find(s => s.type === 'vehicle').id } : null,
+                    paquete: null
+                };
+
+                const reservationData = {
+                    usuario: { id: userId },
+                    ...serviceRefs,
+                    tipoServicio: 'personalizado',
+                    fechaInicio: fechaInicio,
+                    fechaFin: fechaFin,
+                    numeroPersonas: numeroPersonas,
+                    precioTotal: parseFloat(totalPrice.toFixed(2)),
+                    estado: 'pendiente',
+                    solicitudesEspeciales: description
+                };
+
+                const response = await fetch(`${API_BASE_URL}/reservations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(reservationData)
+                });
+
+                if (response.ok) {
+                    successCount++;
+                } else {
+                    const error = await response.text();
+                    errorMessages.push(`Reserva personalizada: ${error}`);
+                }
+            } catch (error) {
+                errorMessages.push(`Reserva personalizada: ${error.message}`);
             }
-        } catch (error) {
-            console.error('Error:', error);
-            errorMessages.push('Error de conexión en servicios combinados');
+        } else {
+            // Si no son compatibles o solo hay un servicio, crear reservaciones individuales
+            if (!compatibility.compatible) {
+                alert(`Los servicios tienen ubicaciones diferentes:\n${compatibility.details}\n\nSe crearán reservaciones separadas.`);
+            }
+
+            for (const service of customServices) {
+                try {
+                    let serviceType = '';
+                    let serviceRef = {};
+
+                    switch(service.type) {
+                        case 'flight':
+                            serviceType = 'vuelo';
+                            serviceRef = { vuelo: { id: service.id } };
+                            break;
+                        case 'hotel':
+                            serviceType = 'hotel';
+                            serviceRef = { hotel: { id: service.id } };
+                            break;
+                        case 'vehicle':
+                            serviceType = 'vehiculo';
+                            serviceRef = { vehiculo: { id: service.id } };
+                            break;
+                    }
+
+                    const reservationData = {
+                        usuario: { id: userId },
+                        ...serviceRef,
+                        tipoServicio: serviceType,
+                        fechaInicio: fechaInicio,
+                        fechaFin: fechaFin,
+                        numeroPersonas: numeroPersonas,
+                        precioTotal: parseFloat(service.price),
+                        estado: 'pendiente',
+                        solicitudesEspeciales: `Servicio: ${service.name}`
+                    };
+
+                    const response = await fetch(`${API_BASE_URL}/reservations`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify(reservationData)
+                    });
+
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        const error = await response.text();
+                        errorMessages.push(`${service.name}: ${error}`);
+                    }
+                } catch (error) {
+                    errorMessages.push(`${service.name}: ${error.message}`);
+                }
+            }
         }
     }
 
-    // Show results
-    if (successCount > 0) {
-        alert(`Reserva(s) creada(s) exitosamente (${successCount} reserva(s))`);
+    if (errorMessages.length > 0) {
+        throw new Error(`Errores al crear reservas: ${errorMessages.join(', ')}`);
+    }
+}
+
+// Función auxiliar para crear una reservación individual
+async function createSingleReservation(userId, tipoServicio, serviceRef, fechaInicio, fechaFin, numeroPersonas, precio, descripcion) {
+    const reservationData = {
+        usuario: { id: userId },
+        ...serviceRef,
+        paquete: serviceRef.paquete || null,
+        vuelo: serviceRef.vuelo || null,
+        hotel: serviceRef.hotel || null,
+        vehiculo: serviceRef.vehiculo || null,
+        tipoServicio: tipoServicio,
+        fechaInicio: fechaInicio,
+        fechaFin: fechaFin,
+        numeroPersonas: numeroPersonas,
+        precioTotal: parseFloat(precio),
+        estado: 'pendiente',
+        solicitudesEspeciales: descripcion
+    };
+
+    try {
+        console.log('Enviando reservación individual:', JSON.stringify(reservationData, null, 2));
+        
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/reservations`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(reservationData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Reserva creada:', result);
+            return { ok: true, data: result };
+        } else {
+            let errorText;
+            try {
+                const errorJson = await response.json();
+                errorText = errorJson.message || JSON.stringify(errorJson);
+            } catch (e) {
+                errorText = await response.text();
+            }
+            console.error('Error del servidor:', errorText);
+            return { ok: false, error: errorText };
+        }
+    } catch (error) {
+        console.error('Error de conexión:', error);
+        return { ok: false, error: error.message };
+    }
+}
+
+// Función MEJORADA para verificar compatibilidad de servicios
+function checkServicesCompatibilityImproved(services) {
+    const flights = services.filter(s => s.type === 'flight');
+    const hotels = services.filter(s => s.type === 'hotel');
+    const vehicles = services.filter(s => s.type === 'vehicle');
+
+    // Si solo hay un servicio, siempre es compatible
+    if (services.length === 1) {
+        const service = services[0];
+        let location = 'Ubicación del servicio';
+        
+        if (service.type === 'flight' && flightsData) {
+            const flight = flightsData.find(f => f.id === service.id);
+            if (flight) location = extractCity(flight.destino);
+        } else if (service.type === 'hotel' && hotelsData) {
+            const hotel = hotelsData.find(h => h.id === service.id);
+            if (hotel) location = extractCity(hotel.ubicacion);
+        } else if (service.type === 'vehicle' && vehiclesData) {
+            const vehicle = vehiclesData.find(v => v.id === service.id);
+            if (vehicle && vehicle.ubicacion) location = extractCity(vehicle.ubicacion);
+        }
+        
+        return { compatible: true, location: location };
+    }
+
+    let commonCity = null;
+    let locationDetails = [];
+
+    // 1. Verificar vuelos (usar DESTINO)
+    if (flights.length > 0 && flightsData) {
+        for (const flightItem of flights) {
+            const flight = flightsData.find(f => f.id === flightItem.id);
+            if (flight) {
+                const city = extractCity(flight.destino);
+                locationDetails.push(`Vuelo: ${city} (${flight.destino})`);
+                
+                if (!commonCity) {
+                    commonCity = city;
+                } else if (!citiesMatch(commonCity, city)) {
+                    return {
+                        compatible: false,
+                        reason: 'Las ciudades de destino no coinciden',
+                        details: locationDetails.join('\n'),
+                        commonCity: null
+                    };
+                }
+            }
+        }
+    }
+
+    // 2. Verificar hoteles (usar primera parte de ubicación)
+    if (hotels.length > 0 && hotelsData) {
+        for (const hotelItem of hotels) {
+            const hotel = hotelsData.find(h => h.id === hotelItem.id);
+            if (hotel) {
+                const city = extractCity(hotel.ubicacion);
+                locationDetails.push(`Hotel: ${city} (${hotel.ubicacion})`);
+                
+                if (!commonCity) {
+                    commonCity = city;
+                } else if (!citiesMatch(commonCity, city)) {
+                    return {
+                        compatible: false,
+                        reason: 'Las ciudades no coinciden',
+                        details: locationDetails.join('\n'),
+                        commonCity: null
+                    };
+                }
+            }
+        }
+    }
+
+    // 3. Verificar vehículos (usar primera parte de ubicación si existe)
+    if (vehicles.length > 0 && vehiclesData) {
+        for (const vehicleItem of vehicles) {
+            const vehicle = vehiclesData.find(v => v.id === vehicleItem.id);
+            if (vehicle) {
+                // Si el vehículo tiene ubicación, verificarla
+                if (vehicle.ubicacion) {
+                    const city = extractCity(vehicle.ubicacion);
+                    locationDetails.push(`Vehículo: ${city} (${vehicle.ubicacion})`);
+                    
+                    if (!commonCity) {
+                        commonCity = city;
+                    } else if (!citiesMatch(commonCity, city)) {
+                        return {
+                            compatible: false,
+                            reason: 'Las ciudades no coinciden',
+                            details: locationDetails.join('\n'),
+                            commonCity: null
+                        };
+                    }
+                } else {
+                    // Si el vehículo no tiene ubicación, se asume que está en la ciudad común
+                    locationDetails.push(`Vehículo: ${vehicle.nombre} (Compatible con ${commonCity || 'cualquier ubicación'})`);
+                }
+            }
+        }
+    }
+
+    return { 
+        compatible: true, 
+        location: commonCity || 'Ubicación combinada',
+        details: locationDetails.join('\n'),
+        services: {
+            flights: flights.length,
+            hotels: hotels.length,
+            vehicles: vehicles.length
+        }
+    };
+}
+
+// Función para extraer la ciudad (texto antes de la primera coma)
+function extractCity(location) {
+    if (!location) return '';
+    
+    // Limpiar espacios y obtener texto antes de la primera coma
+    const citys = location.split(',')[0].trim();
+    const city = citys.split('(')[0].trim();
+    return city;
+}
+
+async function createCustomReservation(userId, services, fechaInicio, fechaFin, numeroPersonas, location) {
+    // Separar servicios por tipo
+    const flights = services.filter(s => s.type === 'flight');
+    const hotels = services.filter(s => s.type === 'hotel');
+    const vehicles = services.filter(s => s.type === 'vehicle');
+
+    // Calcular precio total
+    const totalPrice = services.reduce((sum, service) => sum + parseFloat(service.price), 0);
+
+    // Crear descripción de la reserva personalizada
+    const servicesList = [];
+    if (flights.length > 0) servicesList.push(`${flights.length} vuelo(s)`);
+    if (hotels.length > 0) servicesList.push(`${hotels.length} hotel(es)`);
+    if (vehicles.length > 0) servicesList.push(`${vehicles.length} vehículo(s)`);
+
+    const description = `Reserva Personalizada en ${location}: ${servicesList.join(', ')}. ` +
+                       `Servicios incluidos: ${services.map(s => s.name).join(', ')}`;
+
+    // Para reservas personalizadas, usar tipoServicio 'personalizado'
+    let serviceRefs = {
+        vuelo: flights.length > 0 ? { id: flights[0].id } : null,
+        hotel: hotels.length > 0 ? { id: hotels[0].id } : null,
+        vehiculo: vehicles.length > 0 ? { id: vehicles[0].id } : null,
+        paquete: null
+    };
+
+    const reservationData = {
+        usuario: { id: userId },
+        paquete: serviceRefs.paquete,
+        vuelo: serviceRefs.vuelo,
+        hotel: serviceRefs.hotel,
+        vehiculo: serviceRefs.vehiculo,
+        tipoServicio: 'personalizado',
+        fechaInicio: fechaInicio,
+        fechaFin: fechaFin,
+        numeroPersonas: numeroPersonas,
+        precioTotal: parseFloat(totalPrice.toFixed(2)),
+        estado: 'pendiente',
+        solicitudesEspeciales: description
+    };
+
+    try {
+        console.log('Enviando reservación personalizada:', JSON.stringify(reservationData, null, 2));
+        
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/reservations`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(reservationData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Reserva personalizada creada:', result);
+            
+            // Mostrar confirmación
+            alert(`✓ Reserva personalizada creada exitosamente!\n\n` +
+                  `Lugar: ${location}\n` +
+                  `Total: $${totalPrice.toFixed(2)}\n` +
+                  `Servicios: ${servicesList.join(', ')}`);
+            
+            return { ok: true, data: result };
+        } else {
+            let errorText;
+            try {
+                const errorJson = await response.json();
+                errorText = errorJson.message || JSON.stringify(errorJson);
+            } catch (e) {
+                errorText = await response.text();
+            }
+            console.error('Error del servidor:', errorText);
+            return { ok: false, error: errorText };
+        }
+    } catch (error) {
+        console.error('Error de conexión:', error);
+        return { ok: false, error: error.message };
+    }
+}
+
+// Función para comparar ciudades (case-insensitive)
+function citiesMatch(city1, city2) {
+    if (!city1 || !city2) return false;
+    
+    const c1 = city1.toLowerCase().trim();
+    const c2 = city2.toLowerCase().trim();
+    
+    // Comparación exacta
+    return c1 === c2;
+}
+
+function showReservationResults(successCount, errorMessages) {
+    if (successCount > 0 && errorMessages.length === 0) {
+        alert(`¡Éxito! Se crearon ${successCount} reservación(es) con pago procesado`);
         clearReservation();
         window.location.href = 'reservations.html';
+    } else if (successCount > 0) {
+        const confirmNav = confirm(
+            `Se crearon ${successCount} reservación(es) con pago procesado, pero hubo ${errorMessages.length} error(es):\n\n${errorMessages.join('\n\n')}\n\n¿Deseas ver tus reservaciones?`
+        );
+        if (confirmNav) {
+            clearReservation();
+            window.location.href = 'reservations.html';
+        }
     } else {
-        alert('Error al crear las reservas: ' + errorMessages.join('; '));
+        alert(`No se pudo crear ninguna reserva. Errores:\n\n${errorMessages.join('\n\n')}`);
     }
 }
 
@@ -924,20 +1632,20 @@ function populateFlightFilters(flights) {
     });
 }
 
-function populateHotelDestinations(flights) {
-    const hotelDestinationSelect = document.getElementById('hotels-destination');
+function populateHotelDestinations(hotelsData) {
+    const hotelUbicationSelect = document.getElementById('hotels-destination');
 
-    if (!hotelDestinationSelect) return;
+    if (!hotelUbicationSelect) return;
 
     // Get unique destinations from flights
-    const destinations = [...new Set(flights.map(flight => flight.destino))];
+    const ubications = [...new Set(hotelsData.map(hotel => hotel.ubicacion))];
 
     // Populate hotel destinations
-    destinations.forEach(destination => {
+    ubications.forEach(ubication => {
         const option = document.createElement('option');
-        option.value = destination;
-        option.textContent = destination;
-        hotelDestinationSelect.appendChild(option);
+        option.value = ubication;
+        option.textContent = ubication;
+        hotelUbicationSelect.appendChild(option);
     });
 }
 
@@ -1018,14 +1726,17 @@ function filterFlights() {
 
 function filterHotels() {
     const nameInput = document.getElementById('hotels-name');
+    const ubicationSelect = document.getElementById('hotels-destination');
 
-    if (!nameInput || !hotelsData) return;
+    if (!nameInput || !ubicationSelect) return;
 
     const searchTerm = nameInput.value.toLowerCase();
+    const selectedUbication = ubicationSelect.value;
 
     const filteredHotels = hotelsData.filter(hotel => {
         const matchesName = !searchTerm || hotel.nombre.toLowerCase().includes(searchTerm);
-        return matchesName;
+        const matchesUbication = !selectedUbication || hotel.ubicacion.includes(selectedUbication);
+        return matchesName && matchesUbication;
     });
 
     displayHotels(filteredHotels);
@@ -1043,4 +1754,66 @@ function filterVehicles() {
     );
 
     displayVehicles(filteredVehicles);
+}
+
+// QR Button Functions
+function initializeQRButton() {
+    const qrButton = document.getElementById('qr-button');
+
+    if (qrButton) {
+        qrButton.addEventListener('click', function() {
+            // Generate QR code for current page URL
+            const currentUrl = window.location.href;
+            generateQRCode(currentUrl);
+        });
+    }
+}
+
+function generateQRCode(url) {
+    // Create modal for QR code display
+    const modal = document.createElement('div');
+    modal.id = 'qr-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="text-align: center; max-width: 400px;">
+            <span class="close" style="float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            <h2>Código QR</h2>
+            <p>Escanea este código QR para compartir la página de servicios</p>
+            <div id="qrcode" style="display: flex; justify-content: center; margin: 20px 0;"></div>
+            <p style="font-size: 14px; color: #666;">URL: ${url}</p>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Generate QR code using qrcode.js library (assuming it's loaded)
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(document.getElementById('qrcode'), {
+            text: url,
+            width: 256,
+            height: 256,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    } else {
+        document.getElementById('qrcode').innerHTML = '<p>QR Code library not loaded</p>';
+    }
+
+    modal.style.display = 'block';
+
+    // Close modal functionality
+    const closeBtn = modal.querySelector('.close');
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+        document.body.removeChild(modal);
+    };
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+            document.body.removeChild(modal);
+        }
+    };
 }

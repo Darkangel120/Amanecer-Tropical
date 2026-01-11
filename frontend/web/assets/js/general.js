@@ -1,3 +1,5 @@
+const basePath = getBasePath();
+
 function updateNotificationBadge() {
     const unreadCount = document.querySelectorAll('.notification-item.unread').length;
     const badge = document.querySelector('.notification-badge');
@@ -7,16 +9,68 @@ function updateNotificationBadge() {
     }
 }
 
+// Function to validate session with backend
+async function validateSession() {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    // If no token or user in localStorage, redirect immediately
+    if (!token || !user) {
+        console.log('No token or user found, redirecting to login');
+        window.location.href = '../index.html';
+        return false;
+    }
+
+    try {
+        // Make API call to validate token with backend
+        const response = await fetch('http://localhost:8080/api/auth/validate', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            // Token is valid, session is active
+            console.log('Session validated successfully');
+            return true;
+        } else if (response.status === 401) {
+            // Token is invalid or expired
+            console.log('Token invalid or expired, clearing session and redirecting');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '../index.html';
+            return false;
+        } else {
+            // Other server error, but don't redirect immediately
+            console.warn('Server error during session validation, but keeping session active');
+            return true;
+        }
+    } catch (error) {
+        // Network error or server unreachable
+        console.warn('Network error during session validation, but keeping session active:', error);
+        return true; // Don't redirect on network errors
+    }
+}
+
 // General JavaScript for Shared User Menu Functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Check authentication
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user'));
-    
+
     // Only create user menu if user is logged in
     if (user) {
         createUserMenu();
         loadUserProfileInfo();
+        // Hide login/register buttons when user is logged in
+        const authButtons = document.querySelector('.auth-buttons');
+        if (authButtons) {
+            authButtons.style.display = 'none';
+        }
+        // Add Dashboard link to main navigation
+        addDashboardToNav();
     }
 
     // Navbar toggle for mobile
@@ -371,13 +425,9 @@ function createUserMenu() {
                         </div>
                     </div>
                     <div class="profile-options">
-                        <a href="profile.html" class="profile-option">
+                        <a href="${basePath}user/profile.html" class="profile-option">
                             <i class="fas fa-user"></i>
                             <span>Mi Perfil</span>
-                        </a>
-                        <a href="reservations.html" class="profile-option">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Mis Reservas</span>
                         </a>
                         <a href="#" class="profile-option logout-option">
                             <i class="fas fa-sign-out-alt"></i>
@@ -457,5 +507,37 @@ function updateUIFromLocalStorage() {
     const profileEmail = document.querySelector('.profile-details p');
     if (profileEmail && user.correoElectronico) {
         profileEmail.textContent = user.correoElectronico;
+    }
+}
+
+function getBasePath() {
+    const pathParts = window.location.pathname.split('/').filter(part => part.length > 0);
+    const depth = pathParts.length - 3;
+    const base = depth > 0 ? '../'.repeat(depth) : '';
+    return base;
+}
+
+// Function to add Dashboard link to main navigation
+function addDashboardToNav() {
+    const navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+
+    // Check if Dashboard link already exists
+    if (document.querySelector('.nav-dashboard')) {
+        return;
+    }
+
+    // Create Dashboard link
+    const dashboardLink = document.createElement('li');
+    dashboardLink.className = 'nav-dashboard';
+    dashboardLink.innerHTML = `<a href="${basePath}user/dashboard.html">Dashboard</a>`;
+
+    // Insert Dashboard link after the first navigation item (Inicio)
+    const firstNavItem = navLinks.querySelector('li');
+    if (firstNavItem) {
+        firstNavItem.insertAdjacentElement('afterend', dashboardLink);
+    } else {
+        // If no first item, append to nav-links
+        navLinks.appendChild(dashboardLink);
     }
 }

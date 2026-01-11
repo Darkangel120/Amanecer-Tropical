@@ -2,6 +2,7 @@ package com.AmanecerTropical.controller;
 
 import com.AmanecerTropical.entity.Hotel;
 import com.AmanecerTropical.service.HotelService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -38,7 +39,7 @@ public class HotelController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Hotel> createHotel(@RequestBody @NonNull Hotel hotel) {
+    public ResponseEntity<Hotel> createHotel(@Valid @RequestBody @NonNull Hotel hotel) {
         Hotel createdHotel = hotelService.saveHotel(hotel);
         return ResponseEntity.ok(createdHotel);
     }

@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "vuelos")
 public class Flight {
@@ -53,6 +55,7 @@ public class Flight {
     private String classType = "economica";
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "agencia_vuelo_id")
     private FlightAgency agenciaVuelo;
 

@@ -2,6 +2,7 @@ package com.AmanecerTropical.controller;
 
 import com.AmanecerTropical.entity.Vehicle;
 import com.AmanecerTropical.service.VehicleService;
+import jakarta.validation.Valid;
 import org.springframework.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,14 +39,14 @@ public class VehicleController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Vehicle> createVehicle(@RequestBody @NonNull Vehicle vehicle) {
+    public ResponseEntity<Vehicle> createVehicle(@Valid @RequestBody @NonNull Vehicle vehicle) {
         Vehicle createdVehicle = vehicleService.saveVehicle(vehicle);
         return ResponseEntity.ok(createdVehicle);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Vehicle> updateVehicle(@PathVariable @NonNull Long id, @RequestBody @NonNull Vehicle vehicle) {
+    public ResponseEntity<Vehicle> updateVehicle(@PathVariable @NonNull Long id, @Valid @RequestBody @NonNull Vehicle vehicle) {
         vehicle.setId(id);
         Vehicle updatedVehicle = vehicleService.saveVehicle(vehicle);
         return ResponseEntity.ok(updatedVehicle);

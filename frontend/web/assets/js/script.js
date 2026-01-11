@@ -288,9 +288,51 @@ function displayPackages(destinations) {
     });
 }
 
+// Function to check if user is already logged in and redirect to dashboard
+const checkExistingSession = async () => {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    // If no token or user in localStorage, allow login page to load normally
+    if (!token || !user) {
+        return;
+    }
+
+    try {
+        // Validate session with backend
+        const response = await fetch(`${API_BASE_URL}/auth/validate`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            // Session is valid, redirect to dashboard
+            console.log('Active session found, redirecting to dashboard');
+            window.location.href = 'dashboard.html';
+        } else if (response.status === 401) {
+            // Token is invalid, clear session but stay on login page
+            console.log('Invalid session, clearing localStorage');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+        }
+        // For other errors, stay on login page
+    } catch (error) {
+        // Network error, stay on login page but keep session
+        console.warn('Network error during session check, keeping session active');
+    }
+};
+
 const handleForms = () => {
     const loginForm = document.querySelector('#login-form');
     const registerForm = document.querySelector('#register-form');
+
+    // Check for existing session on login page
+    if (loginForm) {
+        checkExistingSession();
+    }
 
     // Password toggle functionality
     const togglePassword = document.querySelector('#toggle-password');

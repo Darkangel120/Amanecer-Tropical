@@ -3,6 +3,7 @@ package com.AmanecerTropical.controller;
 import com.AmanecerTropical.entity.User;
 import com.AmanecerTropical.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,7 +44,7 @@ public class UserController {
 
     @SuppressWarnings("null")
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
+    public ResponseEntity<User> registerUser(@Valid @RequestBody User user) {
         if (userService.existsByEmail(user.getCorreoElectronico())) {
             return ResponseEntity.badRequest().build();
         }
@@ -53,7 +54,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #id)")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody User user) {
         @SuppressWarnings("null")
         Optional<User> existingUser = userService.getUserById(id);
         if (existingUser.isPresent()) {

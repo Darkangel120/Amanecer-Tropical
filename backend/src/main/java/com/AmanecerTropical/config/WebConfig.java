@@ -13,13 +13,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3000", "http://127.0.0.1:3000", 
-                               "http://localhost:5500", "http://127.0.0.1:5500", 
-                               "http://localhost:8080", "http://127.0.0.1:8080", 
-                               "file://", "null")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*", "file://*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
-                .allowCredentials(false);
+                .exposedHeaders("Authorization", "Content-Type")
+                .allowCredentials(false)
+                .maxAge(3600);
     }
 
     @Override

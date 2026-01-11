@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/notifications/**").authenticated()  // Notificaciones requieren autenticación
                         .requestMatchers("/api/reservations/**").authenticated()  // Reservas requieren autenticación
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/api/currency/**").permitAll()
                         .requestMatchers("/api/users/email/*").hasRole("ADMIN")  // Solo admin puede buscar por email
                         .requestMatchers(HttpMethod.GET, "/api/users/**").authenticated()  // Usuarios requieren autenticación
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()

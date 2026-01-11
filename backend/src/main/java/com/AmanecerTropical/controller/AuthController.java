@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -105,6 +106,41 @@ public class AuthController {
             System.err.println("Error during registration: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Error al registrar usuario");
+        }
+    }
+
+    @SuppressWarnings("null")
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateToken(HttpServletRequest request) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Token no proporcionado");
+            }
+
+            String token = authHeader.substring(7); // Remove "Bearer " prefix
+
+            // Extract username from token
+            String username = jwtUtil.extractUsername(token);
+
+            // Validate token
+            if (jwtUtil.validateToken(token, username)) {
+                // Get user details
+                Optional<User> user = userService.getUserByEmail(username);
+                if (user.isPresent()) {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("valid", true);
+                    response.put("user", user.get());
+                    return ResponseEntity.ok(response);
+                } else {
+                    return ResponseEntity.status(401).body("Usuario no encontrado");
+                }
+            } else {
+                return ResponseEntity.status(401).body("Token inválido o expirado");
+            }
+        } catch (Exception e) {
+            System.err.println("Error during token validation: " + e.getMessage());
+            return ResponseEntity.status(401).body("Error al validar token");
         }
     }
 
