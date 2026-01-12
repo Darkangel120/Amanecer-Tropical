@@ -41,7 +41,6 @@ public class AuthController {
             Optional<User> user = userService.getUserByEmail(userDetails.getUsername());
 
             if (user.isPresent()) {
-                // Usar getRol() en lugar de getRole().name() ya que ahora es String
                 String token = jwtUtil.generateToken(user.get().getCorreoElectronico(), user.get().getRol());
 
                 Map<String, Object> response = new HashMap<>();
@@ -66,7 +65,6 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         try {
-            // Verificar si el usuario ya existe
             if (userService.existsByEmail(registerRequest.getEmail())) {
                 return ResponseEntity.badRequest().body("El correo electrónico ya está registrado");
             }
@@ -75,11 +73,10 @@ public class AuthController {
                 return ResponseEntity.badRequest().body("La cédula ya está registrada");
             }
 
-            // Crear nuevo usuario
             User newUser = new User();
             newUser.setNombre(registerRequest.getNombre());
             newUser.setCorreoElectronico(registerRequest.getEmail());
-            newUser.setContrasena(registerRequest.getPassword()); // Se encriptará en el servicio
+            newUser.setContrasena(registerRequest.getPassword());
             newUser.setCedula(registerRequest.getCedula());
             newUser.setFechaNacimiento(registerRequest.getFechaNacimiento());
             newUser.setGenero(registerRequest.getGenero());
@@ -89,12 +86,10 @@ public class AuthController {
             newUser.setEstado(registerRequest.getEstado());
             newUser.setTelefono(registerRequest.getTelefono());
             
-            // Establecer rol por defecto
             newUser.setRol("USUARIO");
 
             User createdUser = userService.createUser(newUser);
 
-            // Generar token para el nuevo usuario
             String token = jwtUtil.generateToken(createdUser.getCorreoElectronico(), createdUser.getRol());
 
             Map<String, Object> response = new HashMap<>();
@@ -118,14 +113,11 @@ public class AuthController {
                 return ResponseEntity.status(401).body("Token no proporcionado");
             }
 
-            String token = authHeader.substring(7); // Remove "Bearer " prefix
+            String token = authHeader.substring(7);
 
-            // Extract username from token
             String username = jwtUtil.extractUsername(token);
 
-            // Validate token
             if (jwtUtil.validateToken(token, username)) {
-                // Get user details
                 Optional<User> user = userService.getUserByEmail(username);
                 if (user.isPresent()) {
                     Map<String, Object> response = new HashMap<>();
@@ -178,7 +170,6 @@ public class AuthController {
         private String estado;
         private String telefono;
 
-        // Getters y Setters
         public String getNombre() { return nombre; }
         public void setNombre(String nombre) { this.nombre = nombre; }
 

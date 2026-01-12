@@ -41,7 +41,6 @@ public class PaymentService {
 
     @Transactional
     public Payment createPayment(Payment payment) {
-        // Generar referencia de pago única
         if (payment.getReferenciaPago() == null || payment.getReferenciaPago().isEmpty()) {
             payment.setReferenciaPago(generatePaymentReference());
         }
@@ -66,7 +65,7 @@ public class PaymentService {
         payment.setReservacion(reservation);
         payment.setMonto(monto);
         payment.setMetodoPago(metodoPago);
-        payment.setEstadoPago("completado"); // En un sistema real, esto vendría de un procesador de pagos
+        payment.setEstadoPago("completado");
 
         return createPayment(payment);
     }

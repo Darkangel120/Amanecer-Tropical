@@ -28,7 +28,7 @@ public class Notification {
     private String mensaje;
 
     @NotBlank
-    private String tipo = "general"; // reservacion, pago, resena, general
+    private String tipo = "general";
 
     @Column(columnDefinition = "SMALLINT DEFAULT 0")
     private boolean leido = false;
@@ -36,7 +36,6 @@ public class Notification {
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
-    // Constructors
     public Notification() {}
 
     public Notification(User usuario, String titulo, String mensaje, String tipo) {
@@ -52,7 +51,6 @@ public class Notification {
         fechaCreacion = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

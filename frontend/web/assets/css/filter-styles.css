@@ -65,7 +65,6 @@
     box-shadow: 0 2px 10px rgba(255, 126, 95, 0.3);
 }
 
-/* Responsive filter styles */
 @media (max-width: 768px) {
     .filters {
         flex-direction: column;

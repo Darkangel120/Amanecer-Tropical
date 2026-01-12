@@ -9,12 +9,10 @@ function updateNotificationBadge() {
     }
 }
 
-// Function to validate session with backend
 async function validateSession() {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user'));
 
-    // If no token or user in localStorage, redirect immediately
     if (!token || !user) {
         console.log('No token or user found, redirecting to login');
         window.location.href = '../index.html';
@@ -22,7 +20,6 @@ async function validateSession() {
     }
 
     try {
-        // Make API call to validate token with backend
         const response = await fetch('http://localhost:8080/api/auth/validate', {
             method: 'GET',
             headers: {
@@ -32,48 +29,38 @@ async function validateSession() {
         });
 
         if (response.ok) {
-            // Token is valid, session is active
             console.log('Session validated successfully');
             return true;
         } else if (response.status === 401) {
-            // Token is invalid or expired
             console.log('Token invalid or expired, clearing session and redirecting');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '../index.html';
             return false;
         } else {
-            // Other server error, but don't redirect immediately
             console.warn('Server error during session validation, but keeping session active');
             return true;
         }
     } catch (error) {
-        // Network error or server unreachable
         console.warn('Network error during session validation, but keeping session active:', error);
-        return true; // Don't redirect on network errors
+        return true;
     }
 }
 
-// General JavaScript for Shared User Menu Functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user'));
 
-    // Only create user menu if user is logged in
     if (user) {
         createUserMenu();
         loadUserProfileInfo();
-        // Hide login/register buttons when user is logged in
         const authButtons = document.querySelector('.auth-buttons');
         if (authButtons) {
             authButtons.style.display = 'none';
         }
-        // Add Dashboard link to main navigation
         addDashboardToNav();
     }
 
-    // Navbar toggle for mobile
     const burger = document.querySelector('.burger');
     const nav = document.querySelector('.nav-links');
     const navLinks = document.querySelectorAll('.nav-links li');
@@ -84,13 +71,11 @@ document.addEventListener('DOMContentLoaded', function() {
             burger.classList.toggle('toggle');
         });
 
-        // Animate nav links
         navLinks.forEach((link, index) => {
             link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
         });
     }
 
-    // Profile dropdown functionality
     const profileBtn = document.getElementById('profileBtn');
     const profileMenu = document.getElementById('profileMenu');
 
@@ -98,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
         profileBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             profileMenu.classList.toggle('active');
-            // Close notifications menu if open
             const notificationsMenu = document.getElementById('notificationsMenu');
             if (notificationsMenu && notificationsMenu.classList.contains('active')) {
                 notificationsMenu.classList.remove('active');
@@ -106,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Notifications dropdown functionality
     const notificationsBtn = document.getElementById('notificationsBtn');
     const notificationsMenu = document.getElementById('notificationsMenu');
 
@@ -114,24 +97,20 @@ document.addEventListener('DOMContentLoaded', function() {
         notificationsBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             notificationsMenu.classList.toggle('active');
-            // Close profile menu if open
             if (profileMenu && profileMenu.classList.contains('active')) {
                 profileMenu.classList.remove('active');
             }
-            // Load notifications if menu is opening
             if (notificationsMenu.classList.contains('active')) {
                 loadNotifications();
             }
         });
     }
 
-    // Close dropdowns when clicking outside
     document.addEventListener('click', () => {
         if (profileMenu) profileMenu.classList.remove('active');
         if (notificationsMenu) notificationsMenu.classList.remove('active');
     });
 
-    // Prevent closing when clicking inside dropdowns
     if (profileMenu) {
         profileMenu.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -144,12 +123,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Load notifications from backend
     if (user) {
         loadNotifications();
     }
 
-    // Mark all notifications as read
     const markAllReadBtn = document.querySelector('.mark-all-read');
     if (markAllReadBtn) {
         markAllReadBtn.addEventListener('click', async () => {
@@ -170,7 +147,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     unreadNotifications.forEach(item => {
                         item.classList.remove('unread');
                     });
-                    // Update badge count
                     updateNotificationBadge();
                 }
             } catch (error) {
@@ -179,10 +155,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize badge on page load
     updateNotificationBadge();
 
-    // Logout functionality
     const logoutBtn = document.querySelector('.btn-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
@@ -193,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add hover effects to section cards (for pages that have them)
     const sectionCards = document.querySelectorAll('.section-card');
     sectionCards.forEach(card => {
         card.addEventListener('mouseenter', function() {
@@ -206,7 +179,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function to load user profile information from backend
 async function loadUserProfileInfo() {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) return;
@@ -220,43 +192,32 @@ async function loadUserProfileInfo() {
 
         if (response.ok) {
             const freshUserData = await response.json();
-            // Update localStorage with fresh data
             localStorage.setItem('user', JSON.stringify(freshUserData));
 
-            // Update profile button avatar
             const profileAvatar = document.querySelector('.profile-avatar');
             if (profileAvatar) {
                 if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('/uploads/')) {
-                    // Profile picture is a file path from backend
                     profileAvatar.src = `http://localhost:8080${freshUserData.fotoPerfil}`;
                     profileAvatar.onerror = function() {
-                        // If profile picture fails to load, show default
                         profileAvatar.src = '../assets/img/default-profile.png';
                     };
                 } else if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('data:image')) {
-                    // Profile picture is base64 (fallback for old data)
                     profileAvatar.src = freshUserData.fotoPerfil;
                 } else {
-                    // No profile picture, show default
                     profileAvatar.src = '../assets/img/default-profile.png';
                 }
             }
 
-            // Update profile menu information
             const profileAvatarLarge = document.querySelector('.profile-avatar-large');
             if (profileAvatarLarge) {
                 if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('/uploads/')) {
-                    // Profile picture is a file path from backend
                     profileAvatarLarge.src = `http://localhost:8080${freshUserData.fotoPerfil}`;
                     profileAvatarLarge.onerror = function() {
-                        // If profile picture fails to load, show default
                         profileAvatarLarge.src = '../assets/img/default-profile.png';
                     };
                 } else if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('data:image')) {
-                    // Profile picture is base64 (fallback for old data)
                     profileAvatarLarge.src = freshUserData.fotoPerfil;
                 } else {
-                    // No profile picture, show default
                     profileAvatarLarge.src = '../assets/img/default-profile.png';
                 }
             }
@@ -272,17 +233,14 @@ async function loadUserProfileInfo() {
             }
         } else {
             console.error('Error loading fresh user data, using localStorage');
-            // Fallback to localStorage data
             updateUIFromLocalStorage();
         }
     } catch (error) {
         console.error('Error:', error);
-        // Fallback to localStorage data
         updateUIFromLocalStorage();
     }
 }
 
-// Function to load notifications from backend
 async function loadNotifications() {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) return;
@@ -305,7 +263,6 @@ async function loadNotifications() {
     }
 }
 
-// Function to display notifications in the dropdown
 function displayNotifications(notifications) {
     const notificationsList = document.querySelector('.notifications-list');
     if (!notificationsList) return;
@@ -329,7 +286,6 @@ function displayNotifications(notifications) {
             </div>
         `;
 
-        // Add click event to mark as read
         if (!notification.leido) {
             notificationItem.addEventListener('click', async () => {
                 await markNotificationAsRead(notification.id);
@@ -341,11 +297,9 @@ function displayNotifications(notifications) {
         notificationsList.appendChild(notificationItem);
     });
 
-    // Update badge count
     updateNotificationBadge();
 }
 
-// Function to mark a single notification as read
 async function markNotificationAsRead(notificationId) {
     try {
         const response = await fetch(`http://localhost:8080/api/notifications/${notificationId}/read`, {
@@ -364,7 +318,6 @@ async function markNotificationAsRead(notificationId) {
     }
 }
 
-// Helper function to get notification icon based on type
 function getNotificationIcon(type) {
     switch (type) {
         case 'reservacion':
@@ -378,7 +331,6 @@ function getNotificationIcon(type) {
     }
 }
 
-// Function to create user menu dynamically
 function createUserMenu() {
     const navbar = document.querySelector('.navbar');
     if (!navbar) return;
@@ -386,12 +338,10 @@ function createUserMenu() {
     const navLinks = document.querySelector('.nav-links');
     if (!navLinks) return;
 
-    // Check if user menu already exists
     if (document.querySelector('.user-menu')) {
         return;
     }
 
-    // Create user menu HTML
     const userMenuHTML = `
         <div class="user-menu">
             <!-- Notifications Dropdown -->
@@ -439,10 +389,8 @@ function createUserMenu() {
         </div>
     `;
 
-    // Insert user menu after nav-links
     navLinks.insertAdjacentHTML('afterend', userMenuHTML);
 
-    // Add logout functionality to the newly created logout option
     setTimeout(() => {
         const logoutOption = document.querySelector('.logout-option');
         if (logoutOption) {
@@ -456,45 +404,34 @@ function createUserMenu() {
     }, 100);
 }
 
-// Fallback function to load from localStorage
 function updateUIFromLocalStorage() {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) return;
 
-    // Update profile button avatar
     const profileAvatar = document.querySelector('.profile-avatar');
     if (profileAvatar) {
         if (user.fotoPerfil && user.fotoPerfil.startsWith('/uploads/')) {
-            // Profile picture is a file path from backend
             profileAvatar.src = `http://localhost:8080${user.fotoPerfil}`;
             profileAvatar.onerror = function() {
-                // If profile picture fails to load, show default
                 profileAvatar.src = '../assets/img/default-profile.png';
             };
         } else if (user.fotoPerfil && user.fotoPerfil.startsWith('data:image')) {
-            // Profile picture is base64 (fallback for old data)
             profileAvatar.src = user.fotoPerfil;
         } else {
-            // No profile picture, show default
             profileAvatar.src = '../assets/img/default-profile.png';
         }
     }
 
-    // Update profile menu information
     const profileAvatarLarge = document.querySelector('.profile-avatar-large');
     if (profileAvatarLarge) {
         if (user.fotoPerfil && user.fotoPerfil.startsWith('/uploads/')) {
-            // Profile picture is a file path from backend
             profileAvatarLarge.src = `http://localhost:8080${user.fotoPerfil}`;
             profileAvatarLarge.onerror = function() {
-                // If profile picture fails to load, show default
                 profileAvatarLarge.src = '../assets/img/default-profile.png';
             };
         } else if (user.fotoPerfil && user.fotoPerfil.startsWith('data:image')) {
-            // Profile picture is base64 (fallback for old data)
             profileAvatarLarge.src = user.fotoPerfil;
         } else {
-            // No profile picture, show default
             profileAvatarLarge.src = '../assets/img/default-profile.png';
         }
     }
@@ -517,27 +454,22 @@ function getBasePath() {
     return base;
 }
 
-// Function to add Dashboard link to main navigation
 function addDashboardToNav() {
     const navLinks = document.querySelector('.nav-links');
     if (!navLinks) return;
 
-    // Check if Dashboard link already exists
     if (document.querySelector('.nav-dashboard')) {
         return;
     }
 
-    // Create Dashboard link
     const dashboardLink = document.createElement('li');
     dashboardLink.className = 'nav-dashboard';
     dashboardLink.innerHTML = `<a href="${basePath}user/dashboard.html">Dashboard</a>`;
 
-    // Insert Dashboard link after the first navigation item (Inicio)
     const firstNavItem = navLinks.querySelector('li');
     if (firstNavItem) {
         firstNavItem.insertAdjacentElement('afterend', dashboardLink);
     } else {
-        // If no first item, append to nav-links
         navLinks.appendChild(dashboardLink);
     }
 }

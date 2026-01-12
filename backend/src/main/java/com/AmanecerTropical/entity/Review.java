@@ -44,7 +44,7 @@ public class Review {
 
     @NotBlank
     @Column(name = "tipo_servicio")
-    private String tipoServicio; // paquete, vuelo, hotel, vehiculo
+    private String tipoServicio;
 
     @NotNull
     @Min(1)
@@ -63,7 +63,6 @@ public class Review {
         fechaCreacion = LocalDateTime.now();
     }
 
-    // Constructors
     public Review() {}
 
     public Review(User usuario, Package paquete, Integer calificacion, String comentario, String tipoServicio) {
@@ -74,7 +73,6 @@ public class Review {
         this.tipoServicio = tipoServicio;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

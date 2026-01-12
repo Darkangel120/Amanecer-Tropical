@@ -16,7 +16,7 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private final Key SECRET_KEY;
-    private final int JWT_EXPIRATION = 86400000; // 24 hours
+    private final int JWT_EXPIRATION = 86400000;
 
     public JwtUtil(@Value("${jwt.secret}") String secret) {
         this.SECRET_KEY = Keys.hmacShaKeyFor(secret.getBytes());

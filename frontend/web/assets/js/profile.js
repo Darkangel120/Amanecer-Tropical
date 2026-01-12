@@ -2,14 +2,12 @@ const API_BASE_URL = 'http://localhost:8080/api';
 let selectedProfilePicture = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = 'login.html';
         return;
     }
 
-    // Navbar toggle for mobile
     const burger = document.querySelector('.burger');
     const nav = document.querySelector('.nav-links');
     const navLinks = document.querySelectorAll('.nav-links li');
@@ -19,15 +17,12 @@ document.addEventListener('DOMContentLoaded', function() {
         burger.classList.toggle('toggle');
     });
 
-    // Animate nav links
     navLinks.forEach((link, index) => {
         link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
     });
 
-    // Load user profile
     loadUserProfile();
 
-    // Profile form submission
     const profileForm = document.querySelector('.profile-form');
     console.log('Profile form found:', profileForm);
     if (profileForm) {
@@ -38,12 +33,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Profile picture change functionality
     const changePictureBtn = document.getElementById('change-picture-btn');
     const profilePictureInput = document.getElementById('profile-picture-input');
     const profilePictureContainer = document.querySelector('.profile-picture-container');
 
-    // Create profile picture element dynamically if it doesn't exist
     let profilePicture = document.getElementById('profile-picture');
     if (!profilePicture) {
         profilePicture = document.createElement('img');
@@ -62,16 +55,14 @@ document.addEventListener('DOMContentLoaded', function() {
         profilePictureInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Resize image to reduce base64 size
                 resizeImage(file, 200, 200, function(resizedDataUrl) {
                     profilePicture.src = resizedDataUrl;
-                    selectedProfilePicture = resizedDataUrl; // Store resized base64 for upload
+                    selectedProfilePicture = resizedDataUrl;
                 });
             }
         });
     }
 
-    // Logout functionality
     const logoutBtn = document.querySelector('.btn-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
@@ -126,7 +117,6 @@ function populateProfileForm(user) {
     const specialNeedsInput = document.querySelector('#special-needs');
     const profilePicture = document.getElementById('profile-picture');
 
-    // Map backend field names to form field names
     if (nameInput) nameInput.value = user.nombre || '';
     if (emailInput) emailInput.value = user.correoElectronico || '';
     if (phoneInput) phoneInput.value = user.telefono || '';
@@ -148,17 +138,13 @@ function populateProfileForm(user) {
     
     if (profilePicture) {
         if (user.fotoPerfil && user.fotoPerfil.startsWith('/uploads/')) {
-            // Profile picture is a file path from backend
             profilePicture.src = `http://localhost:8080${user.fotoPerfil}`;
             profilePicture.onerror = function() {
-                // If profile picture fails to load, show default
                 profilePicture.src = '../assets/img/default-profile.png';
             };
         } else if (user.fotoPerfil && user.fotoPerfil.startsWith('data:image')) {
-            // Profile picture is base64 (fallback for old data)
             profilePicture.src = user.fotoPerfil;
         } else {
-            // No profile picture, show default
             profilePicture.src = '../assets/img/default-profile.png';
         }
     }
@@ -170,13 +156,11 @@ async function updateUserProfile() {
 
     const formData = new FormData(document.querySelector('.profile-form'));
 
-    // Helper function to get value or null if empty
     const getValueOrNull = (key) => {
         const value = formData.get(key);
         return value && value.trim() !== '' ? value : null;
     };
 
-    // Check required fields (match backend validation)
     const requiredFields = [
         'name', 'email', 'phone', 'birthdate', 'gender', 
         'nationality', 'address', 'city', 'state', 'cedula'
@@ -189,7 +173,6 @@ async function updateUserProfile() {
         }
     }
 
-    // Map form fields to backend field names
     const updatedUser = {
         nombre: formData.get('name'),
         correoElectronico: formData.get('email'),
@@ -211,7 +194,6 @@ async function updateUserProfile() {
         necesidadesEspeciales: getValueOrNull('special-needs')
     };
 
-    // Only include profilePicture if a new one was selected
     if (selectedProfilePicture) {
         updatedUser.fotoPerfil = selectedProfilePicture;
     }
@@ -230,7 +212,6 @@ async function updateUserProfile() {
             const updatedUserData = await response.json();
             localStorage.setItem('user', JSON.stringify(updatedUserData));
             
-            // Update the profile picture display if it was changed
             if (updatedUserData.fotoPerfil) {
                 const profilePicture = document.getElementById('profile-picture');
                 if (profilePicture) {
@@ -248,7 +229,6 @@ async function updateUserProfile() {
             }
             
             alert('Perfil actualizado exitosamente');
-            // Reset selected picture
             selectedProfilePicture = null;
         } else {
             const error = await response.text();
@@ -260,7 +240,6 @@ async function updateUserProfile() {
     }
 }
 
-// Helper function to get field labels
 function getFieldLabel(fieldName) {
     const labels = {
         'name': 'Nombre',
@@ -277,14 +256,12 @@ function getFieldLabel(fieldName) {
     return labels[fieldName] || fieldName;
 }
 
-// Function to resize image
 function resizeImage(file, maxWidth, maxHeight, callback) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const img = new Image();
 
     img.onload = function() {
-        // Calculate new dimensions
         let { width, height } = img;
 
         if (width > height) {
@@ -302,10 +279,8 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
         canvas.width = width;
         canvas.height = height;
 
-        // Draw resized image
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to base64
         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
         callback(dataUrl);
     };

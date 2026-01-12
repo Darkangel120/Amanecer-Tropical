@@ -1,4 +1,3 @@
-/* Reservations Specific Styles */
 .reservations-hero {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     height: 50vh;
@@ -9,7 +8,7 @@
     text-align: center;
     color: white;
     position: relative;
-    margin-top: 80px; /* Adjust for fixed navbar */
+    margin-top: 80px;
 }
 
 .reservations-hero::before {
@@ -200,7 +199,6 @@
     padding: 2rem;
 }
 
-/* Reservation Card Layout */
 .reservation-header {
     display: flex;
     align-items: center;
@@ -265,7 +263,6 @@
     gap: 0.5rem;
 }
 
-/* Modal Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -378,7 +375,6 @@
     border-top: 1px solid #eee;
 }
 
-/* Modal Content Styles */
 .reservation-details-modal {
     max-width: 100%;
 }
@@ -455,7 +451,6 @@
     line-height: 1.4;
 }
 
-/* QR Modal Specific Styles */
 .qr-container {
     text-align: center;
     margin-bottom: 2rem;
@@ -611,7 +606,6 @@
     }
 }
 
-/* Status colors in modal */
 .status-pendiente { color: #ffc107; font-weight: bold; }
 .status-confirmado { color: #28a745; font-weight: bold; }
 .status-cancelado { color: #dc3545; font-weight: bold; }

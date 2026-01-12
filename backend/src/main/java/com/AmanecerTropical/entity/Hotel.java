@@ -53,10 +53,8 @@ public class Hotel {
     @Column(columnDefinition = "SMALLINT DEFAULT 1")
     private boolean activo = true;
 
-    // Constructors
     public Hotel() {}
 
-    // Getters and Setters (ajustados para español)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

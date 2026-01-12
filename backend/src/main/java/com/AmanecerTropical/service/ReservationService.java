@@ -49,7 +49,6 @@ public class ReservationService {
     public Reservation createReservation(@NonNull Reservation reservation) {
         Reservation createdReservation = reservationRepository.save(reservation);
 
-        // Create notification for new reservation
         Notification notification = new Notification(
             createdReservation.getUsuario(),
             "Nueva Reserva",
@@ -69,7 +68,6 @@ public class ReservationService {
     public Reservation updateReservation(@NonNull Reservation reservation) {
         Reservation updatedReservation = reservationRepository.save(reservation);
 
-        // Create notification for status changes
         if (reservation.getEstado().equals("confirmado")) {
             Notification notification = new Notification(
                 updatedReservation.getUsuario(),

@@ -52,34 +52,27 @@ public class UserService implements UserDetailsService {
     }
 
     public User updateUser(@NonNull User user) {
-        // Fetch existing user to preserve password and other fields not sent in update
         @SuppressWarnings("null")
         Optional<User> existingUserOpt = userRepository.findById(user.getId());
         if (existingUserOpt.isPresent()) {
             User existingUser = existingUserOpt.get();
-            // Preserve password if not provided
             if (user.getContrasena() == null || user.getContrasena().isEmpty()) {
                 user.setContrasena(existingUser.getContrasena());
             } else {
                 user.setContrasena(passwordEncoder.encode(user.getContrasena()));
             }
-            // Preserve role if not set
             if (user.getRol() == null) {
                 user.setRol(existingUser.getRol());
             }
-            // Handle profile picture
             if (user.getFotoPerfil() != null && user.getFotoPerfil().startsWith("data:image")) {
-                // New base64 image provided, save as file
                 try {
                     String filePath = saveProfilePicture(user.getFotoPerfil(), user.getId());
                     user.setFotoPerfil(filePath);
                 } catch (IOException e) {
                     System.err.println("Error saving profile picture: " + e.getMessage());
-                    // Keep existing picture if save fails
                     user.setFotoPerfil(existingUser.getFotoPerfil());
                 }
             } else if (user.getFotoPerfil() == null) {
-                // Preserve existing profile picture
                 user.setFotoPerfil(existingUser.getFotoPerfil());
             }
         }
@@ -99,27 +92,22 @@ public class UserService implements UserDetailsService {
     }
 
     private String saveProfilePicture(String base64Image, Long userId) throws IOException {
-        // Create uploads directory if it doesn't exist
         Path uploadDir = Paths.get("src/main/resources/static/uploads/profile-pictures").toAbsolutePath();
         if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }
 
-        // Extract image data from base64 string
         String[] parts = base64Image.split(",");
         String imageData = parts[1];
         String contentType = parts[0].split(":")[1].split(";")[0];
-        String extension = contentType.split("/")[1]; // e.g., "jpeg", "png"
+        String extension = contentType.split("/")[1];
 
-        // Generate unique filename
         String fileName = "profile_" + userId + "_" + UUID.randomUUID().toString() + "." + extension;
         Path filePath = uploadDir.resolve(fileName);
 
-        // Decode and save the image
         byte[] imageBytes = Base64.getDecoder().decode(imageData);
         Files.write(filePath, imageBytes);
 
-        // Return the relative path for database storage
         return "/uploads/profile-pictures/" + fileName;
     }
 

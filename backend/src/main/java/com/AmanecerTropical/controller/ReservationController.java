@@ -135,11 +135,9 @@ public class ReservationController {
             List<Long> hotelIds = serviceIds.getOrDefault("hoteles", new ArrayList<>());
             List<Long> vehicleIds = serviceIds.getOrDefault("vehiculos", new ArrayList<>());
             
-            // Verificar ubicaciones
             String commonLocation = null;
             boolean compatible = true;
             
-            // Si hay vuelos, usar el destino como ubicación base
             if (!flightIds.isEmpty()) {
                 @SuppressWarnings("null")
                 Optional<Flight> flight = flightService.getFlightById(flightIds.get(0));
@@ -148,7 +146,6 @@ public class ReservationController {
                 }
             }
             
-            // Verificar hoteles
             if (!hotelIds.isEmpty()) {
                 for (Long hotelId : hotelIds) {
                     @SuppressWarnings("null")
@@ -192,21 +189,13 @@ public class ReservationController {
         String loc1 = location1.toLowerCase().trim();
         String loc2 = location2.toLowerCase().trim();
         
-        // Coincidencia exacta
         if (loc1.equals(loc2)) return true;
         
-        // Verificar si una contiene a la otra
         if (loc1.contains(loc2) || loc2.contains(loc1)) return true;
-        
-        // Podrías agregar más lógica aquí para manejar casos como
-        // "San José, Costa Rica" vs "San José"
         
         return false;
     }
 
-    /**
-     * Endpoint para crear múltiples reservaciones en una transacción
-     */
     @PostMapping("/batch")
     @PreAuthorize("hasRole('USUARIO') or hasRole('ADMIN')")
     @Transactional

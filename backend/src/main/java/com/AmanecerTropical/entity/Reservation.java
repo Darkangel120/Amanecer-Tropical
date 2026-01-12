@@ -47,7 +47,7 @@ public class Reservation {
 
     @NotBlank(message = "El tipo de servicio es requerido")
     @Column(name = "tipo_servicio")
-    private String tipoServicio; // paquete, vuelo, hotel, vehiculo
+    private String tipoServicio;
 
     @NotNull(message = "La fecha de inicio es requerida")
     @Column(name = "fecha_inicio")
@@ -68,7 +68,7 @@ public class Reservation {
     private BigDecimal precioTotal;
 
     @NotBlank(message = "El estado es requerido")
-    private String estado = "pendiente"; // pendiente, confirmado, cancelado, completado
+    private String estado = "pendiente";
 
     @Column(name = "solicitudes_especiales", columnDefinition = "TEXT")
     private String solicitudesEspeciales;
@@ -88,7 +88,6 @@ public class Reservation {
         fechaCreacion = LocalDateTime.now();
         fechaActualizacion = LocalDateTime.now();
         
-        // Validación: Al menos uno de los servicios debe estar presente
         if (paquete == null && vuelo == null && hotel == null && vehiculo == null) {
             throw new IllegalStateException("Debe especificar al menos un servicio (paquete, vuelo, hotel o vehículo)");
         }
@@ -99,7 +98,6 @@ public class Reservation {
         fechaActualizacion = LocalDateTime.now();
     }
 
-    // Constructors
     public Reservation() {}
 
     public Reservation(User usuario, Package paquete, LocalDate fechaInicio,
@@ -115,7 +113,6 @@ public class Reservation {
         this.tipoServicio = tipoServicio;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

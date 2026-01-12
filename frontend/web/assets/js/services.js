@@ -1,22 +1,16 @@
-// Services JavaScript
 const API_BASE_URL = 'http://localhost:8080/api';
 
-// Data loading limits
 const PACKAGES_LIMIT = 10;
 const HOTELS_LIMIT = 10;
 const FLIGHTS_LIMIT = 15;
 const VEHICLES_LIMIT = 8;
 
-// Global variables for storing data
 let packagesData, hotelsData, vehiclesData, flightsData;
 
-// Reservation sidebar data
 let reservationItems = [];
 
-// Currency exchange rate
-let usdToVesRate = 36.50; // Default fallback rate
+let usdToVesRate = 36.50;
 
-// Function to load exchange rate from API
 async function loadExchangeRate() {
     try {
         const response = await fetch(`${API_BASE_URL}/currency/rate`);
@@ -24,7 +18,6 @@ async function loadExchangeRate() {
             const data = await response.json();
             usdToVesRate = data.usdToVesRate;
             console.log(`Exchange rate loaded: 1 USD = ${usdToVesRate} VES`);
-            // Refresh displays to show updated prices
             if (packagesData) displayPackages(packagesData);
             if (flightsData) displayFlights(flightsData);
             if (hotelsData) displayHotels(hotelsData);
@@ -37,7 +30,6 @@ async function loadExchangeRate() {
     }
 }
 
-// Function to format price in both currencies
 function formatPrice(usdPrice) {
     const usd = parseFloat(usdPrice);
     const ves = usd * usdToVesRate;
@@ -45,14 +37,12 @@ function formatPrice(usdPrice) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = 'login.html';
         return;
     }
 
-    // Navbar toggle for mobile
     const burger = document.querySelector('.burger');
     const nav = document.querySelector('.nav-links');
     const navLinks = document.querySelectorAll('.nav-links li');
@@ -62,29 +52,24 @@ document.addEventListener('DOMContentLoaded', function() {
         burger.classList.toggle('toggle');
     });
 
-    // Animate nav links
     navLinks.forEach((link, index) => {
         link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
     });
 
-    // Tab functionality
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
     tabButtons.forEach(button => {
         button.addEventListener('click', function() {
-            // Remove active class from all buttons and contents
             tabButtons.forEach(btn => btn.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
 
-            // Add active class to clicked button and corresponding content
             this.classList.add('active');
             const tabId = this.getAttribute('data-tab');
             document.getElementById(tabId).classList.add('active');
         });
     });
 
-    // Get destination from URL params
     const urlParams = new URLSearchParams(window.location.search);
     const destinationId = urlParams.get('destination');
 
@@ -92,7 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
         loadDestinationDetails(destinationId);
     }
 
-    // Booking form
     const bookingForm = document.querySelector('#booking-form');
     if (bookingForm) {
         bookingForm.addEventListener('submit', async function(e) {
@@ -101,7 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Logout functionality
     const logoutBtn = document.querySelector('.btn-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
@@ -112,22 +95,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Load dynamic data for all tabs
     loadPackages();
     loadFlights();
     loadHotels();
     loadVehicles();
 
-    // Initialize reservation sidebar
     initializeReservationSidebar();
 
-    // Initialize sidebar toggle
     initializeSidebarToggle();
 
-    // Initialize QR button
     initializeQRButton();
 
-    // Load exchange rate
     loadExchangeRate();
 });
 
@@ -159,7 +137,6 @@ function displayDestinationDetails(destination) {
     if (destinationDescription) destinationDescription.textContent = destination.descripcion;
     if (destinationPrice) destinationPrice.textContent = formatPrice(destination.precio);
 
-    // Set destination ID in form
     const bookingForm = document.querySelector('#booking-form');
     if (bookingForm) {
         const destinationIdInput = bookingForm.querySelector('input[name="destinationId"]');
@@ -174,8 +151,8 @@ async function loadPackages() {
         const response = await fetch(`${API_BASE_URL}/packages`);
         if (response.ok) {
             const destinations = await response.json();
-            packagesData = destinations; // Load all packages
-            console.log(`Loaded ${packagesData.length} packages`); // Debug log
+            packagesData = destinations;
+            console.log(`Loaded ${packagesData.length} packages`);
             displayPackages(packagesData);
         } else {
             console.error('Error loading packages');
@@ -231,10 +208,9 @@ function viewPackageDetails(packageId) {
     modalDescription.textContent = packageData.descripcion;
     modalPrice.textContent = formatPrice(packageData.precio);
 
-    // Populate includes
     includesList.innerHTML = '';
     let includes = packageData.incluye;
-    console.log('Includes data:', includes, typeof includes); // Debug log
+    console.log('Includes data:', includes, typeof includes);
     if (typeof includes === 'string') {
         try {
             includes = JSON.parse(includes);
@@ -242,7 +218,7 @@ function viewPackageDetails(packageId) {
             includes = includes.split(',').map(item => item.trim());
         }
     }
-    console.log('Processed includes:', includes, Array.isArray(includes)); // Debug log
+    console.log('Processed includes:', includes, Array.isArray(includes));
     if (Array.isArray(includes)) {
         includes.forEach(item => {
             const li = document.createElement('li');
@@ -255,10 +231,9 @@ function viewPackageDetails(packageId) {
         includesList.appendChild(li);
     }
 
-    // Populate itinerary
     itineraryList.innerHTML = '';
     let itinerary = packageData.itinerario;
-    console.log('Itinerary data:', itinerary, typeof itinerary); // Debug log
+    console.log('Itinerary data:', itinerary, typeof itinerary);
     if (typeof itinerary === 'string') {
         try {
             itinerary = JSON.parse(itinerary);
@@ -266,7 +241,7 @@ function viewPackageDetails(packageId) {
             itinerary = itinerary.split(',').map(item => item.trim());
         }
     }
-    console.log('Processed itinerary:', itinerary, Array.isArray(itinerary)); // Debug log
+    console.log('Processed itinerary:', itinerary, Array.isArray(itinerary));
     if (Array.isArray(itinerary)) {
         itinerary.forEach(item => {
             const li = document.createElement('li');
@@ -281,13 +256,11 @@ function viewPackageDetails(packageId) {
 
     modal.style.display = 'block';
 
-    // Close modal functionality
     const closeBtn = modal.querySelector('.close');
     closeBtn.onclick = function() {
         modal.style.display = 'none';
     };
 
-    // Close modal when clicking outside
     window.onclick = function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';
@@ -296,12 +269,10 @@ function viewPackageDetails(packageId) {
 }
 
 function bookPackage(destinationId) {
-    // Check if packages data is loaded
     if (!packagesData) {
         alert('Cargando datos de paquetes, por favor espere un momento.');
         return;
     }
-    // Add package to reservation sidebar like other services
     addToReservation('package', destinationId);
 }
 
@@ -310,8 +281,8 @@ async function loadFlights() {
         const response = await fetch(`${API_BASE_URL}/flights`);
         if (response.ok) {
             const flights = await response.json();
-            flightsData = flights; // Load all flights
-            console.log(`Loaded ${flightsData.length} flights`); // Debug log
+            flightsData = flights;
+            console.log(`Loaded ${flightsData.length} flights`);
             displayFlights(flightsData);
             populateFlightFilters(flightsData);
         } else {
@@ -357,8 +328,8 @@ async function loadHotels() {
         const response = await fetch(`${API_BASE_URL}/hotels`);
         if (response.ok) {
             const hotels = await response.json();
-            hotelsData = hotels; // Load all hotels
-            console.log(`Loaded ${hotelsData.length} hotels`); // Debug log
+            hotelsData = hotels;
+            console.log(`Loaded ${hotelsData.length} hotels`);
             displayHotels(hotelsData);
             populateHotelDestinations(hotelsData);
         } else {
@@ -416,8 +387,8 @@ async function loadVehicles() {
         const response = await fetch(`${API_BASE_URL}/vehicles`);
         if (response.ok) {
             const vehicles = await response.json();
-            vehiclesData = vehicles; // Store data globally
-            console.log(`Loaded ${vehiclesData.length} vehicles`); // Debug log
+            vehiclesData = vehicles; 
+            console.log(`Loaded ${vehiclesData.length} vehicles`); 
             displayVehicles(vehicles);
             populateVehicleTypes(vehicles);
         } else {
@@ -452,8 +423,6 @@ function displayVehicles(vehicles = vehiclesData) {
 }
 
 function viewHotelDetails(hotelId) {
-    // For now, we'll use the hotels data loaded globally
-    // In a real app, you might want to fetch individual hotel details
     const hotelData = hotelsData.find(hotel => hotel.id === hotelId);
     if (!hotelData) return;
 
@@ -472,7 +441,6 @@ function viewHotelDetails(hotelId) {
     modalPrice.textContent = `${formatPrice(hotelData.precioPorNoche)}/noche`;
     modalStars.innerHTML = generateStars(hotelData.estrellas);
 
-    // Populate amenities
     amenitiesList.innerHTML = '';
     try {
         const amenities = JSON.parse(hotelData.comodidades);
@@ -489,13 +457,11 @@ function viewHotelDetails(hotelId) {
 
     modal.style.display = 'block';
 
-    // Close modal functionality
     const closeBtn = modal.querySelector('.close');
     closeBtn.onclick = function() {
         modal.style.display = 'none';
     };
 
-    // Close modal when clicking outside
     window.onclick = function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';
@@ -534,13 +500,11 @@ function viewVehicleDetails(vehicleId) {
 
     modal.style.display = 'block';
 
-    // Close modal functionality
     const closeBtn = modal.querySelector('.close');
     closeBtn.onclick = function() {
         modal.style.display = 'none';
     };
 
-    // Close modal when clicking outside
     window.onclick = function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';
@@ -576,7 +540,6 @@ async function createReservation() {
 
         if (response.ok) {
             alert('Reserva creada exitosamente');
-            // Close the modal and redirect to reservations page
             document.getElementById('reservation-modal').style.display = 'none';
             window.location.href = 'reservations.html';
         } else {
@@ -611,7 +574,6 @@ function openReservationModal(destinationId) {
     destinationIdInput.value = destinationId;
     totalPriceInput.value = packageData.precio;
 
-    // Populate includes
     includesList.innerHTML = '';
     let includes = packageData.incluye;
     if (typeof includes === 'string') {
@@ -633,7 +595,6 @@ function openReservationModal(destinationId) {
         includesList.appendChild(li);
     }
 
-    // Populate itinerary
     itineraryList.innerHTML = '';
     let itinerary = packageData.itinerario;
     if (typeof itinerary === 'string') {
@@ -657,13 +618,11 @@ function openReservationModal(destinationId) {
 
     modal.style.display = 'block';
 
-    // Close modal functionality
     const closeBtn = modal.querySelector('.close');
     closeBtn.onclick = function() {
         modal.style.display = 'none';
     };
 
-    // Close modal when clicking outside
     window.onclick = function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';
@@ -671,7 +630,6 @@ function openReservationModal(destinationId) {
     };
 }
 
-// Reservation Sidebar Functions
 function initializeReservationSidebar() {
     const clearBtn = document.getElementById('clear-reservation');
     const confirmBtn = document.getElementById('confirm-reservation');
@@ -738,7 +696,6 @@ function addToReservation(type, id) {
     }
 
     if (item) {
-        // Check if item already exists
         const existingIndex = reservationItems.findIndex(r => r.type === type && r.id === id);
         if (existingIndex === -1) {
             reservationItems.push(item);
@@ -754,7 +711,6 @@ function removeFromReservation(index) {
     updateReservationSidebar();
 }
 
-// Función para actualizar la visualización del sidebar con info de compatibilidad
 function updateReservationSidebar() {
     const reservationItemsContainer = document.getElementById('reservation-items');
     const totalPriceElement = document.getElementById('total-price');
@@ -767,11 +723,9 @@ function updateReservationSidebar() {
 
     let totalPrice = 0;
 
-    // Separar paquetes de otros servicios
     const packages = reservationItems.filter(item => item.type === 'package');
     const otherServices = reservationItems.filter(item => item.type !== 'package');
 
-    // Agregar sección de paquetes si hay
     if (packages.length > 0) {
         const packagesSection = document.createElement('div');
         packagesSection.className = 'reservation-section';
@@ -792,7 +746,6 @@ function updateReservationSidebar() {
         });
     }
 
-    // Agregar sección de servicios personalizados si hay
     if (otherServices.length > 0) {
         const servicesSection = document.createElement('div');
         servicesSection.className = 'reservation-section';
@@ -813,7 +766,6 @@ function updateReservationSidebar() {
             totalPrice += parseFloat(item.price);
         });
 
-        // Agregar mensaje de info si hay múltiples servicios
         if (otherServices.length > 1) {
             const compatibility = checkServicesCompatibilityImproved(otherServices);
             const infoElement = document.createElement('div');
@@ -842,12 +794,10 @@ function updateReservationSidebar() {
         totalPriceElement.textContent = formatPrice(totalPrice.toFixed(2));
     }
 
-    // Actualizar contador del carrito
     if (cartCountElement) {
         cartCountElement.textContent = reservationItems.length;
     }
 
-    // Habilitar/deshabilitar botón de confirmar
     if (confirmBtn) {
         confirmBtn.disabled = reservationItems.length === 0;
     }
@@ -858,33 +808,27 @@ function clearReservation() {
     updateReservationSidebar();
 }
 
-// Función principal para confirmar reservación con soporte para reservas combinadas
 function confirmReservation() {
     if (reservationItems.length === 0) {
         alert('No hay servicios en la reserva.');
         return;
     }
 
-    // Mostrar el modal de confirmación de reserva
     showReservationConfirmationModal();
 }
 
-// Función para mostrar el modal de confirmación de reserva
 function showReservationConfirmationModal() {
     const modal = document.getElementById('reservation-confirm-modal');
     if (!modal) return;
 
-    // Calcular total
     const totalPrice = reservationItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
 
-    // Llenar el modal con los detalles de la reserva
     const reservationDetails = document.getElementById('reservation-details');
     const reservationTotal = document.getElementById('reservation-total');
 
     if (reservationDetails) {
         reservationDetails.innerHTML = '';
 
-        // Separar paquetes de otros servicios
         const packages = reservationItems.filter(item => item.type === 'package');
         const otherServices = reservationItems.filter(item => item.type !== 'package');
 
@@ -924,7 +868,6 @@ function showReservationConfirmationModal() {
         reservationTotal.textContent = formatPrice(totalPrice.toFixed(2));
     }
 
-    // Configurar el formulario de reserva
     const reservationForm = document.getElementById('reservation-form');
     if (reservationForm) {
         reservationForm.onsubmit = function(e) {
@@ -941,7 +884,6 @@ function showReservationConfirmationModal() {
         };
     }
 
-    // Configurar el botón de cancelar
     const cancelBtn = document.getElementById('cancel-reservation-btn');
     if (cancelBtn) {
         cancelBtn.onclick = function() {
@@ -949,7 +891,6 @@ function showReservationConfirmationModal() {
         };
     }
 
-    // Configurar el botón de cerrar (X)
     const closeBtn = document.getElementById('reservation-confirm-close');
     if (closeBtn) {
         closeBtn.onclick = function() {
@@ -959,7 +900,6 @@ function showReservationConfirmationModal() {
 
     modal.style.display = 'block';
 
-    // Cerrar modal al hacer clic fuera
     window.onclick = function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';
@@ -967,17 +907,14 @@ function showReservationConfirmationModal() {
     };
 }
 
-// Función para mostrar el modal de pago
 function showPaymentModal(totalAmount, reservationData) {
     const modal = document.getElementById('payment-modal');
     if (!modal) return;
 
-    // Llenar el resumen de pago
     const paymentSummary = document.getElementById('payment-summary');
     if (paymentSummary) {
         paymentSummary.innerHTML = '';
 
-        // Mostrar detalles de la reserva
         const summaryDiv = document.createElement('div');
         summaryDiv.innerHTML = `
             <h3>Resumen de la Reserva</h3>
@@ -987,7 +924,6 @@ function showPaymentModal(totalAmount, reservationData) {
         `;
         paymentSummary.appendChild(summaryDiv);
 
-        // Mostrar items de la reserva
         const itemsDiv = document.createElement('div');
         itemsDiv.innerHTML = '<h4>Servicios Reservados:</h4>';
         reservationItems.forEach(item => {
@@ -1002,13 +938,11 @@ function showPaymentModal(totalAmount, reservationData) {
         paymentSummary.appendChild(itemsDiv);
     }
 
-    // Establecer el monto total en el modal
     const totalAmountElement = document.getElementById('payment-total');
     if (totalAmountElement) {
         totalAmountElement.textContent = formatPrice(totalAmount.toFixed(2));
     }
 
-    // Configurar el formulario de pago
     const paymentForm = document.getElementById('payment-form');
     if (paymentForm) {
         paymentForm.onsubmit = async function(e) {
@@ -1017,7 +951,6 @@ function showPaymentModal(totalAmount, reservationData) {
         };
     }
 
-    // Configurar el botón de cerrar
     const closeBtn = modal.querySelector('.close');
     if (closeBtn) {
         closeBtn.onclick = function() {
@@ -1025,7 +958,6 @@ function showPaymentModal(totalAmount, reservationData) {
         };
     }
 
-    // Configurar el cambio de método de pago
     const paymentMethodSelect = document.getElementById('payment-method');
     if (paymentMethodSelect) {
         paymentMethodSelect.addEventListener('change', function() {
@@ -1034,12 +966,10 @@ function showPaymentModal(totalAmount, reservationData) {
             const pagomovilDetails = document.getElementById('pagomovil-details');
             const paymentReferenceGroup = document.getElementById('payment-reference-group');
 
-            // Ocultar todos los detalles primero
             if (transferenciaDetails) transferenciaDetails.style.display = 'none';
             if (pagomovilDetails) pagomovilDetails.style.display = 'none';
             if (paymentReferenceGroup) paymentReferenceGroup.style.display = 'none';
 
-            // Mostrar los detalles correspondientes
             if (selectedMethod === 'transferencia' && transferenciaDetails) {
                 transferenciaDetails.style.display = 'block';
                 paymentReferenceGroup.style.display = 'block';
@@ -1050,7 +980,6 @@ function showPaymentModal(totalAmount, reservationData) {
         });
     }
 
-    // Configurar el botón de volver a confirmación
     const backToConfirmationBtn = document.getElementById('back-to-confirmation');
     if (backToConfirmationBtn) {
         backToConfirmationBtn.addEventListener('click', function() {
@@ -1061,7 +990,6 @@ function showPaymentModal(totalAmount, reservationData) {
 
     modal.style.display = 'block';
 
-    // Cerrar modal al hacer clic fuera
     window.onclick = function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';
@@ -1069,7 +997,6 @@ function showPaymentModal(totalAmount, reservationData) {
     };
 }
 
-// Función para procesar el pago y crear la reserva
 async function processPayment(totalAmount, reservationData) {
     const user = JSON.parse(localStorage.getItem('user'));
 
@@ -1078,7 +1005,6 @@ async function processPayment(totalAmount, reservationData) {
         return;
     }
 
-    // Primero crear las reservas
     const reservationResult = await createReservationsAfterPayment(user.id, totalAmount, reservationData);
 
     if (!reservationResult || !reservationResult.success) {
@@ -1086,7 +1012,6 @@ async function processPayment(totalAmount, reservationData) {
         return;
     }
 
-    // Obtener datos del formulario de pago
     const paymentForm = document.getElementById('payment-form');
     const formData = new FormData(paymentForm);
 
@@ -1108,7 +1033,7 @@ async function processPayment(totalAmount, reservationData) {
             cardHolder: formData.get('card-holder')
         }),
         monto: totalAmount,
-        reservationIds: reservationResult.reservationIds // Associate with created reservations
+        reservationIds: reservationResult.reservationIds
     };
 
     console.log('Constructed payment data:', paymentData);
@@ -1116,7 +1041,6 @@ async function processPayment(totalAmount, reservationData) {
     try {
         console.log('Sending payment data:', paymentData);
 
-        // Procesar el pago después de crear las reservas
         const paymentResponse = await fetch(`${API_BASE_URL}/payments/process`, {
             method: 'POST',
             headers: {
@@ -1134,10 +1058,8 @@ async function processPayment(totalAmount, reservationData) {
 
         const paymentResult = await paymentResponse.json();
 
-        // Cerrar modal de pago
         document.getElementById('payment-modal').style.display = 'none';
 
-        // Mostrar éxito
         alert('¡Pago procesado exitosamente! Su reserva ha sido confirmada.');
         clearReservation();
         window.location.href = 'reservations.html';
@@ -1148,21 +1070,16 @@ async function processPayment(totalAmount, reservationData) {
     }
 }
 
-// Función para crear reservas después del pago exitoso
 async function createReservationsAfterPayment(userId, totalAmount, reservationData) {
-    // Separar paquetes de servicios personalizados
     const packages = reservationItems.filter(item => item.type === 'package');
     const customServices = reservationItems.filter(item => item.type !== 'package');
 
-    // Mostrar alerta con los datos del modal para confirmación
     alert(`Datos de la reserva:\nFecha de inicio: ${reservationData.fechaInicio}\nFecha de fin: ${reservationData.fechaFin}\nNúmero de personas: ${reservationData.numeroPersonas}`);
 
-    // Usar fechas y número de personas del modal
     const fechaInicio = reservationData.fechaInicio;
     const fechaFin = reservationData.fechaFin;
     const numeroPersonas = reservationData.numeroPersonas;
 
-    // Validar fechas
     const inicio = new Date(fechaInicio);
     const fin = new Date(fechaFin);
     if (fin <= inicio) {
@@ -1174,7 +1091,6 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
     let reservationIds = [];
 
     try {
-        // 1. Procesar paquetes individuales
         for (const packageItem of packages) {
             try {
                 const reservationData = {
@@ -1211,15 +1127,12 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
             }
         }
 
-        // 2. Procesar servicios personalizados
         if (customServices.length > 0) {
-            // Verificar si hay servicios compatibles para combinar
             const compatibility = checkServicesCompatibilityImproved(customServices);
 
             console.log('Compatibilidad de servicios:', compatibility);
 
             if (compatibility.compatible && customServices.length > 1) {
-                // Crear una reservación personalizada combinada
                 try {
                     const totalPrice = customServices.reduce((sum, service) => sum + parseFloat(service.price), 0);
                     const servicesList = [];
@@ -1269,7 +1182,6 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
                     errorMessages.push(`Reserva personalizada: ${error.message}`);
                 }
             } else {
-                // Si no son compatibles o solo hay un servicio, crear reservaciones individuales
                 if (!compatibility.compatible) {
                     alert(`Los servicios tienen ubicaciones diferentes:\n${compatibility.details}\n\nSe crearán reservaciones separadas.`);
                 }
@@ -1341,7 +1253,6 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
     }
 }
 
-// Función auxiliar para crear una reservación individual
 async function createSingleReservation(userId, tipoServicio, serviceRef, fechaInicio, fechaFin, numeroPersonas, precio, descripcion) {
     const reservationData = {
         usuario: { id: userId },
@@ -1393,13 +1304,11 @@ async function createSingleReservation(userId, tipoServicio, serviceRef, fechaIn
     }
 }
 
-// Función MEJORADA para verificar compatibilidad de servicios
 function checkServicesCompatibilityImproved(services) {
     const flights = services.filter(s => s.type === 'flight');
     const hotels = services.filter(s => s.type === 'hotel');
     const vehicles = services.filter(s => s.type === 'vehicle');
 
-    // Si solo hay un servicio, siempre es compatible
     if (services.length === 1) {
         const service = services[0];
         let location = 'Ubicación del servicio';
@@ -1421,7 +1330,6 @@ function checkServicesCompatibilityImproved(services) {
     let commonCity = null;
     let locationDetails = [];
 
-    // 1. Verificar vuelos (usar DESTINO)
     if (flights.length > 0 && flightsData) {
         for (const flightItem of flights) {
             const flight = flightsData.find(f => f.id === flightItem.id);
@@ -1443,7 +1351,6 @@ function checkServicesCompatibilityImproved(services) {
         }
     }
 
-    // 2. Verificar hoteles (usar primera parte de ubicación)
     if (hotels.length > 0 && hotelsData) {
         for (const hotelItem of hotels) {
             const hotel = hotelsData.find(h => h.id === hotelItem.id);
@@ -1465,12 +1372,10 @@ function checkServicesCompatibilityImproved(services) {
         }
     }
 
-    // 3. Verificar vehículos (usar primera parte de ubicación si existe)
     if (vehicles.length > 0 && vehiclesData) {
         for (const vehicleItem of vehicles) {
             const vehicle = vehiclesData.find(v => v.id === vehicleItem.id);
             if (vehicle) {
-                // Si el vehículo tiene ubicación, verificarla
                 if (vehicle.ubicacion) {
                     const city = extractCity(vehicle.ubicacion);
                     locationDetails.push(`Vehículo: ${city} (${vehicle.ubicacion})`);
@@ -1486,7 +1391,6 @@ function checkServicesCompatibilityImproved(services) {
                         };
                     }
                 } else {
-                    // Si el vehículo no tiene ubicación, se asume que está en la ciudad común
                     locationDetails.push(`Vehículo: ${vehicle.nombre} (Compatible con ${commonCity || 'cualquier ubicación'})`);
                 }
             }
@@ -1505,26 +1409,21 @@ function checkServicesCompatibilityImproved(services) {
     };
 }
 
-// Función para extraer la ciudad (texto antes de la primera coma)
 function extractCity(location) {
     if (!location) return '';
     
-    // Limpiar espacios y obtener texto antes de la primera coma
     const citys = location.split(',')[0].trim();
     const city = citys.split('(')[0].trim();
     return city;
 }
 
 async function createCustomReservation(userId, services, fechaInicio, fechaFin, numeroPersonas, location) {
-    // Separar servicios por tipo
     const flights = services.filter(s => s.type === 'flight');
     const hotels = services.filter(s => s.type === 'hotel');
     const vehicles = services.filter(s => s.type === 'vehicle');
 
-    // Calcular precio total
     const totalPrice = services.reduce((sum, service) => sum + parseFloat(service.price), 0);
 
-    // Crear descripción de la reserva personalizada
     const servicesList = [];
     if (flights.length > 0) servicesList.push(`${flights.length} vuelo(s)`);
     if (hotels.length > 0) servicesList.push(`${hotels.length} hotel(es)`);
@@ -1533,7 +1432,6 @@ async function createCustomReservation(userId, services, fechaInicio, fechaFin, 
     const description = `Reserva Personalizada en ${location}: ${servicesList.join(', ')}. ` +
                        `Servicios incluidos: ${services.map(s => s.name).join(', ')}`;
 
-    // Para reservas personalizadas, usar tipoServicio 'personalizado'
     let serviceRefs = {
         vuelo: flights.length > 0 ? { id: flights[0].id } : null,
         hotel: hotels.length > 0 ? { id: hotels[0].id } : null,
@@ -1573,7 +1471,6 @@ async function createCustomReservation(userId, services, fechaInicio, fechaFin, 
             const result = await response.json();
             console.log('Reserva personalizada creada:', result);
             
-            // Mostrar confirmación
             alert(`✓ Reserva personalizada creada exitosamente!\n\n` +
                   `Lugar: ${location}\n` +
                   `Total: $${totalPrice.toFixed(2)}\n` +
@@ -1597,14 +1494,12 @@ async function createCustomReservation(userId, services, fechaInicio, fechaFin, 
     }
 }
 
-// Función para comparar ciudades (case-insensitive)
 function citiesMatch(city1, city2) {
     if (!city1 || !city2) return false;
     
     const c1 = city1.toLowerCase().trim();
     const c2 = city2.toLowerCase().trim();
     
-    // Comparación exacta
     return c1 === c2;
 }
 
@@ -1626,7 +1521,6 @@ function showReservationResults(successCount, errorMessages) {
     }
 }
 
-// Sidebar Toggle Functions
 function initializeSidebarToggle() {
     const toggleBtn = document.getElementById('toggle-sidebar');
     const sidebar = document.getElementById('reservation-sidebar');
@@ -1638,18 +1532,15 @@ function initializeSidebarToggle() {
     }
 }
 
-// Filter Functions
 function populateFlightFilters(flights) {
     const originSelect = document.getElementById('flights-origin');
     const destinationSelect = document.getElementById('flights-destination');
 
     if (!originSelect || !destinationSelect) return;
 
-    // Get unique origins and destinations
     const origins = [...new Set(flights.map(flight => flight.origen))];
     const destinations = [...new Set(flights.map(flight => flight.destino))];
 
-    // Populate origins
     origins.forEach(origin => {
         const option = document.createElement('option');
         option.value = origin;
@@ -1657,7 +1548,6 @@ function populateFlightFilters(flights) {
         originSelect.appendChild(option);
     });
 
-    // Populate destinations
     destinations.forEach(destination => {
         const option = document.createElement('option');
         option.value = destination;
@@ -1671,10 +1561,8 @@ function populateHotelDestinations(hotelsData) {
 
     if (!hotelUbicationSelect) return;
 
-    // Get unique destinations from flights
     const ubications = [...new Set(hotelsData.map(hotel => hotel.ubicacion))];
 
-    // Populate hotel destinations
     ubications.forEach(ubication => {
         const option = document.createElement('option');
         option.value = ubication;
@@ -1688,10 +1576,8 @@ function populateVehicleTypes(vehicles) {
 
     if (!vehicleTypeSelect) return;
 
-    // Get unique vehicle types
     const types = [...new Set(vehicles.map(vehicle => vehicle.tipo))];
 
-    // Populate vehicle types
     types.forEach(type => {
         const option = document.createElement('option');
         option.value = type;
@@ -1700,11 +1586,8 @@ function populateVehicleTypes(vehicles) {
     });
 }
 
-// Filter event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // ... existing code ...
 
-    // Add filter event listeners
     const packagesFilterBtn = document.getElementById('packages-filter-btn');
     const flightsFilterBtn = document.getElementById('flights-filter-btn');
     const hotelsFilterBtn = document.getElementById('hotels-filter-btn');
@@ -1790,13 +1673,11 @@ function filterVehicles() {
     displayVehicles(filteredVehicles);
 }
 
-// QR Button Functions
 function initializeQRButton() {
     const qrButton = document.getElementById('qr-button');
 
     if (qrButton) {
         qrButton.addEventListener('click', function() {
-            // Generate QR code for current page URL
             const currentUrl = window.location.href;
             generateQRCode(currentUrl);
         });
@@ -1804,7 +1685,6 @@ function initializeQRButton() {
 }
 
 function generateQRCode(url) {
-    // Create modal for QR code display
     const modal = document.createElement('div');
     modal.id = 'qr-modal';
     modal.className = 'modal';
@@ -1820,7 +1700,6 @@ function generateQRCode(url) {
 
     document.body.appendChild(modal);
 
-    // Generate QR code using qrcode.js library (assuming it's loaded)
     if (typeof QRCode !== 'undefined') {
         new QRCode(document.getElementById('qrcode'), {
             text: url,
@@ -1836,14 +1715,12 @@ function generateQRCode(url) {
 
     modal.style.display = 'block';
 
-    // Close modal functionality
     const closeBtn = modal.querySelector('.close');
     closeBtn.onclick = function() {
         modal.style.display = 'none';
         document.body.removeChild(modal);
     };
 
-    // Close modal when clicking outside
     window.onclick = function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';

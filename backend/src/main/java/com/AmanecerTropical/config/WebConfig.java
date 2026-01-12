@@ -23,7 +23,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        // Map /uploads/** to the actual file system location
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + Paths.get("src/main/resources/static/uploads/").toAbsolutePath() + "/");
     }

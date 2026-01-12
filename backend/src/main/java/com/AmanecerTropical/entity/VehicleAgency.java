@@ -38,7 +38,6 @@ public class VehicleAgency {
     @JsonIgnore
     private List<Vehicle> vehiculos;
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

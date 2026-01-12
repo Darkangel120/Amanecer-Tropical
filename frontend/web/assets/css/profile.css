@@ -1,4 +1,3 @@
-/* Profile Specific Styles */
 .profile-hero {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     height: 40vh;
@@ -9,7 +8,7 @@
     text-align: center;
     color: white;
     position: relative;
-    margin-top: 80px; /* Adjust for fixed navbar */
+    margin-top: 80px;
     overflow: hidden;
 }
 
@@ -55,7 +54,6 @@
     z-index: 10;
 }
 
-/* Profile Picture Section */
 .profile-picture-section {
     position: absolute;
     top: 40px;
@@ -117,7 +115,6 @@
     gap: 2rem;
 }
 
-/* Form Sections */
 .form-section {
     background: rgba(255, 255, 255, 0.8);
     border-radius: 15px;
@@ -142,7 +139,6 @@
     display: inline-block;
 }
 
-/* Form Rows */
 .form-row {
     display: flex;
     gap: 1.5rem;

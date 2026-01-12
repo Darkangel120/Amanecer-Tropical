@@ -1,6 +1,4 @@
-// Toast notification system
 function showToast(message, type = 'info', duration = 4000) {
-    // Create toast container if it doesn't exist
     let container = document.querySelector('.toast-container');
     if (!container) {
         container = document.createElement('div');
@@ -8,11 +6,9 @@ function showToast(message, type = 'info', duration = 4000) {
         document.body.appendChild(container);
     }
 
-    // Create toast element
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
 
-    // Set icon based on type
     const icons = {
         success: 'fas fa-check-circle',
         error: 'fas fa-exclamation-circle',
@@ -26,13 +22,10 @@ function showToast(message, type = 'info', duration = 4000) {
         <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
     `;
 
-    // Add to container
     container.appendChild(toast);
 
-    // Trigger animation
     setTimeout(() => toast.classList.add('show'), 10);
 
-    // Auto remove after duration
     const removeToast = () => {
         toast.classList.add('fade-out');
         setTimeout(() => {
@@ -44,7 +37,6 @@ function showToast(message, type = 'info', duration = 4000) {
 
     setTimeout(removeToast, duration);
 
-    // Allow manual removal on click
     toast.addEventListener('click', removeToast);
 }
 
@@ -100,7 +92,6 @@ const carousel = () => {
         slides[index].classList.add('active');
         indicators[index].classList.add('active');
 
-        // Update tooltip if visible
         if (isTooltipVisible) {
             showTooltip(slides[index]);
         }
@@ -127,9 +118,7 @@ const carousel = () => {
         }
     }
 
-    // Event listeners for slides (hover and touch)
     slides.forEach((slide, index) => {
-        // Desktop hover
         slide.addEventListener('mouseenter', () => {
             showTooltip(slide);
             stopAutoSlide();
@@ -140,7 +129,6 @@ const carousel = () => {
             setTimeout(() => startAutoSlide(), 2000);
         });
 
-        // Mobile touch
         slide.addEventListener('touchstart', (e) => {
             e.preventDefault();
             showTooltip(slide);
@@ -148,7 +136,6 @@ const carousel = () => {
         });
     });
 
-    // Event listeners for indicators
     indicators.forEach((indicator, index) => {
         indicator.addEventListener('click', () => {
             showSlide(index);
@@ -157,7 +144,6 @@ const carousel = () => {
         });
     });
 
-    // Start auto slide
     startAutoSlide();
 }
 
@@ -182,7 +168,7 @@ const handleMobileButtons = () => {
         }, 2000);
     };
 
-    const isMobile = window.innerWidth <= 768; // Match the CSS breakpoint
+    const isMobile = window.innerWidth <= 768;
 
     if (isMobile) {
         const handleNavigation = (button, e) => {
@@ -199,12 +185,10 @@ const handleMobileButtons = () => {
         loginBtn.addEventListener('touchstart', (e) => handleNavigation(loginBtn, e));
         registerBtn.addEventListener('touchstart', (e) => handleNavigation(registerBtn, e));
     }
-    // On desktop, allow default link behavior (navigation)
 };
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
-// Load destinations and packages on main page
 const loadMainPageData = () => {
     if (document.getElementById('destinos-grid')) {
         loadDestinations();
@@ -288,18 +272,15 @@ function displayPackages(destinations) {
     });
 }
 
-// Function to check if user is already logged in and redirect to dashboard
 const checkExistingSession = async () => {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user'));
 
-    // If no token or user in localStorage, allow login page to load normally
     if (!token || !user) {
         return;
     }
 
     try {
-        // Validate session with backend
         const response = await fetch(`${API_BASE_URL}/auth/validate`, {
             method: 'GET',
             headers: {
@@ -309,18 +290,14 @@ const checkExistingSession = async () => {
         });
 
         if (response.ok) {
-            // Session is valid, redirect to dashboard
             console.log('Active session found, redirecting to dashboard');
             window.location.href = 'dashboard.html';
         } else if (response.status === 401) {
-            // Token is invalid, clear session but stay on login page
             console.log('Invalid session, clearing localStorage');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
         }
-        // For other errors, stay on login page
     } catch (error) {
-        // Network error, stay on login page but keep session
         console.warn('Network error during session check, keeping session active');
     }
 };
@@ -329,12 +306,10 @@ const handleForms = () => {
     const loginForm = document.querySelector('#login-form');
     const registerForm = document.querySelector('#register-form');
 
-    // Check for existing session on login page
     if (loginForm) {
         checkExistingSession();
     }
 
-    // Password toggle functionality
     const togglePassword = document.querySelector('#toggle-password');
     if (togglePassword) {
         togglePassword.addEventListener('click', () => {
@@ -382,13 +357,11 @@ const handleForms = () => {
             e.preventDefault();
             const formData = new FormData(registerForm);
 
-            // Helper function to get value or null if empty
             const getValueOrNull = (key) => {
                 const value = formData.get(key);
                 return value && value.trim() !== '' ? value : null;
             };
 
-            // Check required fields
             const requiredFields = ['name', 'email', 'password', 'phone', 'birthdate', 'gender', 'nationality', 'address', 'city', 'state', 'cedula'];
             for (const field of requiredFields) {
                 if (!formData.get(field) || formData.get(field).trim() === '') {
@@ -449,13 +422,10 @@ const handleMultiStepForm = () => {
     let currentStep = 0;
 
     const showStep = (stepIndex) => {
-        // Hide all sections
         formSections.forEach(section => section.classList.remove('active'));
 
-        // Show current section
         formSections[stepIndex].classList.add('active');
 
-        // Update step indicators
         stepIndicators.forEach((indicator, index) => {
             indicator.classList.remove('active', 'completed');
             if (index < stepIndex) {
@@ -465,7 +435,6 @@ const handleMultiStepForm = () => {
             }
         });
 
-        // Update buttons
         prevBtn.style.display = stepIndex === 0 ? 'none' : 'inline-block';
         nextBtn.style.display = stepIndex === formSections.length - 1 ? 'none' : 'inline-block';
         submitBtn.style.display = stepIndex === formSections.length - 1 ? 'inline-block' : 'none';
@@ -506,7 +475,6 @@ const handleMultiStepForm = () => {
         }
     });
 
-    // Initialize first step
     showStep(currentStep);
 };
 
@@ -518,21 +486,18 @@ function openModal(modalId) {
 }
 
 const handleModal = () => {
-    // Terms Modal
     const termsModal = document.getElementById('terms-modal');
     const termsLink = document.getElementById('terms-link');
     const termsClose = document.querySelector('#terms-modal .close');
     const declineTerms = document.getElementById('decline-terms');
     const acceptTerms = document.getElementById('accept-terms');
 
-    // Privacy Modal
     const privacyModal = document.getElementById('privacy-modal');
     const privacyLink = document.getElementById('privacy-link');
     const privacyClose = document.getElementById('privacy-close');
     const declinePrivacy = document.getElementById('decline-privacy');
     const acceptPrivacy = document.getElementById('accept-privacy');
 
-    // Terms Modal Events
     if (termsLink) {
         termsLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -549,7 +514,6 @@ const handleModal = () => {
     if (declineTerms) {
         declineTerms.addEventListener('click', () => {
             termsModal.style.display = 'none';
-            // Uncheck the terms checkbox
             const termsCheckbox = document.getElementById('terms');
             if (termsCheckbox) {
                 termsCheckbox.checked = false;
@@ -560,7 +524,6 @@ const handleModal = () => {
     if (acceptTerms) {
         acceptTerms.addEventListener('click', () => {
             termsModal.style.display = 'none';
-            // Check the terms checkbox
             const termsCheckbox = document.getElementById('terms');
             if (termsCheckbox) {
                 termsCheckbox.checked = true;
@@ -568,7 +531,6 @@ const handleModal = () => {
         });
     }
 
-    // Privacy Modal Events
     if (privacyLink) {
         privacyLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -594,7 +556,6 @@ const handleModal = () => {
         });
     }
 
-    // Close modal when clicking outside
     window.addEventListener('click', (e) => {
         if (e.target === termsModal) {
             termsModal.style.display = 'none';

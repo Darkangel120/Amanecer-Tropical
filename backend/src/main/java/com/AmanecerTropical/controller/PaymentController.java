@@ -93,7 +93,6 @@ public class PaymentController {
     @PreAuthorize("hasRole('USUARIO') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> processPayment(@RequestBody Map<String, Object> paymentData) {
         try {
-            // Validate required fields
             if (!paymentData.containsKey("monto") || paymentData.get("monto") == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
@@ -108,7 +107,6 @@ public class PaymentController {
                 ));
             }
 
-            // Validate reservationIds
             if (!paymentData.containsKey("reservationIds") || paymentData.get("reservationIds") == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
@@ -116,7 +114,6 @@ public class PaymentController {
                 ));
             }
 
-            // Validate payment method
             String metodoPago = paymentData.get("metodoPago").toString();
             List<String> validMethods = List.of("tarjeta_credito", "tarjeta_debito", "transferencia", "pagomovil", "efectivo");
             if (!validMethods.contains(metodoPago)) {
@@ -126,7 +123,6 @@ public class PaymentController {
                 ));
             }
 
-            // Validate amount
             BigDecimal monto;
             try {
                 monto = new BigDecimal(paymentData.get("monto").toString());
@@ -143,7 +139,6 @@ public class PaymentController {
                 ));
             }
 
-            // Get reservation IDs
             List<?> reservationIdsObj = (List<?>) paymentData.get("reservationIds");
             List<Long> reservationIds = reservationIdsObj.stream()
                 .map(obj -> Long.valueOf(obj.toString()))
@@ -156,7 +151,6 @@ public class PaymentController {
                 ));
             }
 
-            // Create payments for each reservation
             List<Long> paymentIds = new java.util.ArrayList<>();
             for (Long reservationId : reservationIds) {
                 Payment payment = new Payment();
@@ -165,12 +159,10 @@ public class PaymentController {
                 payment.setReferenciaPago((String) paymentData.get("referenciaPago"));
                 payment.setEstadoPago("sin confirmacion");
 
-                // Set reservation reference
                 com.AmanecerTropical.entity.Reservation reservation = new com.AmanecerTropical.entity.Reservation();
                 reservation.setId(reservationId);
                 payment.setReservacion(reservation);
 
-                // Save payment to database
                 Payment savedPayment = paymentService.createPayment(payment);
                 paymentIds.add(savedPayment.getId());
             }

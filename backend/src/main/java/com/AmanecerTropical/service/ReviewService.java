@@ -44,7 +44,6 @@ public class ReviewService {
     public Review saveReview(@NonNull Review review) {
         Review savedReview = reviewRepository.save(review);
 
-        // Create notification for new review
         String servicioNombre = "";
         if (savedReview.getPaquete() != null) {
             servicioNombre = savedReview.getPaquete().getNombre();

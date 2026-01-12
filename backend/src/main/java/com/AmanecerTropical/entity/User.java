@@ -98,7 +98,6 @@ public class User {
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
-    // Constructors
     public User() {}
 
     @PrePersist
@@ -112,7 +111,6 @@ public class User {
         fechaActualizacion = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -185,7 +183,6 @@ public class User {
     public LocalDateTime getFechaActualizacion() { return fechaActualizacion; }
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) { this.fechaActualizacion = fechaActualizacion; }
     
-    // Métodos auxiliares para compatibilidad con Spring Security
     public String getEmail() {
         return this.correoElectronico;
     }
@@ -202,7 +199,6 @@ public class User {
         this.contrasena = password;
     }
     
-    // Método para obtener rol en formato compatible con Spring Security
     public String getRole() {
         return this.rol;
     }

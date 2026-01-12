@@ -6,7 +6,7 @@
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
-    margin-top: 120px; /* Account for fixed navbar */
+    margin-top: 120px;
 }
 
 .container {

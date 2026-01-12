@@ -27,7 +27,7 @@ public class Vehicle {
     private String ubicacion;
 
     @NotBlank
-    private String tipo; // car, van, motorcycle, etc.
+    private String tipo;
 
     @NotNull
     @Positive
@@ -39,14 +39,14 @@ public class Vehicle {
     private String urlImagen;
 
     @NotNull
-    private Integer capacidad; // number of passengers
+    private Integer capacidad;
 
     @NotBlank
-    private String transmision; // manual, automatic
+    private String transmision;
 
     @NotBlank
     @Column(name = "tipo_combustible")
-    private String tipoCombustible; // gasoline, diesel, electric
+    private String tipoCombustible;
 
     @NotNull
     @Column(name = "unidades_disponibles")
@@ -60,10 +60,8 @@ public class Vehicle {
     @Column(columnDefinition = "SMALLINT DEFAULT 1")
     private boolean activo = true;
 
-    // Constructors
     public Vehicle() {}
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

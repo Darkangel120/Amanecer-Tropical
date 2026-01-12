@@ -951,7 +951,6 @@ footer {
     text-decoration: underline;
 }
 
-/* Multi-step form styles */
 .step-indicators {
     display: flex;
     justify-content: center;
@@ -1048,7 +1047,6 @@ footer {
     box-shadow: 0 2px 8px rgba(173, 181, 189, 0.3) !important;
 }
 
-/* Hide all form sections except the first one */
 .form-section {
     display: none;
     animation: fadeIn 0.5s ease-in-out;
@@ -1073,7 +1071,6 @@ footer {
     }
 }
 
-/* Modal styles for terms and conditions */
 .modal {
     display: none;
     position: fixed;
@@ -1199,7 +1196,6 @@ footer {
         padding: 1.5rem;
     }
 
-    /* Responsive step indicators */
     .step-indicators {
         margin: 0.5rem 0 1rem 0;
         gap: 0.3rem;
@@ -1232,7 +1228,6 @@ footer {
         padding: 0.7rem 1.5rem;
     }
 }
-/* Toast Notifications */
 .toast-container {
     position: fixed;
     top: 78px;
@@ -1339,7 +1334,6 @@ footer {
     transform: translateX(100%);
 }
 
-/* Mobile adjustments for toasts */
 @media (max-width: 768px) {
     .toast-container {
         top: 10px;

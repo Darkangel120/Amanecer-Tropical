@@ -40,11 +40,9 @@ public class CurrencyService {
                 }
             }
         } catch (RestClientException e) {
-            // Log error and return fallback rate
             System.err.println("Error fetching exchange rate: " + e.getMessage());
         }
 
-        // Fallback rate (approximate current rate as of 2024)
         return BigDecimal.valueOf(36.50);
     }
 

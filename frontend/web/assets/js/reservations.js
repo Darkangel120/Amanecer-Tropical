@@ -3,7 +3,6 @@ const API_BASE_URL = 'http://localhost:8080/api';
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Reservations page loaded');
 
-    // Check authentication
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user'));
 
@@ -22,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // Navbar toggle for mobile
     const burger = document.querySelector('.burger');
     const nav = document.querySelector('.nav-links');
     const navLinks = document.querySelectorAll('.nav-links li');
@@ -33,16 +31,13 @@ document.addEventListener('DOMContentLoaded', function () {
             burger.classList.toggle('toggle');
         });
 
-        // Animate nav links
         navLinks.forEach((link, index) => {
             link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
         });
     }
 
-    // Load user reservations
     loadUserReservations();
 
-    // Logout functionality
     const logoutBtn = document.querySelector('.btn-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function (e) {
@@ -100,7 +95,6 @@ function displayReservations(reservations) {
         let serviceImage = '';
         let keyDetails = [];
 
-        // Determine service type and get key details for preview
         switch (reservation.tipoServicio) {
             case 'paquete':
                 if (reservation.paquete) {
@@ -171,7 +165,6 @@ function displayReservations(reservations) {
         const reservationCard = document.createElement('div');
         reservationCard.className = 'reservation-card';
 
-        // Deshabilitar modificación y cancelación si la reserva está cancelada o completada
         const canModify = reservation.estado === 'pendiente' || reservation.estado === 'confirmado';
 
         reservationCard.innerHTML = `
@@ -222,7 +215,6 @@ function displayReservations(reservations) {
         reservationsContainer.appendChild(reservationCard);
     });
 
-    // Add event listeners for buttons
     document.querySelectorAll('.btn-details').forEach(btn => {
         btn.addEventListener('click', function () {
             const reservationId = this.getAttribute('data-id');
@@ -251,13 +243,9 @@ function displayReservations(reservations) {
     });
 }
 
-// ============================================
-// FUNCIONALIDAD DE MODIFICAR RESERVA
-// ============================================
 
 async function modifyReservation(reservationId) {
     try {
-        // Fetch reservation data
         const user = JSON.parse(localStorage.getItem('user'));
         const response = await fetch(`${API_BASE_URL}/reservations/${reservationId}`, {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
@@ -345,7 +333,6 @@ function showModifyReservationModal(reservation) {
 
     document.body.appendChild(modalOverlay);
 
-    // Event listeners
     modalOverlay.querySelector('.modal-close').addEventListener('click', () => {
         modalOverlay.remove();
     });
@@ -356,14 +343,12 @@ function showModifyReservationModal(reservation) {
         }
     });
 
-    // Form submit
     const form = modalOverlay.querySelector('#modify-reservation-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         await submitModifiedReservation(reservation, form);
     });
 
-    // Validación de fechas
     const fechaInicio = modalOverlay.querySelector('#modify-fecha-inicio');
     const fechaFin = modalOverlay.querySelector('#modify-fecha-fin');
 
@@ -381,13 +366,11 @@ async function submitModifiedReservation(originalReservation, form) {
     const fechaInicio = formData.get('fechaInicio');
     const fechaFin = formData.get('fechaFin');
 
-    // Validar fechas
     if (new Date(fechaFin) <= new Date(fechaInicio)) {
         alert('La fecha de fin debe ser posterior a la fecha de inicio');
         return;
     }
 
-    // Construir objeto de reserva actualizado
     const updatedReservation = {
         id: originalReservation.id,
         usuario: originalReservation.usuario,
@@ -399,7 +382,7 @@ async function submitModifiedReservation(originalReservation, form) {
         fechaInicio: fechaInicio,
         fechaFin: fechaFin,
         numeroPersonas: parseInt(formData.get('numeroPersonas')),
-        precioTotal: originalReservation.precioTotal, // Se mantiene el mismo precio
+        precioTotal: originalReservation.precioTotal,
         estado: originalReservation.estado,
         solicitudesEspeciales: formData.get('solicitudesEspeciales')
     };
@@ -417,7 +400,7 @@ async function submitModifiedReservation(originalReservation, form) {
         if (response.ok) {
             alert('Reserva modificada exitosamente');
             document.querySelector('.modal-overlay').remove();
-            loadUserReservations(); // Recargar reservas
+            loadUserReservations();
         } else {
             const errorText = await response.text();
             alert('Error al modificar la reserva: ' + errorText);
@@ -428,9 +411,6 @@ async function submitModifiedReservation(originalReservation, form) {
     }
 }
 
-// ============================================
-// FUNCIONALIDAD DE CÓDIGO QR
-// ============================================
 
 async function showQRCode(reservationId) {
     try {
@@ -453,7 +433,6 @@ async function showQRCode(reservationId) {
 }
 
 function createQRModal(reservation) {
-    // Generar datos para el QR
     const qrData = generateQRData(reservation);
 
     const modalOverlay = document.createElement('div');
@@ -483,10 +462,8 @@ function createQRModal(reservation) {
 
     document.body.appendChild(modalOverlay);
 
-    // Generar QR usando la API de QRServer (gratuita)
     generateQRImage(qrData, 'qr-code-display');
 
-    // Event listeners
     modalOverlay.querySelector('.modal-close').addEventListener('click', () => {
         modalOverlay.remove();
     });
@@ -499,7 +476,6 @@ function createQRModal(reservation) {
 }
 
 function generateQRData(reservation) {
-    // Crear formato visual limpio
     const qrText = `
         Confirme su reserva aquí:
         ${window.location.origin}/frontend/web/user/verify-reservation.html?id=${reservation.id}
@@ -512,8 +488,6 @@ function generateQRImage(data, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Usar API gratuita de QR Code
-    // Alternativa: usar biblioteca como qrcode.js
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data)}`;
 
     container.innerHTML = `
@@ -525,7 +499,6 @@ function downloadQR(reservationId) {
     const qrImage = document.querySelector('.qr-image');
     if (!qrImage) return;
 
-    // Crear enlace temporal para descarga
     const link = document.createElement('a');
     link.href = qrImage.src;
     link.download = `reserva-${reservationId}-qr.png`;
@@ -534,9 +507,6 @@ function downloadQR(reservationId) {
     document.body.removeChild(link);
 }
 
-// ============================================
-// FUNCIONALIDAD DE CANCELAR RESERVA
-// ============================================
 
 async function cancelReservation(reservationId) {
     const confirmCancel = confirm('¿Estás seguro de que quieres cancelar esta reserva? Esta acción no se puede deshacer.');
@@ -552,7 +522,7 @@ async function cancelReservation(reservationId) {
 
         if (response.ok) {
             alert('Reserva cancelada exitosamente');
-            loadUserReservations(); // Reload reservations
+            loadUserReservations();
         } else {
             const error = await response.text();
             alert('Error al cancelar la reserva: ' + error);
@@ -563,9 +533,6 @@ async function cancelReservation(reservationId) {
     }
 }
 
-// ============================================
-// FUNCIONALIDAD DE VER DETALLES
-// ============================================
 
 function showReservationDetails(reservationId) {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -612,7 +579,6 @@ function createReservationModal(reservation) {
 
     document.body.appendChild(modalOverlay);
 
-    // Event listeners
     modalOverlay.querySelector('.modal-close').addEventListener('click', () => {
         modalOverlay.remove();
     });

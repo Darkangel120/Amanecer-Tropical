@@ -30,11 +30,11 @@ public class Payment {
 
     @NotBlank(message = "El método de pago es requerido")
     @Column(name = "metodo_pago")
-    private String metodoPago; // tarjeta_credito, tarjeta_debito, transferencia, efectivo
+    private String metodoPago;
 
     @NotBlank(message = "El estado del pago es requerido")
     @Column(name = "estado_pago")
-    private String estadoPago = "pendiente"; // pendiente, completado, fallido, reembolsado
+    private String estadoPago = "pendiente";
 
     @Column(name = "referencia_pago")
     private String referenciaPago;
@@ -60,7 +60,6 @@ public class Payment {
         fechaActualizacion = LocalDateTime.now();
     }
 
-    // Constructors
     public Payment() {}
 
     public Payment(Reservation reservacion, BigDecimal monto, String metodoPago) {
@@ -69,7 +68,6 @@ public class Payment {
         this.metodoPago = metodoPago;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

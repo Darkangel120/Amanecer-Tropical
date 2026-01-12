@@ -70,7 +70,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         try {
-            userService.getUserById(id); // Check if exists
+            userService.getUserById(id); 
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {

@@ -14,6 +14,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByVehiculoId(Long vehiculoId);
     List<Review> findByUsuarioId(Long usuarioId);
     
-    // Para estadísticas
     List<Review> findByTipoServicio(String tipoServicio);
 }

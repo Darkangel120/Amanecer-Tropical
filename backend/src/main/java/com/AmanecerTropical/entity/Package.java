@@ -53,7 +53,6 @@ public class Package {
     @Column(columnDefinition = "SMALLINT DEFAULT 1")
     private boolean activo = true;
 
-    // Constructors, Getters and Setters
     public Package() {}
 
     public Package(String nombre, String descripcion, String ubicacion,
@@ -70,7 +69,6 @@ public class Package {
         this.itinerario = itinerario;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

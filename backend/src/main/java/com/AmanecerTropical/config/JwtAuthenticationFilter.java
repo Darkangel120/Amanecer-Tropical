@@ -41,7 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                // Invalid token, skip authentication
                 System.err.println("Token JWT inválido: " + e.getMessage());
             }
         }
@@ -57,7 +56,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                 }
             } catch (Exception e) {
-                // Invalid token, skip authentication
                 System.err.println("Error al cargar usuario desde token JWT: " + e.getMessage());
             }
         }

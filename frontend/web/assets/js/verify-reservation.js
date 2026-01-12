@@ -1,13 +1,11 @@
 const API_BASE_URL = "http://localhost:8080/api";
 
 document.addEventListener("DOMContentLoaded", async function () {
-    // Validar sesión antes de proceder
     const isValidSession = await validateSession();
     if (!isValidSession) {
-        return; // validateSession ya maneja la redirección
+        return;
     }
 
-    // Obtener ID de la reserva de la URL
     const urlParams = new URLSearchParams(window.location.search);
     const reservationId = urlParams.get("id");
 
@@ -54,7 +52,6 @@ async function loadReservation(id) {
 function displayReservation(reservation) {
     const content = document.getElementById("content");
 
-    // Determinar información del servicio
     let serviceName = "Servicio";
     let serviceImage = "";
     let serviceDetails = "";
@@ -91,7 +88,7 @@ function displayReservation(reservation) {
         case "vuelo":
             if (reservation.vuelo) {
                 serviceName = `${reservation.vuelo.aerolinea} - Vuelo ${reservation.vuelo.flightNumber}`;
-                serviceImage = ""; // No image available for flights
+                serviceImage = "";
                 serviceDetails = `
                             <div class="info-item">
                                 <label>Origen</label>
@@ -180,7 +177,7 @@ function displayReservation(reservation) {
             break;
         case "personalizado":
             serviceName = "Reserva Personalizada";
-            serviceImage = ""; // No single image for combined package
+            serviceImage = "";
             let combinedDetails = "";
 
             if (reservation.vuelo) {
