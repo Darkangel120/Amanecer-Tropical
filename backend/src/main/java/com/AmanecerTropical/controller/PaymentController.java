@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -91,13 +92,103 @@ public class PaymentController {
     @PostMapping("/process")
     @PreAuthorize("hasRole('USUARIO') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> processPayment(@RequestBody Map<String, Object> paymentData) {
-        // This endpoint would integrate with a real payment processor
-        // For now, it simulates payment processing
-        Map<String, Object> response = Map.of(
-            "success", true,
-            "message", "Pago procesado exitosamente",
-            "transactionId", "TXN-" + System.currentTimeMillis()
-        );
-        return ResponseEntity.ok(response);
+        try {
+            // Validate required fields
+            if (!paymentData.containsKey("monto") || paymentData.get("monto") == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "El monto del pago es requerido"
+                ));
+            }
+
+            if (!paymentData.containsKey("metodoPago") || paymentData.get("metodoPago") == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "El método de pago es requerido"
+                ));
+            }
+
+            // Validate reservationIds
+            if (!paymentData.containsKey("reservationIds") || paymentData.get("reservationIds") == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Los IDs de reservación son requeridos"
+                ));
+            }
+
+            // Validate payment method
+            String metodoPago = paymentData.get("metodoPago").toString();
+            List<String> validMethods = List.of("tarjeta_credito", "tarjeta_debito", "transferencia", "pagomovil", "efectivo");
+            if (!validMethods.contains(metodoPago)) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Método de pago no válido"
+                ));
+            }
+
+            // Validate amount
+            BigDecimal monto;
+            try {
+                monto = new BigDecimal(paymentData.get("monto").toString());
+                if (monto.compareTo(BigDecimal.ZERO) <= 0) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "El monto debe ser mayor a cero"
+                    ));
+                }
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "El monto debe ser un número válido"
+                ));
+            }
+
+            // Get reservation IDs
+            List<?> reservationIdsObj = (List<?>) paymentData.get("reservationIds");
+            List<Long> reservationIds = reservationIdsObj.stream()
+                .map(obj -> Long.valueOf(obj.toString()))
+                .toList();
+
+            if (reservationIds.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Debe proporcionar al menos un ID de reservación"
+                ));
+            }
+
+            // Create payments for each reservation
+            List<Long> paymentIds = new java.util.ArrayList<>();
+            for (Long reservationId : reservationIds) {
+                Payment payment = new Payment();
+                payment.setMonto(monto);
+                payment.setMetodoPago(metodoPago);
+                payment.setReferenciaPago((String) paymentData.get("referenciaPago"));
+                payment.setEstadoPago("sin confirmacion");
+
+                // Set reservation reference
+                com.AmanecerTropical.entity.Reservation reservation = new com.AmanecerTropical.entity.Reservation();
+                reservation.setId(reservationId);
+                payment.setReservacion(reservation);
+
+                // Save payment to database
+                Payment savedPayment = paymentService.createPayment(payment);
+                paymentIds.add(savedPayment.getId());
+            }
+
+            Map<String, Object> response = Map.of(
+                "success", true,
+                "message", "Pago procesado exitosamente",
+                "transactionId", "TXN-" + String.join("-", paymentIds.stream().map(String::valueOf).toList()),
+                "paymentIds", paymentIds,
+                "reservationIds", reservationIds
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = Map.of(
+                "success", false,
+                "message", "Error al procesar el pago: " + e.getMessage()
+            );
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 }

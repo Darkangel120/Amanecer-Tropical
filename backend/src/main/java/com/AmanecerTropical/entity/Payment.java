@@ -18,9 +18,8 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "La reservación es requerida")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservacion_id", nullable = false)
+    @JoinColumn(name = "reservacion_id", nullable = true)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Reservation reservacion;
 
@@ -53,14 +52,12 @@ public class Payment {
     protected void onCreate() {
         fechaCreacion = LocalDateTime.now();
         fechaActualizacion = LocalDateTime.now();
+        fechaPago = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
         fechaActualizacion = LocalDateTime.now();
-        if (estadoPago.equals("completado") && fechaPago == null) {
-            fechaPago = LocalDateTime.now();
-        }
     }
 
     // Constructors

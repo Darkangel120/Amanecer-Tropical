@@ -1078,12 +1078,28 @@ async function processPayment(totalAmount, reservationData) {
         return;
     }
 
+    // Primero crear las reservas
+    const reservationResult = await createReservationsAfterPayment(user.id, totalAmount, reservationData);
+
+    if (!reservationResult || !reservationResult.success) {
+        alert('Error al crear las reservas. No se procesará el pago.');
+        return;
+    }
+
     // Obtener datos del formulario de pago
     const paymentForm = document.getElementById('payment-form');
     const formData = new FormData(paymentForm);
 
+    console.log('Form data entries:');
+    for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+    }
+
+    const paymentMethod = formData.get('payment-method');
+    console.log('Payment method value:', paymentMethod, 'Type:', typeof paymentMethod);
+
     const paymentData = {
-        metodoPago: formData.get('payment-method'),
+        metodoPago: paymentMethod,
         referenciaPago: formData.get('payment-reference'),
         datosPago: JSON.stringify({
             cardNumber: formData.get('card-number'),
@@ -1091,11 +1107,16 @@ async function processPayment(totalAmount, reservationData) {
             cvv: formData.get('cvv'),
             cardHolder: formData.get('card-holder')
         }),
-        monto: totalAmount
+        monto: totalAmount,
+        reservationIds: reservationResult.reservationIds // Associate with created reservations
     };
 
+    console.log('Constructed payment data:', paymentData);
+
     try {
-        // Primero procesar el pago
+        console.log('Sending payment data:', paymentData);
+
+        // Procesar el pago después de crear las reservas
         const paymentResponse = await fetch(`${API_BASE_URL}/payments/process`, {
             method: 'POST',
             headers: {
@@ -1106,13 +1127,12 @@ async function processPayment(totalAmount, reservationData) {
         });
 
         if (!paymentResponse.ok) {
-            throw new Error('Error al procesar el pago');
+            const errorText = await paymentResponse.text();
+            console.error('Payment processing failed:', paymentResponse.status, errorText);
+            throw new Error(`Error al procesar el pago: ${errorText}`);
         }
 
         const paymentResult = await paymentResponse.json();
-
-        // Si el pago fue exitoso, crear las reservas
-        await createReservationsAfterPayment(user.id, totalAmount, reservationData);
 
         // Cerrar modal de pago
         document.getElementById('payment-modal').style.display = 'none';
@@ -1151,77 +1171,22 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
 
     let successCount = 0;
     let errorMessages = [];
+    let reservationIds = [];
 
-    // 1. Procesar paquetes individuales
-    for (const packageItem of packages) {
-        try {
-            const reservationData = {
-                usuario: { id: userId },
-                paquete: { id: packageItem.id },
-                tipoServicio: 'paquete',
-                fechaInicio: fechaInicio,
-                fechaFin: fechaFin,
-                numeroPersonas: numeroPersonas,
-                precioTotal: parseFloat(packageItem.price),
-                estado: 'pendiente',
-                solicitudesEspeciales: `Paquete: ${packageItem.name}`
-            };
-
-            const response = await fetch(`${API_BASE_URL}/reservations`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify(reservationData)
-            });
-
-            if (response.ok) {
-                successCount++;
-            } else {
-                const error = await response.text();
-                errorMessages.push(`Paquete ${packageItem.name}: ${error}`);
-            }
-        } catch (error) {
-            errorMessages.push(`Paquete ${packageItem.name}: ${error.message}`);
-        }
-    }
-
-    // 2. Procesar servicios personalizados
-    if (customServices.length > 0) {
-        // Verificar si hay servicios compatibles para combinar
-        const compatibility = checkServicesCompatibilityImproved(customServices);
-
-        console.log('Compatibilidad de servicios:', compatibility);
-
-        if (compatibility.compatible && customServices.length > 1) {
-            // Crear una reservación personalizada combinada
+    try {
+        // 1. Procesar paquetes individuales
+        for (const packageItem of packages) {
             try {
-                const totalPrice = customServices.reduce((sum, service) => sum + parseFloat(service.price), 0);
-                const servicesList = [];
-                if (customServices.filter(s => s.type === 'flight').length > 0) servicesList.push(`${customServices.filter(s => s.type === 'flight').length} vuelo(s)`);
-                if (customServices.filter(s => s.type === 'hotel').length > 0) servicesList.push(`${customServices.filter(s => s.type === 'hotel').length} hotel(es)`);
-                if (customServices.filter(s => s.type === 'vehicle').length > 0) servicesList.push(`${customServices.filter(s => s.type === 'vehicle').length} vehículo(s)`);
-
-                const description = `Reserva Personalizada en ${compatibility.location}: ${servicesList.join(', ')}. Servicios incluidos: ${customServices.map(s => s.name).join(', ')}`;
-
-                const serviceRefs = {
-                    vuelo: customServices.find(s => s.type === 'flight') ? { id: customServices.find(s => s.type === 'flight').id } : null,
-                    hotel: customServices.find(s => s.type === 'hotel') ? { id: customServices.find(s => s.type === 'hotel').id } : null,
-                    vehiculo: customServices.find(s => s.type === 'vehicle') ? { id: customServices.find(s => s.type === 'vehicle').id } : null,
-                    paquete: null
-                };
-
                 const reservationData = {
                     usuario: { id: userId },
-                    ...serviceRefs,
-                    tipoServicio: 'personalizado',
+                    paquete: { id: packageItem.id },
+                    tipoServicio: 'paquete',
                     fechaInicio: fechaInicio,
                     fechaFin: fechaFin,
                     numeroPersonas: numeroPersonas,
-                    precioTotal: parseFloat(totalPrice.toFixed(2)),
+                    precioTotal: parseFloat(packageItem.price),
                     estado: 'pendiente',
-                    solicitudesEspeciales: description
+                    solicitudesEspeciales: `Paquete: ${packageItem.name}`
                 };
 
                 const response = await fetch(`${API_BASE_URL}/reservations`, {
@@ -1234,50 +1199,53 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
                 });
 
                 if (response.ok) {
+                    const result = await response.json();
+                    reservationIds.push(result.id);
                     successCount++;
                 } else {
                     const error = await response.text();
-                    errorMessages.push(`Reserva personalizada: ${error}`);
+                    errorMessages.push(`Paquete ${packageItem.name}: ${error}`);
                 }
             } catch (error) {
-                errorMessages.push(`Reserva personalizada: ${error.message}`);
+                errorMessages.push(`Paquete ${packageItem.name}: ${error.message}`);
             }
-        } else {
-            // Si no son compatibles o solo hay un servicio, crear reservaciones individuales
-            if (!compatibility.compatible) {
-                alert(`Los servicios tienen ubicaciones diferentes:\n${compatibility.details}\n\nSe crearán reservaciones separadas.`);
-            }
+        }
 
-            for (const service of customServices) {
+        // 2. Procesar servicios personalizados
+        if (customServices.length > 0) {
+            // Verificar si hay servicios compatibles para combinar
+            const compatibility = checkServicesCompatibilityImproved(customServices);
+
+            console.log('Compatibilidad de servicios:', compatibility);
+
+            if (compatibility.compatible && customServices.length > 1) {
+                // Crear una reservación personalizada combinada
                 try {
-                    let serviceType = '';
-                    let serviceRef = {};
+                    const totalPrice = customServices.reduce((sum, service) => sum + parseFloat(service.price), 0);
+                    const servicesList = [];
+                    if (customServices.filter(s => s.type === 'flight').length > 0) servicesList.push(`${customServices.filter(s => s.type === 'flight').length} vuelo(s)`);
+                    if (customServices.filter(s => s.type === 'hotel').length > 0) servicesList.push(`${customServices.filter(s => s.type === 'hotel').length} hotel(es)`);
+                    if (customServices.filter(s => s.type === 'vehicle').length > 0) servicesList.push(`${customServices.filter(s => s.type === 'vehicle').length} vehículo(s)`);
 
-                    switch(service.type) {
-                        case 'flight':
-                            serviceType = 'vuelo';
-                            serviceRef = { vuelo: { id: service.id } };
-                            break;
-                        case 'hotel':
-                            serviceType = 'hotel';
-                            serviceRef = { hotel: { id: service.id } };
-                            break;
-                        case 'vehicle':
-                            serviceType = 'vehiculo';
-                            serviceRef = { vehiculo: { id: service.id } };
-                            break;
-                    }
+                    const description = `Reserva Personalizada en ${compatibility.location}: ${servicesList.join(', ')}. Servicios incluidos: ${customServices.map(s => s.name).join(', ')}`;
+
+                    const serviceRefs = {
+                        vuelo: customServices.find(s => s.type === 'flight') ? { id: customServices.find(s => s.type === 'flight').id } : null,
+                        hotel: customServices.find(s => s.type === 'hotel') ? { id: customServices.find(s => s.type === 'hotel').id } : null,
+                        vehiculo: customServices.find(s => s.type === 'vehicle') ? { id: customServices.find(s => s.type === 'vehicle').id } : null,
+                        paquete: null
+                    };
 
                     const reservationData = {
                         usuario: { id: userId },
-                        ...serviceRef,
-                        tipoServicio: serviceType,
+                        ...serviceRefs,
+                        tipoServicio: 'personalizado',
                         fechaInicio: fechaInicio,
                         fechaFin: fechaFin,
                         numeroPersonas: numeroPersonas,
-                        precioTotal: parseFloat(service.price),
+                        precioTotal: parseFloat(totalPrice.toFixed(2)),
                         estado: 'pendiente',
-                        solicitudesEspeciales: `Servicio: ${service.name}`
+                        solicitudesEspeciales: description
                     };
 
                     const response = await fetch(`${API_BASE_URL}/reservations`, {
@@ -1290,20 +1258,86 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
                     });
 
                     if (response.ok) {
+                        const result = await response.json();
+                        reservationIds.push(result.id);
                         successCount++;
                     } else {
                         const error = await response.text();
-                        errorMessages.push(`${service.name}: ${error}`);
+                        errorMessages.push(`Reserva personalizada: ${error}`);
                     }
                 } catch (error) {
-                    errorMessages.push(`${service.name}: ${error.message}`);
+                    errorMessages.push(`Reserva personalizada: ${error.message}`);
+                }
+            } else {
+                // Si no son compatibles o solo hay un servicio, crear reservaciones individuales
+                if (!compatibility.compatible) {
+                    alert(`Los servicios tienen ubicaciones diferentes:\n${compatibility.details}\n\nSe crearán reservaciones separadas.`);
+                }
+
+                for (const service of customServices) {
+                    try {
+                        let serviceType = '';
+                        let serviceRef = {};
+
+                        switch(service.type) {
+                            case 'flight':
+                                serviceType = 'vuelo';
+                                serviceRef = { vuelo: { id: service.id } };
+                                break;
+                            case 'hotel':
+                                serviceType = 'hotel';
+                                serviceRef = { hotel: { id: service.id } };
+                                break;
+                            case 'vehicle':
+                                serviceType = 'vehiculo';
+                                serviceRef = { vehiculo: { id: service.id } };
+                                break;
+                        }
+
+                        const reservationData = {
+                            usuario: { id: userId },
+                            ...serviceRef,
+                            tipoServicio: serviceType,
+                            fechaInicio: fechaInicio,
+                            fechaFin: fechaFin,
+                            numeroPersonas: numeroPersonas,
+                            precioTotal: parseFloat(service.price),
+                            estado: 'pendiente',
+                            solicitudesEspeciales: `Servicio: ${service.name}`
+                        };
+
+                        const response = await fetch(`${API_BASE_URL}/reservations`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                            },
+                            body: JSON.stringify(reservationData)
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            reservationIds.push(result.id);
+                            successCount++;
+                        } else {
+                            const error = await response.text();
+                            errorMessages.push(`${service.name}: ${error}`);
+                        }
+                    } catch (error) {
+                        errorMessages.push(`${service.name}: ${error.message}`);
+                    }
                 }
             }
         }
-    }
 
-    if (errorMessages.length > 0) {
-        throw new Error(`Errores al crear reservas: ${errorMessages.join(', ')}`);
+        if (errorMessages.length > 0) {
+            throw new Error(`Errores al crear reservas: ${errorMessages.join(', ')}`);
+        }
+
+        return { success: true, reservationIds: reservationIds };
+    } catch (error) {
+        console.error('Error creating reservations:', error);
+        return { success: false, error: error.message };
     }
 }
 

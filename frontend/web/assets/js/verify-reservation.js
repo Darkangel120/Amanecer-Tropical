@@ -322,6 +322,28 @@ function displayReservation(reservation) {
                 </div>
             </div>
 
+            ${reservation.pagos && reservation.pagos.length > 0 ? `
+                <div class="info-section">
+                    <h3><i class="fas fa-credit-card"></i> Información del Pago</h3>
+                    <div class="info-grid">
+                        ${reservation.pagos.map(pago => `
+                            <div class="info-item">
+                                <label>Estado del Pago</label>
+                                <span>${getPaymentStatusText(pago.estadoPago)}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Monto Pagado</label>
+                                <span>$${parseFloat(pago.monto).toFixed(2)}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Fecha del Pago</label>
+                                <span>${new Date(pago.fechaPago).toLocaleDateString("es-ES")}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
             ${reservation.solicitudesEspeciales ? `
                 <div class="info-section">
                     <h3><i class="fas fa-sticky-note"></i> Solicitudes Especiales</h3>
@@ -394,4 +416,14 @@ function displayReservation(reservation) {
             vehiculo: "car",
         };
         return icons[type] || "ticket-alt";
+    }
+
+    function getPaymentStatusText(status) {
+        const statusMap = {
+            pendiente: "Pendiente",
+            completado: "Completado",
+            fallido: "Fallido",
+            reembolsado: "Reembolsado",
+        };
+        return statusMap[status] || status;
     }
