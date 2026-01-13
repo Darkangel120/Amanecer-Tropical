@@ -31,7 +31,7 @@ public class ReservationController {
     private HotelService hotelService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Reservation>> getAllReservations() {
         List<Reservation> reservations = reservationService.getAllReservations();
         return ResponseEntity.ok(reservations);
@@ -120,9 +120,6 @@ public class ReservationController {
         return ResponseEntity.ok(overlappingReservations);
     }
 
-    /**
-     * Endpoint para validar compatibilidad de servicios antes de crear reserva combinada
-     */
     @PostMapping("/validate-compatibility")
     @PreAuthorize("hasRole('USUARIO') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> validateServicesCompatibility(
@@ -180,9 +177,6 @@ public class ReservationController {
         }
     }
 
-    /**
-     * Método auxiliar para verificar si dos ubicaciones coinciden
-     */
     private boolean locationMatches(String location1, String location2) {
         if (location1 == null || location2 == null) return false;
         

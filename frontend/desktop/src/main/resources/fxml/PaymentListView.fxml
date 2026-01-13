@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.amanecertropical.desktop.controller.PaymentListController" spacing="20.0" stylesheets="@../css/desktop-styles.css" styleClass="content-area">
+   <children>
+      <HBox alignment="CENTER_LEFT" spacing="20.0">
+         <children>
+            <Label text="Gestión de Pagos" styleClass="form-title" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="addButton" onAction="#handleAddPayment" text="Nuevo Pago" styleClass="form-button" />
+            <Button fx:id="refreshButton" onAction="#handleRefresh" text="Actualizar" styleClass="form-button" />
+         </children>
+      </HBox>
+
+      <HBox spacing="15.0" alignment="CENTER_LEFT">
+         <children>
+            <Label text="Buscar:" />
+            <TextField fx:id="searchField" promptText="Cliente, referencia o método..." prefWidth="250.0" onKeyReleased="#handleSearch" styleClass="text-field" />
+            <ComboBox fx:id="statusFilter" promptText="Filtrar por estado" prefWidth="200.0" onAction="#handleStatusFilter" styleClass="combo-box" />
+            <ComboBox fx:id="methodFilter" promptText="Filtrar por método" prefWidth="200.0" onAction="#handleMethodFilter" styleClass="combo-box" />
+            <DatePicker fx:id="startDatePicker" promptText="Fecha inicio" prefWidth="200.0" styleClass="date-picker" />
+            <DatePicker fx:id="endDatePicker" promptText="Fecha fin" prefWidth="200.0" styleClass="date-picker" />
+            <Button fx:id="filterButton" onAction="#handleDateFilter" text="Filtrar" styleClass="form-button" />
+         </children>
+      </HBox>
+
+      <TableView fx:id="paymentTable" styleClass="table-view" VBox.vgrow="ALWAYS">
+         <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="80.0" />
+            <TableColumn fx:id="clientColumn" text="Cliente" prefWidth="150.0" />
+            <TableColumn fx:id="reservationColumn" text="Reservación" prefWidth="100.0" />
+            <TableColumn fx:id="amountColumn" text="Monto" prefWidth="100.0" />
+            <TableColumn fx:id="methodColumn" text="Método" prefWidth="120.0" />
+            <TableColumn fx:id="referenceColumn" text="Referencia" prefWidth="150.0" />
+            <TableColumn fx:id="dateColumn" text="Fecha" prefWidth="100.0" />
+            <TableColumn fx:id="statusColumn" text="Estado" prefWidth="150.0" />
+            <TableColumn fx:id="actionsColumn" text="Acciones" prefWidth="400.0" />
+         </columns>
+      </TableView>
+
+      <HBox spacing="10.0" alignment="CENTER_RIGHT">
+         <children>
+            <Label fx:id="statusLabel" text="Cargando pagos..." />
+         </children>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+</VBox>

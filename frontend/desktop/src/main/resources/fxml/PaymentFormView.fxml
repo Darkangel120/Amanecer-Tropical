@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<GridPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.amanecertropical.desktop.controller.PaymentFormController" stylesheets="@../css/desktop-styles.css" styleClass="form-container" hgap="20.0" vgap="20.0">
+   <columnConstraints>
+      <ColumnConstraints hgrow="NEVER" minWidth="140.0" prefWidth="140.0" />
+      <ColumnConstraints hgrow="ALWAYS" minWidth="280.0" prefWidth="280.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" prefHeight="50.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="45.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="45.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="45.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="45.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="45.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="55.0" vgrow="NEVER" />
+   </rowConstraints>
+   <children>
+      <Label fx:id="titleLabel" text="Nuevo Pago" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="0">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+         <GridPane.margin>
+            <Insets bottom="20.0" />
+         </GridPane.margin>
+      </Label>
+      <Label text="Monto:" GridPane.columnIndex="0" GridPane.rowIndex="1">
+         <GridPane.margin>
+            <Insets top="10.0" />
+         </GridPane.margin>
+      </Label>
+      <TextField fx:id="amountField" promptText="0.00" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="text-field" />
+      <Label text="Método de Pago:" GridPane.columnIndex="0" GridPane.rowIndex="2">
+         <GridPane.margin>
+            <Insets top="10.0" />
+         </GridPane.margin>
+      </Label>
+      <ComboBox fx:id="methodComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="combo-box" />
+      <Label text="Referencia:" GridPane.columnIndex="0" GridPane.rowIndex="3">
+         <GridPane.margin>
+            <Insets top="10.0" />
+         </GridPane.margin>
+      </Label>
+      <TextField fx:id="referenceField" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="text-field" />
+      <Label text="Estado:" GridPane.columnIndex="0" GridPane.rowIndex="4">
+         <GridPane.margin>
+            <Insets top="10.0" />
+         </GridPane.margin>
+      </Label>
+      <ComboBox fx:id="statusComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="4" styleClass="combo-box" />
+      <Label text="Reservación:" GridPane.columnIndex="0" GridPane.rowIndex="5">
+         <GridPane.margin>
+            <Insets top="10.0" />
+         </GridPane.margin>
+      </Label>
+      <ComboBox fx:id="reservationComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="5" styleClass="combo-box" />
+      <HBox alignment="CENTER_RIGHT" spacing="20.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="6">
+         <children>
+            <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false" onAction="#handleCancel" text="Cancelar" styleClass="button secondary" />
+            <Button fx:id="saveButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSave" text="Guardar" styleClass="button" />
+         </children>
+         <GridPane.margin>
+            <Insets top="15.0" />
+         </GridPane.margin>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+   </padding>
+</GridPane>

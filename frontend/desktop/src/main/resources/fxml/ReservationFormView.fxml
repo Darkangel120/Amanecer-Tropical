@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.amanecertropical.desktop.controller.ReservationFormController">
+   <header>
+      <Label fx:id="titleLabel" text="Nueva Reservación" />
+   </header>
+   <content>
+      <ScrollPane fitToWidth="true" fitToHeight="true">
+         <VBox spacing="15.0" prefWidth="1200.0">
+            <padding>
+               <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+            </padding>
+
+            <!-- Services Section -->
+            <VBox spacing="10.0">
+               <Label text="Servicios:" style="-fx-font-weight: bold;" />
+               <VBox fx:id="servicesContainer" spacing="8.0">
+                  <!-- Services will be added dynamically here -->
+               </VBox>
+               <HBox spacing="10.0">
+                  <ComboBox fx:id="serviceTypeComboBox" prefWidth="150.0" promptText="Tipo de Servicio" />
+                  <Button fx:id="addServiceButton" text="+ Agregar Servicio" onAction="#handleAddService" prefWidth="150.0" />
+               </HBox>
+            </VBox>
+
+            <!-- User Selection and Dates in a GridPane for horizontal layout -->
+            <GridPane hgap="20.0" vgap="10.0">
+               <columnConstraints>
+                  <ColumnConstraints prefWidth="400.0" />
+                  <ColumnConstraints prefWidth="400.0" />
+                  <ColumnConstraints prefWidth="300.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+
+               <!-- Row 0: User Selection -->
+               <Label text="Usuario:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+               <ComboBox fx:id="userComboBox" prefWidth="300.0" promptText="Seleccionar usuario" styleClass="combo-box" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="2" />
+
+               <!-- Row 1: Dates and People Count -->
+               <Label text="Fecha Inicio:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+               <DatePicker fx:id="startDatePicker" prefWidth="180.0" styleClass="date-picker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+               <Label text="Fecha Fin:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+               <DatePicker fx:id="endDatePicker" prefWidth="180.0" styleClass="date-picker" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+               <Label text="Número de Personas:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+               <TextField fx:id="peopleCountField" prefWidth="150.0" promptText="Ej: 2" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            </GridPane>
+
+            <!-- Status and Total Price -->
+            <HBox spacing="20.0" alignment="CENTER_LEFT">
+               <VBox spacing="5.0">
+                  <Label text="Estado:" />
+                  <ComboBox fx:id="statusComboBox" prefWidth="180.0" styleClass="combo-box" />
+               </VBox>
+               <VBox spacing="5.0">
+                  <Label text="Precio Total:" />
+                  <TextField fx:id="totalPriceField" prefWidth="180.0" promptText="Calculado automáticamente" styleClass="text-field" editable="false" />
+               </VBox>
+            </HBox>
+
+            <!-- Notes -->
+            <VBox spacing="5.0">
+               <Label text="Notas:" />
+               <TextArea fx:id="notesArea" prefHeight="60.0" promptText="Notas adicionales..." styleClass="text-area" />
+            </VBox>
+         </VBox>
+      </ScrollPane>
+   </content>
+</DialogPane>
