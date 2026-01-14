@@ -11,8 +11,8 @@
          <children>
             <Label text="Gestión de Pagos" styleClass="form-title" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="addButton" onAction="#handleAddPayment" text="Nuevo Pago" styleClass="form-button" />
-            <Button fx:id="refreshButton" onAction="#handleRefresh" text="Actualizar" styleClass="form-button" />
+            <Button fx:id="addButton" onAction="#handleAddPayment" text="Nuevo Pago" styleClass="form-button, add" />
+            <Button fx:id="refreshButton" onAction="#handleRefresh" text="Actualizar" styleClass="form-button, refresh" />
          </children>
       </HBox>
 

@@ -11,8 +11,8 @@
          <children>
             <Label text="Gestión de Usuarios" styleClass="form-title" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="addButton" onAction="#handleAddUser" text="Agregar Usuario" styleClass="form-button" />
-            <Button fx:id="refreshButton" onAction="#handleRefresh" text="Actualizar" styleClass="form-button" />
+            <Button fx:id="addButton" onAction="#handleAddUser" text="Agregar Usuario" styleClass="form-button, add" />
+            <Button fx:id="refreshButton" onAction="#handleRefresh" text="Actualizar" styleClass="form-button, refresh" />
          </children>
       </HBox>
 

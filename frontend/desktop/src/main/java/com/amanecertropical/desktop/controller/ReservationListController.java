@@ -106,14 +106,13 @@ public class ReservationListController implements Initializable {
             private final HBox buttons = new HBox(5, viewButton, editButton, deleteButton);
 
             {
-                editButton.getStyleClass().add("form-button");
+                editButton.getStyleClass().addAll("form-button", "edit");
                 editButton.setOnAction(event -> {
                     Reservation reservation = getTableView().getItems().get(getIndex());
                     handleEditReservation(reservation);
                 });
 
-                deleteButton.getStyleClass().addAll("form-button");
-                deleteButton.getStyleClass().add("action-button-danger");
+                deleteButton.getStyleClass().addAll("form-button", "delete");
                 deleteButton.setOnAction(event -> {
                     Reservation reservation = getTableView().getItems().get(getIndex());
                     handleDeleteReservation(reservation);
@@ -203,6 +202,12 @@ public class ReservationListController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ReservationFormView.fxml"));
             DialogPane formView = loader.load();
+            formView.setPrefWidth(1000);
+            formView.setPrefHeight(800);
+            formView.setMinWidth(1000);
+            formView.setMinHeight(800);
+            formView.setMaxWidth(1000);
+            formView.setMaxHeight(1000);
 
             ReservationFormController controller = loader.getController();
             controller.setReservation(null);
@@ -223,6 +228,7 @@ public class ReservationListController implements Initializable {
             });
             dialog.initModality(Modality.WINDOW_MODAL);
             dialog.initOwner(addButton.getScene().getWindow());
+            dialog.setResizable(true);
             dialog.showAndWait();
 
             logger.info("Add reservation dialog opened");
@@ -237,6 +243,12 @@ public class ReservationListController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ReservationFormView.fxml"));
             DialogPane formView = loader.load();
+            formView.setPrefWidth(1000);
+            formView.setPrefHeight(800);
+            formView.setMinWidth(1000);
+            formView.setMinHeight(800);
+            formView.setMaxWidth(1000);
+            formView.setMaxHeight(1000);
 
             ReservationFormController controller = loader.getController();
             controller.setReservation(reservation);
@@ -257,6 +269,7 @@ public class ReservationListController implements Initializable {
             });
             dialog.initModality(Modality.WINDOW_MODAL);
             dialog.initOwner(reservationTable.getScene().getWindow());
+            dialog.setResizable(true);
             dialog.showAndWait();
 
             logger.info("Edit reservation dialog opened for reservation: {}", reservation.getId());

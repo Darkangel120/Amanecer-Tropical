@@ -102,14 +102,13 @@ public class PaymentListController implements Initializable {
             private final HBox buttons = new HBox(5, editButton, processButton, deleteButton);
 
             {
-                editButton.getStyleClass().add("form-button");
+                editButton.getStyleClass().addAll("form-button", "edit");
                 editButton.setOnAction(event -> {
                     Payment payment = getTableView().getItems().get(getIndex());
                     handleEditPayment(payment);
                 });
 
-                processButton.getStyleClass().add("form-button");
-                processButton.getStyleClass().add("action-button-success");
+                processButton.getStyleClass().addAll("form-button", "success");
                 processButton.setOnAction(event -> {
                     Payment payment = getTableView().getItems().get(getIndex());
                     handleProcessPayment(payment);

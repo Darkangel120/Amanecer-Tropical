@@ -82,6 +82,7 @@ public class LoginController implements Initializable {
                                 user.setCorreoElectronico((String) userData.get("correoElectronico"));
                                 user.setCedula((String) userData.get("cedula"));
                                 user.setRol((String) userData.get("rol"));
+                                user.setFotoPerfil((String) userData.get("fotoPerfil"));
 
                                 SessionManager.getInstance().setCurrentUser(user);
 

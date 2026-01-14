@@ -11,7 +11,9 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.scene.image.Image;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -29,13 +32,14 @@ public class DashboardController implements Initializable {
     private static final Logger logger = LoggerFactory.getLogger(DashboardController.class);
 
     @FXML private Label welcomeLabel;
-    @FXML private Button logoutButton;
     @FXML private HBox menuBar;
     @FXML private Button dashboardBtn;
     @FXML private Button reservationsBtn;
     @FXML private Button paymentsBtn;
+    @FXML private Button servicesBtn;
     @FXML private Button usersBtn;
-    @FXML private Label userRoleLabel;
+    @FXML private ImageView profileImage;
+    private ContextMenu profileMenu;
     @FXML private VBox contentArea;
     @FXML private VBox dashboardContent;
     @FXML private VBox statsBox;
@@ -51,30 +55,41 @@ public class DashboardController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         apiClient = new ApiClient();
-        // Set auth token from session
         String token = SessionManager.getInstance().getAuthToken();
         if (token != null) {
             apiClient.setAuthToken(token);
         }
 
         String userName = SessionManager.getInstance().getCurrentUser().getNombre();
-        welcomeLabel.setText("Bienvenido, " + userName);
+        welcomeLabel.setText("Bienvenido a Amanecer Tropical," + userName);
 
         String role = SessionManager.getInstance().getCurrentUser().getRol();
-        userRoleLabel.setText("Rol: " + role);
 
         if ("ADMIN".equalsIgnoreCase(role)) {
             usersBtn.setVisible(true);
         }
 
-        // Initialize chart
         xAxis.setLabel("Categorías");
         yAxis.setLabel("Cantidad");
         statsChart.setTitle("Estadísticas del Sistema");
 
-        // Set categories for the chart
         xAxis.getCategories().addAll("Reservaciones", "Pagos", "Usuarios");
 
+        profileMenu = new ContextMenu();
+        profileMenu.getStyleClass().add("profile-menu");
+
+        MenuItem profileItem = new MenuItem("Perfil");
+        profileItem.setOnAction(e -> showProfile());
+
+        MenuItem settingsItem = new MenuItem("Configuración");
+        settingsItem.setOnAction(e -> showSettings());
+
+        MenuItem logoutItem = new MenuItem("Cerrar Sesión");
+        logoutItem.setOnAction(e -> handleLogout());
+
+        profileMenu.getItems().addAll(profileItem, settingsItem, new SeparatorMenuItem(), logoutItem);
+
+        loadProfileImage();
         loadDashboardStats();
     }
 
@@ -93,6 +108,7 @@ public class DashboardController implements Initializable {
         contentArea.getChildren().clear();
         contentArea.getChildren().add(dashboardContent);
         dashboardContent.setVisible(true);
+        updateActiveButton(dashboardBtn);
         logger.info("Dashboard view loaded");
     }
 
@@ -103,6 +119,7 @@ public class DashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ReservationListView.fxml"));
             VBox reservationsView = loader.load();
             contentArea.getChildren().add(reservationsView);
+            updateActiveButton(reservationsBtn);
             logger.info("Reservations view loaded");
         } catch (IOException e) {
             logger.error("Error loading reservations view", e);
@@ -116,6 +133,7 @@ public class DashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/PaymentListView.fxml"));
             VBox paymentsView = loader.load();
             contentArea.getChildren().add(paymentsView);
+            updateActiveButton(paymentsBtn);
             logger.info("Payments view loaded");
         } catch (IOException e) {
             logger.error("Error loading payments view", e);
@@ -129,17 +147,29 @@ public class DashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/UserListView.fxml"));
             VBox usersView = loader.load();
             contentArea.getChildren().add(usersView);
+            updateActiveButton(usersBtn);
             logger.info("Users view loaded");
         } catch (IOException e) {
             logger.error("Error loading users view", e);
         }
     }
 
+    @FXML
+    private void showServices() {
+        // TODO: Implementar vista de servicios
+        logger.info("Vista de servicios solicitada");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Servicios");
+        alert.setHeaderText("Vista de Servicios");
+        alert.setContentText("La funcionalidad de servicios estará disponible próximamente.");
+        alert.showAndWait();
+        updateActiveButton(servicesBtn);
+    }
+
     @SuppressWarnings("unchecked")
     private void loadDashboardStats() {
         new Thread(() -> {
             try {
-                // Get reservations count
                 int reservationsCount = 0;
                 try {
                     Type listType = new TypeToken<List<Object>>(){}.getType();
@@ -152,7 +182,6 @@ public class DashboardController implements Initializable {
                     logger.warn("Error fetching reservations count", e);
                 }
 
-                // Get payments count
                 int paymentsCount = 0;
                 try {
                     Type listType = new TypeToken<List<Object>>(){}.getType();
@@ -165,7 +194,6 @@ public class DashboardController implements Initializable {
                     logger.warn("Error fetching payments count", e);
                 }
 
-                // Get users count
                 int usersCount = 0;
                 try {
                     Type listType = new TypeToken<List<Object>>(){}.getType();
@@ -187,7 +215,6 @@ public class DashboardController implements Initializable {
                     totalPaymentsLabel.setText(String.valueOf(finalPaymentsCount));
                     totalUsersLabel.setText(String.valueOf(finalUsersCount));
 
-                    // Update chart
                     updateChart(finalReservationsCount, finalPaymentsCount, finalUsersCount);
                 });
             } catch (Exception e) {
@@ -216,11 +243,97 @@ public class DashboardController implements Initializable {
 
             statsChart.getData().add(series);
 
-            // Force chart refresh
             statsChart.layout();
             statsChart.requestLayout();
 
             logger.info("Chart updated successfully");
         });
+    }
+
+    private void loadProfileImage() {
+        new Thread(() -> {
+            try {
+                String fotoPerfil = SessionManager.getInstance().getCurrentUser().getFotoPerfil();
+                Image image = null;
+
+                if (fotoPerfil != null && !fotoPerfil.trim().isEmpty()) {
+                    try {
+                        String imageUrl = "http://localhost:8080" + fotoPerfil;
+                        image = new Image(imageUrl, true);
+                        logger.info("Loading user profile image from: {}", imageUrl);
+                    } catch (Exception e) {
+                        logger.warn("Failed to load user profile image, falling back to default: {}", e.getMessage());
+                        image = loadDefaultProfileImage();
+                    }
+                } else {
+                    image = loadDefaultProfileImage();
+                }
+
+                Image finalImage = image;
+                Platform.runLater(() -> {
+                    if (finalImage != null) {
+                        profileImage.setImage(finalImage);
+                        logger.info("Profile image loaded successfully");
+                    } else {
+                        logger.warn("Failed to load any profile image");
+                    }
+                });
+
+            } catch (Exception e) {
+                logger.error("Error loading profile image", e);
+                Platform.runLater(() -> {
+                    Image defaultImage = loadDefaultProfileImage();
+                    if (defaultImage != null) {
+                        profileImage.setImage(defaultImage);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private Image loadDefaultProfileImage() {
+        try {
+            return new Image(getClass().getResourceAsStream("../images/default-profile.png"));
+        } catch (Exception e) {
+            logger.error("Failed to load default profile image", e);
+            return null;
+        }
+    }
+
+    private void showProfile() {
+        // TODO: Implementar vista de perfil
+        logger.info("Vista de perfil solicitada");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Perfil");
+        alert.setHeaderText("Vista de Perfil");
+        alert.setContentText("La funcionalidad de perfil estará disponible próximamente.");
+        alert.showAndWait();
+    }
+
+    private void showSettings() {
+        // TODO: Implementar vista de configuración
+        logger.info("Vista de configuración solicitada");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Configuración");
+        alert.setHeaderText("Vista de Configuración");
+        alert.setContentText("La funcionalidad de configuración estará disponible próximamente.");
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void showProfileMenu() {
+        if (profileMenu != null) {
+            profileMenu.show(profileImage, javafx.geometry.Side.BOTTOM, 0, 0);
+        }
+    }
+
+    private void updateActiveButton(Button activeBtn) {
+        dashboardBtn.getStyleClass().remove("active");
+        reservationsBtn.getStyleClass().remove("active");
+        paymentsBtn.getStyleClass().remove("active");
+        servicesBtn.getStyleClass().remove("active");
+        usersBtn.getStyleClass().remove("active");
+
+        activeBtn.getStyleClass().add("active");
     }
 }

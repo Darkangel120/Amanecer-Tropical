@@ -128,56 +128,20 @@ public class UserListController implements Initializable {
 
     @FXML
     private void handleAddUser() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/UserFormView.fxml"));
-            DialogPane formView = loader.load();
-
-            UserFormController controller = loader.getController();
-            controller.setUser(null); 
-            controller.setOnSaveCallback(() -> {
-                loadUsers(); 
-            });
-
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Nuevo Usuario");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(addButton.getScene().getWindow());
-            dialogStage.setScene(new Scene(formView));
-            dialogStage.setResizable(false);
-            dialogStage.showAndWait();
-
-            logger.info("Add user dialog opened");
-        } catch (IOException e) {
-            logger.error("Error opening add user dialog", e);
-            showAlert("Error", "Error al abrir el formulario de usuario: " + e.getMessage());
-        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Próximamente");
+        alert.setHeaderText(null);
+        alert.setContentText("próximamente se implementará esta funcionalidad");
+        alert.showAndWait();
     }
 
     @FXML
     private void handleEditUser(User user) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/UserFormView.fxml"));
-            DialogPane formView = loader.load();
-
-            UserFormController controller = loader.getController();
-            controller.setUser(user); 
-            controller.setOnSaveCallback(() -> {
-                loadUsers(); 
-            });
-
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle("Editar Usuario");
-            dialogStage.initModality(Modality.WINDOW_MODAL);
-            dialogStage.initOwner(userTable.getScene().getWindow());
-            dialogStage.setScene(new Scene(formView));
-            dialogStage.setResizable(false);
-            dialogStage.showAndWait();
-
-            logger.info("Edit user dialog opened for user: {}", user.getId());
-        } catch (IOException e) {
-            logger.error("Error opening edit user dialog", e);
-            showAlert("Error", "Error al abrir el formulario de usuario: " + e.getMessage());
-        }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Próximamente");
+        alert.setHeaderText(null);
+        alert.setContentText("próximamente se implementará esta funcionalidad");
+        alert.showAndWait();
     }
 
     @FXML

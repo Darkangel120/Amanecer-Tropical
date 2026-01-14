@@ -47,13 +47,11 @@ public class ReservationFormController implements Initializable {
     private boolean isEditMode = false;
     private Runnable onSaveCallback;
 
-    // Data storage
     private List<Package> packages = new ArrayList<>();
     private List<Flight> flights = new ArrayList<>();
     private List<Hotel> hotels = new ArrayList<>();
     private List<Vehicle> vehicles = new ArrayList<>();
 
-    // Selected services
     private List<Package> selectedPackages = new ArrayList<>();
     private List<Flight> selectedFlights = new ArrayList<>();
     private List<Hotel> selectedHotels = new ArrayList<>();
@@ -275,7 +273,6 @@ public class ReservationFormController implements Initializable {
                 }
             }
 
-            // Populate dynamic services
             if (reservation.getPaquete() != null) {
                 selectedPackages.add(reservation.getPaquete());
                 addServiceRow("Paquete", reservation.getPaquete());
@@ -378,7 +375,6 @@ public class ReservationFormController implements Initializable {
         Button removeButton = new Button("Eliminar");
         removeButton.setOnAction(e -> {
             servicesContainer.getChildren().remove(serviceRow);
-            // Remove from selected lists
             if (serviceComboBox[0].getValue() instanceof Package) {
                 selectedPackages.remove((Package) serviceComboBox[0].getValue());
             } else if (serviceComboBox[0].getValue() instanceof Flight) {
@@ -608,7 +604,6 @@ public class ReservationFormController implements Initializable {
         Button removeButton = new Button("Eliminar");
         removeButton.setOnAction(e -> {
             servicesContainer.getChildren().remove(serviceRow);
-            // Remove from selected lists
             if (serviceComboBox[0].getValue() instanceof Package) {
                 selectedPackages.remove((Package) serviceComboBox[0].getValue());
             } else if (serviceComboBox[0].getValue() instanceof Flight) {

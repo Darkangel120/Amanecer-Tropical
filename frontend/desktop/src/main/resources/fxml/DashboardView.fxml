@@ -6,6 +6,8 @@
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.chart.XYChart?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
@@ -21,17 +23,21 @@
                      </font>
                   </Label>
                   <Region HBox.hgrow="ALWAYS" />
-                  <Button fx:id="logoutButton" onAction="#handleLogout" text="Cerrar Sesión" styleClass="logout-button" />
+                  <ImageView fx:id="profileImage" fitHeight="40.0" fitWidth="40.0" onMouseClicked="#showProfileMenu" pickOnBounds="true" preserveRatio="true" styleClass="profile-image">
+                     <image>
+                        <Image url="@../images/favicon.png" />
+                     </image>
+                  </ImageView>
                </children>
             </HBox>
-            <HBox fx:id="menuBar" alignment="CENTER_LEFT" spacing="10.0" styleClass="menu-bar">
+            <HBox fx:id="menuBar" alignment="CENTER_LEFT" spacing="0.0" styleClass="menu-bar">
                <children>
-                  <Button fx:id="dashboardBtn" onAction="#showDashboard" text="Dashboard" styleClass="menu-button active" />
+                  <Button fx:id="dashboardBtn" onAction="#showDashboard" text="Dashboard" styleClass="menu-button" />
                   <Button fx:id="reservationsBtn" onAction="#showReservations" text="Reservaciones" styleClass="menu-button" />
                   <Button fx:id="paymentsBtn" onAction="#showPayments" text="Pagos" styleClass="menu-button" />
+                  <Button fx:id="servicesBtn" onAction="#showServices" text="Servicios" styleClass="menu-button" />
                   <Button fx:id="usersBtn" onAction="#showUsers" text="Usuarios" style="-fx-visible: false;" styleClass="menu-button" />
                   <Region HBox.hgrow="ALWAYS" />
-                  <Label fx:id="userRoleLabel" textFill="WHITE" />
                </children>
             </HBox>
          </children>
@@ -45,7 +51,7 @@
                   <!-- Dashboard content will be loaded here -->
                   <VBox fx:id="dashboardContent" spacing="20.0" styleClass="card">
                      <children>
-                        <Label text="Panel de Control" textAlignment="CENTER" styleClass="dashboard-title">
+                        <Label text="Panel de Control" textAlignment="CENTER" styleClass="form-title" >
                            <font>
                               <Font name="System Bold" size="20.0" />
                            </font>
@@ -100,21 +106,7 @@
                               </VBox>
                            </children>
                         </HBox>
-                        <!-- Chart Section -->
-                        <VBox spacing="10.0" styleClass="stats-card">
-                           <children>
-                              <Label text="Estadísticas Visuales" styleClass="card-title" />
-                              <BarChart fx:id="statsChart" title="Resumen del Sistema" styleClass="dashboard-chart">
-                                 <xAxis>
-                                    <CategoryAxis fx:id="xAxis" side="BOTTOM" />
-                                 </xAxis>
-                                 <yAxis>
-                                    <NumberAxis fx:id="yAxis" side="LEFT" />
-                                 </yAxis>
-                              </BarChart>
-                           </children>
-                        </VBox>
-                        <!-- Quick Actions Row -->
+                                                <!-- Quick Actions Row -->
                         <HBox spacing="20.0" alignment="CENTER">
                            <children>
                               <VBox spacing="10.0" styleClass="stats-card">
@@ -143,6 +135,21 @@
                               </VBox>
                            </children>
                         </HBox>
+
+                        <!-- Chart Section -->
+                        <VBox spacing="10.0" styleClass="stats-card">
+                           <children>
+                              <Label text="Estadísticas Visuales" styleClass="card-title" />
+                              <BarChart fx:id="statsChart" title="Resumen del Sistema" styleClass="dashboard-chart">
+                                 <xAxis>
+                                    <CategoryAxis fx:id="xAxis" side="BOTTOM" />
+                                 </xAxis>
+                                 <yAxis>
+                                    <NumberAxis fx:id="yAxis" side="LEFT" />
+                                 </yAxis>
+                              </BarChart>
+                           </children>
+                        </VBox>
                      </children>
                   </VBox>
                </children>

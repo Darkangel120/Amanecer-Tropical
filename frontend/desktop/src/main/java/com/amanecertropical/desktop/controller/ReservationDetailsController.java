@@ -3,8 +3,9 @@ package com.amanecertropical.desktop.controller;
 import com.amanecertropical.desktop.model.Reservation;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +34,11 @@ public class ReservationDetailsController implements Initializable {
     @FXML private Label notesLabel;
     @FXML private Label creationDateLabel;
     @FXML private Label updateDateLabel;
+    
+    @FXML private DialogPane dialogPane;
+    @FXML private ButtonType closeButtonType;
 
     private Reservation reservation;
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-    }
 
     public void setReservation(Reservation reservation) {
         this.reservation = reservation;
@@ -70,19 +70,14 @@ public class ReservationDetailsController implements Initializable {
             vehicleLabel.setText(reservation.getVehiculo() != null ? reservation.getVehiculo().getModelo() : "Ninguno");
 
             notesLabel.setText(reservation.getNotas() != null && !reservation.getNotas().isEmpty() ? reservation.getNotas() : "Sin notas");
+            notesLabel.setWrapText(true);
 
             creationDateLabel.setText(reservation.getFechaCreacion() != null ? reservation.getFechaCreacion().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "N/A");
             updateDateLabel.setText(reservation.getFechaActualizacion() != null ? reservation.getFechaActualizacion().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "N/A");
         }
     }
 
-    @FXML
-    private void handleClose() {
-        closeDialog();
-    }
-
-    private void closeDialog() {
-        Stage stage = (Stage) idLabel.getScene().getWindow();
-        stage.close();
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
     }
 }

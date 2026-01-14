@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<DialogPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.amanecertropical.desktop.controller.ReservationDetailsController" stylesheets="@../css/desktop-styles.css" styleClass="dialog-pane">
+<DialogPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.amanecertropical.desktop.controller.ReservationDetailsController" stylesheets="@../css/desktop-styles.css" styleClass="dialog-pane">
    <header>
       <Label text="Detalles de Reservación" />
    </header>
@@ -75,13 +75,13 @@
             <!-- Notes -->
             <VBox spacing="10.0">
                <Label text="Notas" styleClass="section-header" />
-               <Label fx:id="notesLabel" text="Sin notas" wrapText="true" />
+               <Label fx:id="notesLabel" text="Sin notas" />
             </VBox>
 
             <!-- Timestamps -->
             <VBox spacing="10.0">
                <Label text="Fechas del Sistema" styleClass="section-header" />
-
+               
                <GridPane hgap="10.0" vgap="5.0">
                   <Label text="Creado:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                   <Label fx:id="creationDateLabel" text="N/A" GridPane.columnIndex="1" GridPane.rowIndex="0" />
@@ -93,7 +93,7 @@
          </VBox>
       </ScrollPane>
    </content>
-   <buttons>
-      <Button text="Cerrar" ButtonBar.buttonData="CANCEL_CLOSE" onAction="#handleClose" styleClass="button secondary" />
-   </buttons>
+   <buttonTypes>
+      <ButtonType fx:id="closeButtonType" text="Cerrar" buttonData="OK_DONE"/>
+   </buttonTypes>
 </DialogPane>
