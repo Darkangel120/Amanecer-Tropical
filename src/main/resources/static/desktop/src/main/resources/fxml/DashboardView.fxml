@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.XYChart?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.amanecertropical.desktop.controller.DashboardController" stylesheets="@../css/desktop-styles.css">
+   <top>
+      <VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="dashboard-header-bg">
+               <children>
+                  <Label fx:id="welcomeLabel" text="Bienvenido" styleClass="welcome-label">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <ImageView fx:id="profileImage" fitHeight="40.0" fitWidth="40.0" onMouseClicked="#showProfileMenu" pickOnBounds="true" preserveRatio="true" styleClass="profile-image">
+                     <image>
+                        <Image url="@../images/favicon.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </HBox>
+            <HBox fx:id="menuBar" alignment="CENTER_LEFT" spacing="0.0" styleClass="menu-bar">
+               <children>
+                  <Button fx:id="dashboardBtn" onAction="#showDashboard" text="Dashboard" styleClass="menu-button" />
+                  <Button fx:id="reservationsBtn" onAction="#showReservations" text="Reservaciones" styleClass="menu-button" />
+                  <Button fx:id="paymentsBtn" onAction="#showPayments" text="Pagos" styleClass="menu-button" />
+                  <Button fx:id="servicesBtn" onAction="#showServices" text="Servicios" styleClass="menu-button" />
+                  <Button fx:id="usersBtn" onAction="#showUsers" text="Usuarios" style="-fx-visible: false;" styleClass="menu-button" />
+                  <Region HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <ScrollPane fitToWidth="true" fitToHeight="true">
+         <content>
+            <VBox fx:id="contentArea" spacing="20.0" styleClass="dashboard-content-padding">
+               <children>
+                  <!-- Dashboard content will be loaded here -->
+                  <VBox fx:id="dashboardContent" spacing="20.0" styleClass="card">
+                     <children>
+                        <Label text="Panel de Control" textAlignment="CENTER" styleClass="form-title" >
+                           <font>
+                              <Font name="System Bold" size="20.0" />
+                           </font>
+                        </Label>
+                        <!-- Statistics Cards Row -->
+                        <HBox spacing="20.0" alignment="CENTER">
+                           <children>
+                              <VBox spacing="10.0" styleClass="stats-card">
+                                 <children>
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                       <children>
+                                          <Label text="📊" styleClass="stats-icon" />
+                                          <VBox spacing="5.0">
+                                             <children>
+                                                <Label text="Reservaciones" styleClass="card-title" />
+                                                <Label fx:id="totalReservationsLabel" text="0" styleClass="stats-value" />
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <VBox spacing="10.0" styleClass="stats-card">
+                                 <children>
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                       <children>
+                                          <Label text="💰" styleClass="stats-icon" />
+                                          <VBox spacing="5.0">
+                                             <children>
+                                                <Label text="Pagos" styleClass="card-title" />
+                                                <Label fx:id="totalPaymentsLabel" text="0" styleClass="stats-value" />
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <VBox spacing="10.0" styleClass="stats-card">
+                                 <children>
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                       <children>
+                                          <Label text="👥" styleClass="stats-icon" />
+                                          <VBox spacing="5.0">
+                                             <children>
+                                                <Label text="Usuarios" styleClass="card-title" />
+                                                <Label fx:id="totalUsersLabel" text="0" styleClass="stats-value" />
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                                                <!-- Quick Actions Row -->
+                        <HBox spacing="20.0" alignment="CENTER">
+                           <children>
+                              <VBox spacing="10.0" styleClass="stats-card">
+                                 <children>
+                                    <Label text="Accesos Rápidos" styleClass="card-title" />
+                                    <HBox spacing="10.0" alignment="CENTER">
+                                       <children>
+                                          <Button fx:id="newReservationBtn" text="Nueva Reservación" styleClass="quick-action-button" />
+                                          <Button fx:id="newPaymentBtn" text="Nuevo Pago" styleClass="quick-action-button" />
+                                          <Button fx:id="newUserBtn" text="Agregar Usuario" styleClass="quick-action-button" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <VBox spacing="10.0" styleClass="stats-card">
+                                 <children>
+                                    <Label text="Estado del Sistema" styleClass="card-title" />
+                                    <VBox spacing="5.0">
+                                       <children>
+                                          <Label text="Servidor: Online" styleClass="status-label online" />
+                                          <Label text="Base de Datos: Conectada" styleClass="status-label online" />
+                                          <Label fx:id="lastUpdateLabel" text="Última Actualización: Ahora" styleClass="stats-label" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+
+                        <!-- Chart Section -->
+                        <VBox spacing="10.0" styleClass="stats-card">
+                           <children>
+                              <Label text="Estadísticas Visuales" styleClass="card-title" />
+                              <BarChart fx:id="statsChart" title="Resumen del Sistema" styleClass="dashboard-chart">
+                                 <xAxis>
+                                    <CategoryAxis fx:id="xAxis" side="BOTTOM" />
+                                 </xAxis>
+                                 <yAxis>
+                                    <NumberAxis fx:id="yAxis" side="LEFT" />
+                                 </yAxis>
+                              </BarChart>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </content>
+      </ScrollPane>
+   </center>
+</BorderPane>

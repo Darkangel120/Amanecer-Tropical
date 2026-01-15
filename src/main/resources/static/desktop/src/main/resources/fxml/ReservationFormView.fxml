@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.amanecertropical.desktop.controller.ReservationFormController" prefWidth="1500" maxWidth="Infinity">
+   <header>
+      <Label fx:id="titleLabel" text="Nueva Reservación" styleClass="reservation-form-title" />
+   </header>
+   <content>
+      <ScrollPane fitToWidth="true" fitToHeight="true" prefWidth="1000" maxWidth="1000">
+         <VBox spacing="15.0" styleClass="reservation-form-container">
+            <padding>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+
+            <!-- Services Section -->
+            <VBox spacing="10.0" styleClass="reservation-form-section">
+               <Label text="Servicios:" styleClass="reservation-form-label" />
+               <VBox fx:id="servicesContainer" spacing="8.0">
+                  <!-- Services will be added dynamically here -->
+               </VBox>
+               <HBox spacing="10.0">
+                  <ComboBox fx:id="serviceTypeComboBox" promptText="Tipo de Servicio" styleClass="reservation-form-field, combo-box" />
+                  <Button fx:id="addServiceButton" text="+ Agregar Servicio" onAction="#handleAddService" styleClass="reservation-form-button" />
+               </HBox>
+            </VBox>
+
+            <!-- User Selection and Dates in a GridPane for horizontal layout -->
+            <GridPane hgap="20.0" vgap="10.0" styleClass="reservation-form-grid">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="NEVER" prefWidth="200.0" />
+                  <ColumnConstraints hgrow="ALWAYS" />
+                  <ColumnConstraints hgrow="ALWAYS" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+
+               <!-- Row 0: User Selection -->
+               <Label text="Usuario:" styleClass="reservation-form-label" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+               <ComboBox fx:id="userComboBox" promptText="Seleccionar usuario" styleClass="reservation-form-field, combo-box" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="2" />
+
+               <!-- Row 1: Dates and People Count -->
+               <Label text="Fecha Inicio:" styleClass="reservation-form-label" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+               <DatePicker fx:id="startDatePicker" styleClass="reservation-form-field, date-picker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+               <Label text="Fecha Fin:" styleClass="reservation-form-label" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+               <DatePicker fx:id="endDatePicker" styleClass="reservation-form-field, date-picker" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+               <Label text="Número de Personas:" styleClass="reservation-form-label" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+               <TextField fx:id="peopleCountField" promptText="Ej: 2" styleClass="reservation-form-field, text-field" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            </GridPane>
+
+            <!-- Status and Total Price -->
+            <HBox spacing="20.0" alignment="CENTER_LEFT">
+               <VBox spacing="5.0">
+                  <Label text="Estado:" styleClass="reservation-form-label" />
+                  <ComboBox fx:id="statusComboBox" styleClass="reservation-form-field, combo-box" />
+               </VBox>
+               <VBox spacing="5.0">
+                  <Label text="Precio Total:" styleClass="reservation-form-label" />
+                  <TextField fx:id="totalPriceField" promptText="Calculado automáticamente" styleClass="reservation-form-field, text-field" editable="false" />
+               </VBox>
+            </HBox>
+
+            <!-- Notes -->
+            <VBox spacing="5.0">
+               <Label text="Notas:" styleClass="reservation-form-label" />
+               <TextArea fx:id="notesArea" prefHeight="60.0" promptText="Notas adicionales..." styleClass="text-area" />
+            </VBox>
+         </VBox>
+      </ScrollPane>
+   </content>
+</DialogPane>
