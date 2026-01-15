@@ -55,7 +55,7 @@ public class ReservationService {
         Notification notification = new Notification(
             createdReservation.getUsuario(),
             "Nueva Reserva",
-            "Tu " + serviceDescription + " ha sido reservado y espera confirmación.",
+            "Tu " + serviceDescription + " ha sido realizada y espera confirmación.",
             "reservacion"
         );
         notificationService.saveNotification(notification);
@@ -125,22 +125,22 @@ public class ReservationService {
         List<String> services = new ArrayList<>();
 
         if (reservation.getPaquete() != null) {
-            services.add("paquete " + reservation.getPaquete().getNombre());
+            services.add("reservación del paquete " + reservation.getPaquete().getNombre());
         }
         if (reservation.getVuelo() != null) {
-            services.add("vuelo a " + reservation.getVuelo().getDestino());
+            services.add("vuelo de " + reservation.getVuelo().getOrigen() + " a " + reservation.getVuelo().getDestino());
         }
         if (reservation.getHotel() != null) {
-            services.add("hotel " + reservation.getHotel().getNombre());
+            services.add("reservación del hotel " + reservation.getHotel().getNombre());
         }
         if (reservation.getVehiculo() != null) {
-            services.add("vehículo " + reservation.getVehiculo().getNombre());
+            services.add("reservación del vehículo " + reservation.getVehiculo().getNombre());
         }
 
         if (services.size() == 1) {
             return services.get(0);
         } else if (services.size() > 1) {
-            return "reserva personalizada (" + String.join(", ", services) + ")";
+            return "reserva personalizada con " + String.join(", ", services);
         } else {
             return "servicio";
         }
