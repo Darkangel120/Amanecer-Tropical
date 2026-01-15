@@ -15,7 +15,7 @@ async function validateSession() {
 
     if (!token || !user) {
         console.log('No token or user found, redirecting to login');
-        window.location.href = '../index.html';
+        window.location.href = basePath + 'index.html';
         return false;
     }
 
@@ -35,7 +35,7 @@ async function validateSession() {
             console.log('Token invalid or expired, clearing session and redirecting');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '../index.html';
+            window.location.href = basePath + 'index.html';
             return false;
         } else {
             console.warn('Server error during session validation, but keeping session active');
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '../index.html';
+            window.location.href = basePath + 'index.html';
         });
     }
 
@@ -199,12 +199,12 @@ async function loadUserProfileInfo() {
                 if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('/uploads/')) {
                     profileAvatar.src = `http://localhost:8080${freshUserData.fotoPerfil}`;
                     profileAvatar.onerror = function() {
-                        profileAvatar.src = '../assets/img/default-profile.png';
+                        profileAvatar.src = basePath + 'assets/img/default-profile.png';
                     };
                 } else if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('data:image')) {
                     profileAvatar.src = freshUserData.fotoPerfil;
                 } else {
-                    profileAvatar.src = '../assets/img/default-profile.png';
+                    profileAvatar.src = basePath + 'assets/img/default-profile.png';
                 }
             }
 
@@ -213,12 +213,12 @@ async function loadUserProfileInfo() {
                 if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('/uploads/')) {
                     profileAvatarLarge.src = `http://localhost:8080${freshUserData.fotoPerfil}`;
                     profileAvatarLarge.onerror = function() {
-                        profileAvatarLarge.src = '../assets/img/default-profile.png';
+                        profileAvatarLarge.src = basePath + 'assets/img/default-profile.png';
                     };
                 } else if (freshUserData.fotoPerfil && freshUserData.fotoPerfil.startsWith('data:image')) {
                     profileAvatarLarge.src = freshUserData.fotoPerfil;
                 } else {
-                    profileAvatarLarge.src = '../assets/img/default-profile.png';
+                    profileAvatarLarge.src = basePath + 'assets/img/default-profile.png';
                 }
             }
 
@@ -364,11 +364,11 @@ function createUserMenu() {
             <!-- Profile Dropdown -->
             <div class="profile-dropdown">
                 <button class="profile-btn" id="profileBtn">
-                    <img src="../assets/img/default-profile.png" alt="Perfil" class="profile-avatar">
+                    <img src="${basePath}assets/img/default-profile.png" alt="Perfil" class="profile-avatar">
                 </button>
                 <div class="profile-menu" id="profileMenu">
                     <div class="profile-info">
-                        <img src="../assets/img/default-profile.png" alt="Perfil" class="profile-avatar-large">
+                        <img src="${basePath}assets/img/default-profile.png" alt="Perfil" class="profile-avatar-large">
                         <div class="profile-details">
                             <h4></h4>
                             <p></p>
@@ -398,7 +398,7 @@ function createUserMenu() {
                 e.preventDefault();
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = '../index.html';
+                window.location.href = basePath + 'index.html';
             });
         }
     }, 100);
@@ -413,12 +413,12 @@ function updateUIFromLocalStorage() {
         if (user.fotoPerfil && user.fotoPerfil.startsWith('/uploads/')) {
             profileAvatar.src = `http://localhost:8080${user.fotoPerfil}`;
             profileAvatar.onerror = function() {
-                profileAvatar.src = '../assets/img/default-profile.png';
+                profileAvatar.src = basePath + 'assets/img/default-profile.png';
             };
         } else if (user.fotoPerfil && user.fotoPerfil.startsWith('data:image')) {
             profileAvatar.src = user.fotoPerfil;
         } else {
-            profileAvatar.src = '../assets/img/default-profile.png';
+            profileAvatar.src = basePath + 'assets/img/default-profile.png';
         }
     }
 
@@ -427,12 +427,12 @@ function updateUIFromLocalStorage() {
         if (user.fotoPerfil && user.fotoPerfil.startsWith('/uploads/')) {
             profileAvatarLarge.src = `http://localhost:8080${user.fotoPerfil}`;
             profileAvatarLarge.onerror = function() {
-                profileAvatarLarge.src = '../assets/img/default-profile.png';
+                profileAvatarLarge.src = basePath + 'assets/img/default-profile.png';
             };
         } else if (user.fotoPerfil && user.fotoPerfil.startsWith('data:image')) {
             profileAvatarLarge.src = user.fotoPerfil;
         } else {
-            profileAvatarLarge.src = '../assets/img/default-profile.png';
+            profileAvatarLarge.src = basePath + 'assets/img/default-profile.png';
         }
     }
 

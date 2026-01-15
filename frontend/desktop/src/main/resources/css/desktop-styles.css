@@ -428,6 +428,12 @@
     -fx-border-width: 0 0 3 0;
 }
 
+.profile-menu{
+    -fx-background-color: #ffffff;
+    -fx-padding: 10;
+    
+}
+
 .content-area {
     -fx-background-color: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
     -fx-padding: 30;

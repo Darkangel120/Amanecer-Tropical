@@ -168,7 +168,7 @@ async function updateUserProfile() {
     
     for (const field of requiredFields) {
         if (!formData.get(field) || formData.get(field).trim() === '') {
-            alert(`El campo ${getFieldLabel(field)} es obligatorio.`);
+            showToast(`El campo ${getFieldLabel(field)} es obligatorio.`, 'warning');
             return;
         }
     }
@@ -228,15 +228,15 @@ async function updateUserProfile() {
                 }
             }
             
-            alert('Perfil actualizado exitosamente');
+            showToast('Perfil actualizado exitosamente', 'success');
             selectedProfilePicture = null;
         } else {
             const error = await response.text();
-            alert('Error al actualizar el perfil: ' + error);
+            showToast('Error al actualizar el perfil: ' + error, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error de conexión');
+        showToast('Error de conexión', 'error');
     }
 }
 

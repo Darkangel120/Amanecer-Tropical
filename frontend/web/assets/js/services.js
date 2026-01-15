@@ -270,7 +270,7 @@ function viewPackageDetails(packageId) {
 
 function bookPackage(destinationId) {
     if (!packagesData) {
-        alert('Cargando datos de paquetes, por favor espere un momento.');
+        showToast('Cargando datos de paquetes, por favor espere un momento.', 'warning');
         return;
     }
     addToReservation('package', destinationId);
@@ -471,12 +471,12 @@ function viewHotelDetails(hotelId) {
 
 function viewVehicleDetails(vehicleId) {
     if (!vehiclesData) {
-        alert('Vehicle data is still loading. Please wait a moment and try again.');
+        showToast('Los datos del vehículo aún se están cargando. Por favor, espera un momento e intenta de nuevo.', 'warning');
         return;
     }
     const vehicleData = vehiclesData.find(vehicle => vehicle.id === vehicleId);
     if (!vehicleData) {
-        alert('Vehicle data not found for ID: ' + vehicleId);
+        showToast('Datos del vehículo no encontrados para ID: ' + vehicleId, 'error');
         return;
     }
 
@@ -539,16 +539,16 @@ async function createReservation() {
         });
 
         if (response.ok) {
-            alert('Reserva creada exitosamente');
+            showToast('Reserva creada exitosamente', 'success');
             document.getElementById('reservation-modal').style.display = 'none';
             window.location.href = 'reservations.html';
         } else {
             const error = await response.text();
-            alert('Error al crear la reserva: ' + error);
+            showToast('Error al crear la reserva: ' + error, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error de conexión');
+        showToast('Error de conexión', 'error');
     }
 }
 
@@ -701,7 +701,7 @@ function addToReservation(type, id) {
             reservationItems.push(item);
             updateReservationSidebar();
         } else {
-            alert('Este servicio ya está en tu reserva.');
+            showToast('Este servicio ya está en tu reserva.', 'warning');
         }
     }
 }
@@ -810,7 +810,7 @@ function clearReservation() {
 
 function confirmReservation() {
     if (reservationItems.length === 0) {
-        alert('No hay servicios en la reserva.');
+        showToast('No hay servicios en la reserva.', 'warning');
         return;
     }
 
@@ -1001,14 +1001,14 @@ async function processPayment(totalAmount, reservationData) {
     const user = JSON.parse(localStorage.getItem('user'));
 
     if (!user || !user.id) {
-        alert('Error: Usuario no autenticado');
+        showToast('Error: Usuario no autenticado', 'error');
         return;
     }
 
     const reservationResult = await createReservationsAfterPayment(user.id, totalAmount, reservationData);
 
     if (!reservationResult || !reservationResult.success) {
-        alert('Error al crear las reservas. No se procesará el pago.');
+        showToast('Error al crear las reservas. No se procesará el pago.', 'error');
         return;
     }
 
@@ -1060,13 +1060,13 @@ async function processPayment(totalAmount, reservationData) {
 
         document.getElementById('payment-modal').style.display = 'none';
 
-        alert('¡Pago procesado exitosamente! Su reserva ha sido confirmada.');
+        showToast('¡Pago procesado exitosamente! Su reserva ha sido confirmada.', 'success');
         clearReservation();
         window.location.href = 'reservations.html';
 
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al procesar el pago: ' + error.message);
+        showToast('Error al procesar el pago: ' + error.message, 'error');
     }
 }
 
@@ -1074,7 +1074,7 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
     const packages = reservationItems.filter(item => item.type === 'package');
     const customServices = reservationItems.filter(item => item.type !== 'package');
 
-    alert(`Datos de la reserva:\nFecha de inicio: ${reservationData.fechaInicio}\nFecha de fin: ${reservationData.fechaFin}\nNúmero de personas: ${reservationData.numeroPersonas}`);
+
 
     const fechaInicio = reservationData.fechaInicio;
     const fechaFin = reservationData.fechaFin;
@@ -1183,7 +1183,7 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
                 }
             } else {
                 if (!compatibility.compatible) {
-                    alert(`Los servicios tienen ubicaciones diferentes:\n${compatibility.details}\n\nSe crearán reservaciones separadas.`);
+                    showToast('Los servicios tienen ubicaciones diferentes. Se crearán reservaciones separadas.', 'warning');
                 }
 
                 for (const service of customServices) {
@@ -1471,10 +1471,7 @@ async function createCustomReservation(userId, services, fechaInicio, fechaFin, 
             const result = await response.json();
             console.log('Reserva personalizada creada:', result);
             
-            alert(`✓ Reserva personalizada creada exitosamente!\n\n` +
-                  `Lugar: ${location}\n` +
-                  `Total: $${totalPrice.toFixed(2)}\n` +
-                  `Servicios: ${servicesList.join(', ')}`);
+            showToast(`✓ Reserva personalizada creada exitosamente! Lugar: ${location}, Total: $${totalPrice.toFixed(2)}, Servicios: ${servicesList.join(', ')}`, 'success');
             
             return { ok: true, data: result };
         } else {
@@ -1505,7 +1502,7 @@ function citiesMatch(city1, city2) {
 
 function showReservationResults(successCount, errorMessages) {
     if (successCount > 0 && errorMessages.length === 0) {
-        alert(`¡Éxito! Se crearon ${successCount} reservación(es) con pago procesado`);
+        showToast(`¡Éxito! Se crearon ${successCount} reservación(es) con pago procesado`, 'success');
         clearReservation();
         window.location.href = 'reservations.html';
     } else if (successCount > 0) {
@@ -1517,7 +1514,7 @@ function showReservationResults(successCount, errorMessages) {
             window.location.href = 'reservations.html';
         }
     } else {
-        alert(`No se pudo crear ninguna reserva. Errores:\n\n${errorMessages.join('\n\n')}`);
+        showToast(`No se pudo crear ninguna reserva. Errores:\n\n${errorMessages.join('\n\n')}`, 'error');
     }
 }
 

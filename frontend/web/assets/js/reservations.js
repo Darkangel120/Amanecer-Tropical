@@ -252,7 +252,7 @@ async function modifyReservation(reservationId) {
         });
 
         if (!response.ok) {
-            alert('Error al cargar los datos de la reserva');
+            showToast('Error al cargar los datos de la reserva', 'error');
             return;
         }
 
@@ -261,7 +261,7 @@ async function modifyReservation(reservationId) {
 
     } catch (error) {
         console.error('Error:', error);
-        alert('Error de conexión');
+        showToast('Error de conexión', 'error');
     }
 }
 
@@ -367,7 +367,7 @@ async function submitModifiedReservation(originalReservation, form) {
     const fechaFin = formData.get('fechaFin');
 
     if (new Date(fechaFin) <= new Date(fechaInicio)) {
-        alert('La fecha de fin debe ser posterior a la fecha de inicio');
+        showToast('La fecha de fin debe ser posterior a la fecha de inicio', 'error');
         return;
     }
 
@@ -398,16 +398,16 @@ async function submitModifiedReservation(originalReservation, form) {
         });
 
         if (response.ok) {
-            alert('Reserva modificada exitosamente');
+            showToast('Reserva modificada exitosamente', 'success');
             document.querySelector('.modal-overlay').remove();
             loadUserReservations();
         } else {
             const errorText = await response.text();
-            alert('Error al modificar la reserva: ' + errorText);
+            showToast('Error al modificar la reserva: ' + errorText, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error de conexión');
+        showToast('Error de conexión', 'error');
     }
 }
 
@@ -419,7 +419,7 @@ async function showQRCode(reservationId) {
         });
 
         if (!response.ok) {
-            alert('Error al cargar los datos de la reserva');
+            showToast('Error al cargar los datos de la reserva', 'error');
             return;
         }
 
@@ -428,7 +428,7 @@ async function showQRCode(reservationId) {
 
     } catch (error) {
         console.error('Error:', error);
-        alert('Error de conexión');
+        showToast('Error de conexión', 'error');
     }
 }
 
@@ -521,15 +521,15 @@ async function cancelReservation(reservationId) {
         });
 
         if (response.ok) {
-            alert('Reserva cancelada exitosamente');
+            showToast('Reserva cancelada exitosamente', 'success');
             loadUserReservations();
         } else {
             const error = await response.text();
-            alert('Error al cancelar la reserva: ' + error);
+            showToast('Error al cancelar la reserva: ' + error, 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error de conexión');
+        showToast('Error de conexión', 'error');
     }
 }
 
@@ -545,7 +545,7 @@ function showReservationDetails(reservationId) {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error al cargar los detalles de la reserva');
+            showToast('Error al cargar los detalles de la reserva', 'error');
         });
 }
 

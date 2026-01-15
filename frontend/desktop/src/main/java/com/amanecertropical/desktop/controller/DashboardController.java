@@ -61,7 +61,7 @@ public class DashboardController implements Initializable {
         }
 
         String userName = SessionManager.getInstance().getCurrentUser().getNombre();
-        welcomeLabel.setText("Bienvenido a Amanecer Tropical," + userName);
+        welcomeLabel.setText("Bienvenido a Amanecer Tropical, " + userName);
 
         String role = SessionManager.getInstance().getCurrentUser().getRol();
 
@@ -78,13 +78,13 @@ public class DashboardController implements Initializable {
         profileMenu = new ContextMenu();
         profileMenu.getStyleClass().add("profile-menu");
 
-        MenuItem profileItem = new MenuItem("Perfil");
+        MenuItem profileItem = new MenuItem("👤 Perfil");
         profileItem.setOnAction(e -> showProfile());
 
-        MenuItem settingsItem = new MenuItem("Configuración");
+        MenuItem settingsItem = new MenuItem("⚙️ Configuración");
         settingsItem.setOnAction(e -> showSettings());
 
-        MenuItem logoutItem = new MenuItem("Cerrar Sesión");
+        MenuItem logoutItem = new MenuItem("⬅️ Cerrar Sesión");
         logoutItem.setOnAction(e -> handleLogout());
 
         profileMenu.getItems().addAll(profileItem, settingsItem, new SeparatorMenuItem(), logoutItem);

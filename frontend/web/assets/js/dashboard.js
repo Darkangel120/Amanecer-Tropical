@@ -192,31 +192,7 @@ async function loadUserStats() {
             if (p) p.textContent = 'No se pudo cargar';
         });
 
-        showErrorMessage('No se pudieron cargar las estadísticas. Por favor, intenta recargar la página.');
+        showToast('No se pudieron cargar las estadísticas. Por favor, intenta recargar la página.', 'error');
     }
 }
 
-function showErrorMessage(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.textContent = message;
-    errorDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #ff4444;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        z-index: 1000;
-        font-family: 'Poppins', sans-serif;
-    `;
-
-    document.body.appendChild(errorDiv);
-
-    setTimeout(() => {
-        if (errorDiv.parentNode) {
-            errorDiv.parentNode.removeChild(errorDiv);
-        }
-    }, 5000);
-}
