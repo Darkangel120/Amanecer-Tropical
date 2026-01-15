@@ -1,1 +1,1 @@
-mvn -f frontend/desktop compile javafx:run
+mvn -f desktop compile javafx:run

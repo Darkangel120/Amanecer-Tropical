@@ -478,7 +478,7 @@ function createQRModal(reservation) {
 function generateQRData(reservation) {
     const qrText = `
         Confirme su reserva aquí:
-        ${window.location.origin}/frontend/web/user/verify-reservation.html?id=${reservation.id}
+        ${window.location.origin}/web/user/verify-reservation.html?id=${reservation.id}
 `.trim();
 
     return qrText;
@@ -488,7 +488,8 @@ function generateQRImage(data, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data)}`;
+    // Use local QR API instead of external service
+    const qrUrl = `${API_BASE_URL}/qr?text=${encodeURIComponent(data)}&width=300&height=300`;
 
     container.innerHTML = `
         <img src="${qrUrl}" alt="QR Code" class="qr-image" />

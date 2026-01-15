@@ -17,7 +17,6 @@ public class NotificationSecurity {
     @Autowired
     private UserSecurity userSecurity;
 
-    @SuppressWarnings("null")
     public boolean hasNotificationAccess(Authentication authentication, Long notificationId) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return false;

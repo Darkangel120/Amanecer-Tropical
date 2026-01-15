@@ -449,7 +449,7 @@ function updateUIFromLocalStorage() {
 
 function getBasePath() {
     const pathParts = window.location.pathname.split('/').filter(part => part.length > 0);
-    const depth = pathParts.length - 3;
+    const depth = pathParts.length - 6;
     const base = depth > 0 ? '../'.repeat(depth) : '';
     return base;
 }

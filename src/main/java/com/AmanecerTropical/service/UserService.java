@@ -52,7 +52,6 @@ public class UserService implements UserDetailsService {
     }
 
     public User updateUser(@NonNull User user) {
-        @SuppressWarnings("null")
         Optional<User> existingUserOpt = userRepository.findById(user.getId());
         if (existingUserOpt.isPresent()) {
             User existingUser = existingUserOpt.get();

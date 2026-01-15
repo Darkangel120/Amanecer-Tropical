@@ -136,7 +136,6 @@ public class ReservationController {
             boolean compatible = true;
             
             if (!flightIds.isEmpty()) {
-                @SuppressWarnings("null")
                 Optional<Flight> flight = flightService.getFlightById(flightIds.get(0));
                 if (flight.isPresent()) {
                     commonLocation = flight.get().getDestino();
@@ -145,7 +144,6 @@ public class ReservationController {
             
             if (!hotelIds.isEmpty()) {
                 for (Long hotelId : hotelIds) {
-                    @SuppressWarnings("null")
                     Optional<Hotel> hotel = hotelService.getHotelById(hotelId);
                     if (hotel.isPresent()) {
                         String hotelLocation = hotel.get().getUbicacion();
@@ -203,7 +201,6 @@ public class ReservationController {
         for (int i = 0; i < reservations.size(); i++) {
             try {
                 Reservation reservation = reservations.get(i);
-                @SuppressWarnings("null")
                 Reservation created = reservationService.createReservation(reservation);
                 createdReservations.add(created);
             } catch (Exception e) {

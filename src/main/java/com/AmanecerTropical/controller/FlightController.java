@@ -29,7 +29,6 @@ public class FlightController {
     @GetMapping("/search")
     public ResponseEntity<List<Flight>> searchFlights(@RequestParam String origen,
                                                       @RequestParam String destino) {
-        @SuppressWarnings("null")
         List<Flight> flights = flightService.searchFlights(origen, destino);
         return ResponseEntity.ok(flights);
     }
@@ -39,7 +38,6 @@ public class FlightController {
                                                             @RequestParam String destino,
                                                             @RequestParam String fechaSalida) {
         LocalDate fecha = LocalDate.parse(fechaSalida);
-        @SuppressWarnings("null")
         List<Flight> flights = flightService.searchFlightsByDate(origen, destino, fecha);
         return ResponseEntity.ok(flights);
     }

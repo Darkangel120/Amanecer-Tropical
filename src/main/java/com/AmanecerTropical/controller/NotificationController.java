@@ -63,7 +63,6 @@ public class NotificationController {
     public ResponseEntity<Void> markAllAsRead() {
         org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        @SuppressWarnings("null")
         Optional<User> userOptional = userService.getUserByEmail(email);
         if (userOptional.isPresent()) {
             Long usuarioId = userOptional.get().getId();

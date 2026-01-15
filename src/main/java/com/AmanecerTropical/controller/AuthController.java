@@ -29,7 +29,6 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @SuppressWarnings("null")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -64,7 +63,6 @@ public class AuthController {
         }
     }
 
-    @SuppressWarnings("null")
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         try {
@@ -107,7 +105,6 @@ public class AuthController {
         }
     }
 
-    @SuppressWarnings("null")
     @GetMapping("/validate")
     public ResponseEntity<?> validateToken(HttpServletRequest request) {
         try {

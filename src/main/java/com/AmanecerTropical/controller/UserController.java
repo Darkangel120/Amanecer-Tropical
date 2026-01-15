@@ -26,7 +26,6 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @SuppressWarnings("null")
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #id)")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
@@ -34,7 +33,6 @@ public class UserController {
         return user.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    @SuppressWarnings("null")
     @GetMapping("/email/{email}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
@@ -42,7 +40,6 @@ public class UserController {
         return user.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    @SuppressWarnings("null")
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@Valid @RequestBody User user) {
         if (userService.existsByEmail(user.getCorreoElectronico())) {
@@ -55,7 +52,6 @@ public class UserController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @userSecurity.hasUserId(authentication, #id)")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody User user) {
-        @SuppressWarnings("null")
         Optional<User> existingUser = userService.getUserById(id);
         if (existingUser.isPresent()) {
             user.setId(id);
@@ -65,7 +61,6 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
-    @SuppressWarnings("null")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
@@ -78,7 +73,6 @@ public class UserController {
         }
     }
 
-    @SuppressWarnings("null")
     @GetMapping("/role/{role}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {

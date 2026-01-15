@@ -1,4 +1,3 @@
-
 package com.amanecertropical.desktop.controller;
 
 import com.amanecertropical.desktop.model.Payment;
