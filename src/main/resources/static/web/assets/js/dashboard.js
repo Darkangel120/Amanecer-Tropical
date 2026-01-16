@@ -137,7 +137,7 @@ async function loadUserStats() {
                 new Date(current.fechaInicio) < new Date(earliest.fechaInicio) ? current : earliest
             );
             const serviceName = getServiceName(nextReservation);
-            nextTrip = `${serviceName} - ${new Date(nextReservation.fechaInicio).toLocaleDateString('es-ES')}`;
+            nextTrip = `${serviceName} - ${new Date(nextReservation.fechaInicio + 'T00:00:00').toLocaleDateString('es-ES')}`;
         }
 
         const totalSpent = reservations

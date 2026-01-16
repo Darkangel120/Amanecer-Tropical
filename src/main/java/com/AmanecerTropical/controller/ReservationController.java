@@ -4,7 +4,6 @@ import com.AmanecerTropical.entity.Reservation;
 import com.AmanecerTropical.dto.RoomDTO;
 import com.AmanecerTropical.entity.Flight;
 import com.AmanecerTropical.entity.Hotel;
-import com.AmanecerTropical.entity.Room;
 import com.AmanecerTropical.service.ReservationService;
 import com.AmanecerTropical.service.FlightService;
 import com.AmanecerTropical.service.HotelService;

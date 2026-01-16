@@ -45,10 +45,11 @@ public class Reservation {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Vehicle vehiculo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "habitacion_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Room habitacion;
+    @Column(name = "habitaciones_ids", columnDefinition = "TEXT")
+    private String habitacionesIds;
+
+    @Column(name = "asientos_ids", columnDefinition = "TEXT")
+    private String asientosIds;
 
     @NotBlank(message = "El tipo de servicio es requerido")
     @Column(name = "tipo_servicio")
@@ -133,8 +134,11 @@ public class Reservation {
     public Hotel getHotel() { return hotel; }
     public void setHotel(Hotel hotel) { this.hotel = hotel; }
 
-    public Room getHabitacion() { return habitacion; }
-    public void setHabitacion(Room habitacion) { this.habitacion = habitacion; }
+    public String getHabitacionesIds() { return habitacionesIds; }
+    public void setHabitacionesIds(String habitacionesIds) { this.habitacionesIds = habitacionesIds; }
+
+    public String getAsientosIds() { return asientosIds; }
+    public void setAsientosIds(String asientosIds) { this.asientosIds = asientosIds; }
 
     public Vehicle getVehiculo() { return vehiculo; }
     public void setVehiculo(Vehicle vehiculo) { this.vehiculo = vehiculo; }

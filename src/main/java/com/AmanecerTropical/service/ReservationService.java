@@ -108,6 +108,9 @@ public class ReservationService {
             reservation.setVehiculo(vehiculo);
         }
 
+        // Validar habitaciones y asientos si están especificados
+        validateRoomsAndSeats(reservation);
+
         Reservation createdReservation = reservationRepository.save(reservation);
 
         String serviceDescription = buildServiceDescription(createdReservation);
@@ -241,6 +244,36 @@ public class ReservationService {
             return "reserva personalizada con " + String.join(", ", services);
         } else {
             return "servicio";
+        }
+    }
+
+    private void validateRoomsAndSeats(Reservation reservation) {
+        // Validar habitaciones si están especificadas
+        if (reservation.getHabitacionesIds() != null && !reservation.getHabitacionesIds().trim().isEmpty()) {
+            String[] roomIds = reservation.getHabitacionesIds().split(",");
+            for (String roomIdStr : roomIds) {
+                try {
+                    @SuppressWarnings("unused")
+                    Long roomId = Long.parseLong(roomIdStr.trim());
+                    // Aquí podrías agregar validación adicional si es necesario
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("ID de habitación inválido: " + roomIdStr);
+                }
+            }
+        }
+
+        // Validar asientos si están especificados
+        if (reservation.getAsientosIds() != null && !reservation.getAsientosIds().trim().isEmpty()) {
+            String[] seatIds = reservation.getAsientosIds().split(",");
+            for (String seatIdStr : seatIds) {
+                try {
+                    @SuppressWarnings("unused")
+                    Long seatId = Long.parseLong(seatIdStr.trim());
+                    // Aquí podrías agregar validación adicional si es necesario
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("ID de asiento inválido: " + seatIdStr);
+                }
+            }
         }
     }
 }

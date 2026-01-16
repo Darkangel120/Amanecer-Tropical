@@ -184,8 +184,8 @@ function displayReservations(reservations) {
             <div class="summary-item">
                 <i class="fas fa-calendar-alt"></i>
                 <span>
-                    ${new Date(reservation.fechaInicio).toLocaleDateString('es-ES')} -
-                    ${new Date(reservation.fechaFin).toLocaleDateString('es-ES')}
+                    ${new Date(reservation.fechaInicio + 'T00:00:00').toLocaleDateString('es-ES')} -
+                    ${new Date(reservation.fechaFin + 'T00:00:00').toLocaleDateString('es-ES')}
                 </span>
             </div>
             <div class="summary-item">
@@ -766,13 +766,13 @@ function generateReservationDetailsHTML(reservation) {
             <h3><i class="fas fa-calendar-alt"></i> Fechas de la Reserva</h3>
             <div class="detail-grid">
                 <div class="detail-item">
-                    <strong>Fecha de inicio:</strong> ${new Date(reservation.fechaInicio).toLocaleDateString('es-ES')}
+                    <strong>Fecha de inicio:</strong> ${new Date(reservation.fechaInicio + 'T00:00:00').toLocaleDateString('es-ES')}
                 </div>
                 <div class="detail-item">
-                    <strong>Fecha de fin:</strong> ${new Date(reservation.fechaFin).toLocaleDateString('es-ES')}
+                    <strong>Fecha de fin:</strong> ${new Date(reservation.fechaFin + 'T00:00:00').toLocaleDateString('es-ES')}
                 </div>
                 <div class="detail-item">
-                    <strong>Duración:</strong> ${Math.ceil((new Date(reservation.fechaFin) - new Date(reservation.fechaInicio)) / (1000 * 60 * 60 * 24))} días
+                    <strong>Duración:</strong> ${Math.ceil((new Date(reservation.fechaFin + 'T00:00:00') - new Date(reservation.fechaInicio + 'T00:00:00')) / (1000 * 60 * 60 * 24))} días
                 </div>
             </div>
         </div>

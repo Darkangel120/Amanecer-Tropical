@@ -49,8 +49,73 @@ async function loadReservation(id) {
     }
 }
 
-function displayReservation(reservation) {
+async function displayReservation(reservation) {
     const content = document.getElementById("content");
+
+    // Parse seat and room IDs from strings to arrays with actual data
+    const parseSeats = async (asientosIds, flightId) => {
+        if (!asientosIds || !asientosIds.trim()) return [];
+        try {
+            const response = await fetch(`${API_BASE_URL}/seats/vuelo/${flightId}/available`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            if (response.ok) {
+                const allSeats = await response.json();
+                const selectedIds = asientosIds.split(',').map(id => parseInt(id.trim()));
+                return allSeats.filter(seat => selectedIds.includes(seat.id));
+            } else {
+                // Fallback to dummy data
+                return asientosIds.split(',').map(id => ({ id: parseInt(id.trim()), seatNumber: `Asiento ${id.trim()}` }));
+            }
+        } catch (error) {
+            console.error('Error fetching seats:', error);
+            return asientosIds.split(',').map(id => ({ id: parseInt(id.trim()), seatNumber: `Asiento ${id.trim()}` }));
+        }
+    };
+
+    const parseRooms = async (habitacionesIds, hotelId) => {
+        if (!habitacionesIds || !habitacionesIds.trim()) return [];
+        try {
+            const response = await fetch(`${API_BASE_URL}/rooms/hotel/${hotelId}/available`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            if (response.ok) {
+                const allRooms = await response.json();
+                const selectedIds = habitacionesIds.split(',').map(id => parseInt(id.trim()));
+                return allRooms.filter(room => selectedIds.includes(room.id));
+            } else {
+                // Fallback to dummy data
+                return habitacionesIds.split(',').map(id => ({ id: parseInt(id.trim()), numeroHabitacion: id.trim() }));
+            }
+        } catch (error) {
+            console.error('Error fetching rooms:', error);
+            return habitacionesIds.split(',').map(id => ({ id: parseInt(id.trim()), numeroHabitacion: id.trim() }));
+        }
+    };
+
+    // Add parsed data to reservation object
+    if (reservation.vuelo && reservation.asientosIds) {
+        reservation.asientos = await parseSeats(reservation.asientosIds, reservation.vuelo.id);
+    } else {
+        reservation.asientos = [];
+    }
+
+    if (reservation.hotel && reservation.habitacionesIds) {
+        reservation.habitaciones = await parseRooms(reservation.habitacionesIds, reservation.hotel.id);
+    } else {
+        reservation.habitaciones = [];
+    }
+
+    // Debug logging
+    console.log('Reservation data:', reservation);
+    console.log('Parsed seats:', reservation.asientos);
+    console.log('Parsed rooms:', reservation.habitaciones);
+    console.log('asientosIds:', reservation.asientosIds);
+    console.log('habitacionesIds:', reservation.habitacionesIds);
 
     let serviceName = "Servicio";
     let serviceImage = "";
@@ -89,6 +154,16 @@ function displayReservation(reservation) {
             if (reservation.vuelo) {
                 serviceName = `${reservation.vuelo.aerolinea} - Vuelo ${reservation.vuelo.flightNumber}`;
                 serviceImage = "";
+                let seatDetails = "";
+                if (reservation.asientos && reservation.asientos.length > 0) {
+                    const seatNumbers = reservation.asientos.map(asiento => asiento.seatNumber).join(', ');
+                    seatDetails = `
+                        <div class="info-item">
+                            <label>Asientos Seleccionados</label>
+                            <span>${seatNumbers}</span>
+                        </div>
+                    `;
+                }
                 serviceDetails = `
                             <div class="info-item">
                                 <label>Origen</label>
@@ -104,6 +179,7 @@ function displayReservation(reservation) {
                     reservation.vuelo.departureTime
                 ).toLocaleString("es-ES")}</span>
                             </div>
+                            ${seatDetails}
                         `;
             } else {
                 serviceName = "Vuelo";
@@ -119,6 +195,20 @@ function displayReservation(reservation) {
             if (reservation.hotel) {
                 serviceName = reservation.hotel.nombre;
                 serviceImage = reservation.hotel.urlImagen;
+                let roomDetails = "";
+                let pricePerNight = reservation.hotel.precioPorNoche; // Default hotel price
+
+                if (reservation.habitaciones && reservation.habitaciones.length > 0) {
+                    const roomNumbers = reservation.habitaciones.map(habitacion => habitacion.numeroHabitacion).join(', ');
+                    roomDetails = `
+                        <div class="info-item">
+                            <label>Habitaciones Seleccionadas</label>
+                            <span>${roomNumbers}</span>
+                        </div>
+                    `;
+                    // Use the price of the first selected room
+                    pricePerNight = reservation.habitaciones[0].precioPorNoche;
+                }
                 serviceDetails = `
                             <div class="info-item">
                                 <label>Ubicación</label>
@@ -132,10 +222,9 @@ function displayReservation(reservation) {
                             </div>
                             <div class="info-item">
                                 <label>Precio por noche</label>
-                                <span>$${parseFloat(
-                    reservation.hotel.precioPorNoche
-                ).toFixed(2)}</span>
+                                <span>$${parseFloat(pricePerNight).toFixed(2)}</span>
                             </div>
+                            ${roomDetails}
                         `;
             } else {
                 serviceName = "Hotel";
@@ -181,6 +270,16 @@ function displayReservation(reservation) {
             let combinedDetails = "";
 
             if (reservation.vuelo) {
+                let seatDetails = "";
+                if (reservation.asientos && reservation.asientos.length > 0) {
+                    const seatNumbers = reservation.asientos.map(asiento => asiento.seatNumber).join(', ');
+                    seatDetails = `
+                        <div class="info-item">
+                            <label>Asientos Seleccionados</label>
+                            <span>${seatNumbers}</span>
+                        </div>
+                    `;
+                }
                 combinedDetails += `
                     <div class="sub-service">
                         <h4><i class="fas fa-plane"></i> Vuelo: ${reservation.vuelo.aerolinea} - ${reservation.vuelo.flightNumber}</h4>
@@ -197,12 +296,27 @@ function displayReservation(reservation) {
                                 <label>Salida</label>
                                 <span>${new Date(reservation.vuelo.departureTime).toLocaleString("es-ES")}</span>
                             </div>
+                            ${seatDetails}
                         </div>
                     </div>
                 `;
             }
 
             if (reservation.hotel) {
+                let roomDetails = "";
+                let pricePerNight = reservation.hotel.precioPorNoche; // Default hotel price
+
+                if (reservation.habitaciones && reservation.habitaciones.length > 0) {
+                    const roomNumbers = reservation.habitaciones.map(habitacion => habitacion.numeroHabitacion).join(', ');
+                    roomDetails = `
+                        <div class="info-item">
+                            <label>Habitaciones Seleccionadas</label>
+                            <span>${roomNumbers}</span>
+                        </div>
+                    `;
+                    // Use the price of the first selected room
+                    pricePerNight = reservation.habitaciones[0].precioPorNoche;
+                }
                 combinedDetails += `
                     <div class="sub-service">
                         <h4><i class="fas fa-hotel"></i> Hotel: ${reservation.hotel.nombre}</h4>
@@ -217,8 +331,9 @@ function displayReservation(reservation) {
                             </div>
                             <div class="info-item">
                                 <label>Precio por noche</label>
-                                <span>$${parseFloat(reservation.hotel.precioPorNoche).toFixed(2)}</span>
+                                <span>$${parseFloat(pricePerNight).toFixed(2)}</span>
                             </div>
+                            ${roomDetails}
                         </div>
                     </div>
                 `;
@@ -290,7 +405,7 @@ function displayReservation(reservation) {
                     </div>
                     <div class="info-item">
                         <label>Fecha de Inicio</label>
-                        <span>${new Date(reservation.fechaInicio).toLocaleDateString("es-ES", {
+                        <span>${new Date(reservation.fechaInicio + 'T00:00:00').toLocaleDateString("es-ES", {
                             year: "numeric",
                             month: "long",
                             day: "numeric",
@@ -298,7 +413,7 @@ function displayReservation(reservation) {
                     </div>
                     <div class="info-item">
                         <label>Fecha de Fin</label>
-                        <span>${new Date(reservation.fechaFin).toLocaleDateString("es-ES", {
+                        <span>${new Date(reservation.fechaFin + 'T00:00:00').toLocaleDateString("es-ES", {
                             year: "numeric",
                             month: "long",
                             day: "numeric",

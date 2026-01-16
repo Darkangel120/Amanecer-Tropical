@@ -315,7 +315,6 @@ function displayFlights(flights = flightsData) {
             <ul class="flight-details">
                 <li><strong>Aerolínea</strong> ${flight.aerolinea}</li>
                 <li><strong>Fecha y Hora de Salida</strong> ${departureDateTime}</li>
-                <li><strong>Fecha y Hora de Llegada</strong> ${arrivalDateTime} aprox</li>
                 <li><strong>Asientos Disponibles</strong> ${flight.availableSeats}</li>
             </ul>
             <div class="service-price" style="display: flex; justify-content: center;">${formatPrice(flight.precio)}</div>
@@ -657,7 +656,9 @@ function addToReservation(type, id) {
             id: flight.id,
             name: `${flight.origen} - ${flight.destino}`,
             description: `Aerolinea ${flight.aerolinea}`,
-            price: flight.precio
+            price: flight.precio,
+            departureTime: flight.departureTime,
+            arrivalTime: flight.arrivalTime
         };
         price = flight.precio;
     } else if (type === 'hotel') {
@@ -692,7 +693,9 @@ function addToReservation(type, id) {
                 id: packageData.id,
                 name: `Paquete ${packageData.nombre}`,
                 description: packageData.descripcion,
-                price: packageData.precio
+                price: packageData.precio,
+                fechaInicio: packageData.fechaInicio,
+                fechaFin: packageData.fechaFin
             };
             price = packageData.precio;
         }
@@ -824,7 +827,14 @@ function showReservationConfirmationModal() {
     const modal = document.getElementById('reservation-confirm-modal');
     if (!modal) return;
 
-    const totalPrice = reservationItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
+    // Get dates from the form
+    const fechaInicioInput = document.getElementById('fecha-inicio');
+    const fechaFinInput = document.getElementById('fecha-fin');
+    const fechaInicio = fechaInicioInput ? fechaInicioInput.value : null;
+    const fechaFin = fechaFinInput ? fechaFinInput.value : null;
+
+    // Calculate total price based on dates
+    let totalPrice = 0;
 
     const reservationDetails = document.getElementById('reservation-details');
     const reservationTotal = document.getElementById('reservation-total');
@@ -846,6 +856,7 @@ function showReservationConfirmationModal() {
                     <span>${formatPrice(item.price)}</span>
                 `;
                 packagesSection.appendChild(itemDiv);
+                totalPrice += parseFloat(item.price);
             });
             reservationDetails.appendChild(packagesSection);
         }
@@ -855,13 +866,55 @@ function showReservationConfirmationModal() {
             servicesSection.innerHTML = '<h4>Servicios Personalizados</h4>';
             otherServices.forEach(item => {
                 const icon = item.type === 'flight' ? '<i class="fas fa-plane"></i>' : item.type === 'hotel' ? '<i class="fas fa-hotel"></i>' : '<i class="fas fa-car"></i>';
+                const peopleInfo = item.type === 'flight' && item.numeroPersonas ? ` (${item.numeroPersonas} persona${item.numeroPersonas > 1 ? 's' : ''})` : '';
+
+                // Calculate price based on dates for hotels and vehicles
+                let displayPrice = item.price;
+                let calculatedPrice = parseFloat(item.price);
+
+                if (fechaInicio && fechaFin) {
+                    if (item.type === 'hotel') {
+                        const startDate = new Date(fechaInicio);
+                        const endDate = new Date(fechaFin);
+                        const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                        calculatedPrice = parseFloat(item.selectedRoom ? item.selectedRoom.precioPorNoche : item.price) * nights;
+                        displayPrice = calculatedPrice;
+                    } else if (item.type === 'vehicle') {
+                        const startDate = new Date(fechaInicio);
+                        const endDate = new Date(fechaFin);
+                        const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                        calculatedPrice = parseFloat(item.price) * days;
+                        displayPrice = calculatedPrice;
+                    }
+                }
+
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'reservation-item-detail';
                 itemDiv.innerHTML = `
-                    <span>${icon} ${item.name}</span>
-                    <span>${formatPrice(item.price)}</span>
+                    <span>${icon} ${item.name}${peopleInfo}</span>
+                    <span>${formatPrice(displayPrice)}</span>
                 `;
                 servicesSection.appendChild(itemDiv);
+                totalPrice += calculatedPrice;
+
+                // Mostrar asientos seleccionados para vuelos
+                if (item.type === 'flight' && item.selectedSeats && item.selectedSeats.length > 0) {
+                    const seatsDiv = document.createElement('div');
+                    seatsDiv.className = 'reservation-seats-detail';
+                    seatsDiv.style.cssText = 'margin-left: 20px; font-size: 12px; color: #666; margin-bottom: 5px;';
+                    const seatNumbers = item.selectedSeats.map(seat => `${seat.seatNumber} (${seat.clase})`).join(', ');
+                    seatsDiv.innerHTML = `<strong>Asientos:</strong> ${seatNumbers}`;
+                    servicesSection.appendChild(seatsDiv);
+                }
+
+                // Mostrar habitación seleccionada para hoteles
+                if (item.type === 'hotel' && item.selectedRoom) {
+                    const roomDiv = document.createElement('div');
+                    roomDiv.className = 'reservation-room-detail';
+                    roomDiv.style.cssText = 'margin-left: 20px; font-size: 12px; color: #666; margin-bottom: 5px;';
+                    roomDiv.innerHTML = `<strong>Habitación:</strong> ${item.selectedRoom.numeroHabitacion} - ${item.selectedRoom.tipoHabitacion}`;
+                    servicesSection.appendChild(roomDiv);
+                }
             });
             reservationDetails.appendChild(servicesSection);
         }
@@ -869,6 +922,171 @@ function showReservationConfirmationModal() {
 
     if (reservationTotal) {
         reservationTotal.textContent = formatPrice(totalPrice.toFixed(2));
+    }
+
+    // Function to recalculate and update prices when dates change
+    function updatePricesFromDates() {
+        const currentFechaInicio = fechaInicioInput ? fechaInicioInput.value : null;
+        const currentFechaFin = fechaFinInput ? fechaFinInput.value : null;
+
+        if (!currentFechaInicio || !currentFechaFin) return;
+
+        // Recalculate packages and otherServices from reservationItems
+        const packages = reservationItems.filter(item => item.type === 'package');
+        const otherServices = reservationItems.filter(item => item.type !== 'package');
+
+        // Clear and rebuild the reservation details with recalculated prices
+        reservationDetails.innerHTML = '';
+
+        let newTotalPrice = 0;
+
+        // Recalculate and display packages
+        if (packages.length > 0) {
+            const packagesSection = document.createElement('div');
+            packagesSection.innerHTML = '<h4>📦 Paquetes</h4>';
+            packages.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'reservation-item-detail';
+                itemDiv.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>${formatPrice(item.price)}</span>
+                `;
+                packagesSection.appendChild(itemDiv);
+                newTotalPrice += parseFloat(item.price);
+            });
+            reservationDetails.appendChild(packagesSection);
+        }
+
+        // Recalculate and display custom services
+        if (otherServices.length > 0) {
+            const servicesSection = document.createElement('div');
+            servicesSection.innerHTML = '<h4>Servicios Personalizados</h4>';
+            otherServices.forEach(item => {
+                const icon = item.type === 'flight' ? '<i class="fas fa-plane"></i>' : item.type === 'hotel' ? '<i class="fas fa-hotel"></i>' : '<i class="fas fa-car"></i>';
+                const peopleInfo = item.type === 'flight' && item.numeroPersonas ? ` (${item.numeroPersonas} persona${item.numeroPersonas > 1 ? 's' : ''})` : '';
+
+                // Calculate price based on dates for hotels and vehicles
+                let displayPrice = item.price;
+                let calculatedPrice = parseFloat(item.price);
+
+                if (item.type === 'hotel') {
+                    const startDate = new Date(currentFechaInicio);
+                    const endDate = new Date(currentFechaFin);
+                    const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                    calculatedPrice = parseFloat(item.selectedRoom ? item.selectedRoom.precioPorNoche : item.price) * nights;
+                    displayPrice = calculatedPrice;
+                } else if (item.type === 'vehicle') {
+                    const startDate = new Date(currentFechaInicio);
+                    const endDate = new Date(currentFechaFin);
+                    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                    calculatedPrice = parseFloat(item.price) * days;
+                    displayPrice = calculatedPrice;
+                }
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'reservation-item-detail';
+                itemDiv.innerHTML = `
+                    <span>${icon} ${item.name}${peopleInfo}</span>
+                    <span>${formatPrice(displayPrice)}</span>
+                `;
+                servicesSection.appendChild(itemDiv);
+                newTotalPrice += calculatedPrice;
+
+                // Mostrar asientos seleccionados para vuelos
+                if (item.type === 'flight' && item.selectedSeats && item.selectedSeats.length > 0) {
+                    const seatsDiv = document.createElement('div');
+                    seatsDiv.className = 'reservation-seats-detail';
+                    seatsDiv.style.cssText = 'margin-left: 20px; font-size: 12px; color: #666; margin-bottom: 5px;';
+                    const seatNumbers = item.selectedSeats.map(seat => `${seat.seatNumber} (${seat.clase})`).join(', ');
+                    seatsDiv.innerHTML = `<strong>Asientos:</strong> ${seatNumbers}`;
+                    servicesSection.appendChild(seatsDiv);
+                }
+
+                // Mostrar habitación seleccionada para hoteles
+                if (item.type === 'hotel' && item.selectedRoom) {
+                    const roomDiv = document.createElement('div');
+                    roomDiv.className = 'reservation-room-detail';
+                    roomDiv.style.cssText = 'margin-left: 20px; font-size: 12px; color: #666; margin-bottom: 5px;';
+                    roomDiv.innerHTML = `<strong>Habitación:</strong> ${item.selectedRoom.numeroHabitacion} - ${item.selectedRoom.tipoHabitacion}`;
+                    servicesSection.appendChild(roomDiv);
+                }
+            });
+            reservationDetails.appendChild(servicesSection);
+        }
+
+        // Update total price display
+        if (reservationTotal) {
+            reservationTotal.textContent = formatPrice(newTotalPrice.toFixed(2));
+        }
+
+        // Update the totalPrice variable used for payment
+        totalPrice = newTotalPrice;
+    }
+
+    // Add event listeners to date inputs to update prices dynamically
+    if (fechaInicioInput) {
+        fechaInicioInput.addEventListener('change', updatePricesFromDates);
+    }
+    if (fechaFinInput) {
+        fechaFinInput.addEventListener('change', updatePricesFromDates);
+    }
+
+    // Pre-fill dates based on cart items
+    if (fechaInicioInput && fechaFinInput) {
+        const packages = reservationItems.filter(item => item.type === 'package');
+        const customServices = reservationItems.filter(item => item.type !== 'package');
+        const flights = customServices.filter(item => item.type === 'flight');
+        const hotels = customServices.filter(item => item.type === 'hotel');
+        const vehicles = customServices.filter(item => item.type === 'vehicle');
+
+        // Reset readonly state
+        fechaInicioInput.readOnly = false;
+        fechaFinInput.readOnly = false;
+
+        // Find earliest start date from packages and flights
+        let earliestStart = null;
+        let latestEnd = null;
+
+        packages.forEach(pkg => {
+            if (pkg.fechaInicio) {
+                const start = new Date(pkg.fechaInicio);
+                if (!earliestStart || start < earliestStart) earliestStart = start;
+            }
+            if (pkg.fechaFin) {
+                const end = new Date(pkg.fechaFin);
+                if (!latestEnd || end > latestEnd) latestEnd = end;
+            }
+        });
+
+        flights.forEach(flight => {
+            if (flight.departureTime) {
+                const start = new Date(flight.departureTime);
+                if (!earliestStart || start < earliestStart) earliestStart = start;
+            }
+            if (flight.arrivalTime) {
+                const end = new Date(flight.arrivalTime);
+                if (!latestEnd || end > latestEnd) latestEnd = end;
+            }
+        });
+
+        if (earliestStart) {
+            fechaInicioInput.value = earliestStart.toISOString().split('T')[0];
+            fechaInicioInput.readOnly = true;
+        }
+
+        if (latestEnd) {
+            fechaFinInput.value = latestEnd.toISOString().split('T')[0];
+            fechaFinInput.readOnly = true;
+        } else if (packages.length === 0 && flights.length === 0) {
+            // If no packages or flights, both dates must be selected by user
+            // Leave both dates empty and editable
+        } else if (packages.length === 0) {
+            // If no packages but have flights, leave end date editable for user to choose stay duration
+            fechaFinInput.readOnly = false;
+        }
+
+        // Update prices after setting dates
+        updatePricesFromDates();
     }
 
     const reservationForm = document.getElementById('reservation-form');
@@ -921,7 +1139,7 @@ function showPaymentModal(totalAmount, reservationData) {
         const summaryDiv = document.createElement('div');
         summaryDiv.innerHTML = `
             <h3>Resumen de la Reserva</h3>
-            <p><strong>Fecha:</strong> ${reservationData.fechaInicio} - ${reservationData.fechaFin}</p>
+            <p><strong>Fecha:</strong> ${new Date(reservationData.fechaInicio + 'T00:00:00').toISOString().split('T')[0]} - ${new Date(reservationData.fechaFin + 'T00:00:00').toISOString().split('T')[0]}</p>
             <p><strong>Número de Personas:</strong> ${reservationData.numeroPersonas}</p>
             ${reservationData.solicitudesEspeciales ? `<p><strong>Solicitudes Especiales:</strong> ${reservationData.solicitudesEspeciales}</p>` : ''}
         `;
@@ -929,16 +1147,45 @@ function showPaymentModal(totalAmount, reservationData) {
 
         const itemsDiv = document.createElement('div');
         itemsDiv.innerHTML = '<h4>Servicios Reservados:</h4>';
+
+        // Calculate prices based on dates for payment summary
+        const fechaInicio = reservationData.fechaInicio;
+        const fechaFin = reservationData.fechaFin;
+        let calculatedTotal = 0;
+
         reservationItems.forEach(item => {
+            let displayPrice = item.price;
+            let calculatedPrice = parseFloat(item.price);
+
+            if (fechaInicio && fechaFin) {
+                if (item.type === 'hotel') {
+                    const startDate = new Date(fechaInicio);
+                    const endDate = new Date(fechaFin);
+                    const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                    calculatedPrice = parseFloat(item.selectedRoom ? item.selectedRoom.precioPorNoche : item.price) * nights;
+                    displayPrice = calculatedPrice;
+                } else if (item.type === 'vehicle') {
+                    const startDate = new Date(fechaInicio);
+                    const endDate = new Date(fechaFin);
+                    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                    calculatedPrice = parseFloat(item.price) * days;
+                    displayPrice = calculatedPrice;
+                }
+            }
+
             const itemDiv = document.createElement('div');
             itemDiv.className = 'payment-item';
             itemDiv.innerHTML = `
                 <span>${item.name}</span>
-                <span>${formatPrice(item.price)}</span>
+                <span>${formatPrice(displayPrice)}</span>
             `;
             itemsDiv.appendChild(itemDiv);
+            calculatedTotal += calculatedPrice;
         });
         paymentSummary.appendChild(itemsDiv);
+
+        // Update total amount with calculated prices
+        totalAmount = calculatedTotal;
     }
 
     const totalAmountElement = document.getElementById('payment-total');
@@ -1085,7 +1332,7 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
 
     const inicio = new Date(fechaInicio);
     const fin = new Date(fechaFin);
-    if (fin <= inicio) {
+    if (fin < inicio) {
         throw new Error('La fecha de fin debe ser posterior a la fecha de inicio');
     }
 
@@ -1193,33 +1440,60 @@ async function createReservationsAfterPayment(userId, totalAmount, reservationDa
                     try {
                         let serviceType = '';
                         let serviceRef = {};
+                        let additionalData = {};
+
+                        let calculatedPrice = parseFloat(service.price);
 
                         switch(service.type) {
                             case 'flight':
                                 serviceType = 'vuelo';
                                 serviceRef = { vuelo: { id: service.id } };
+                                // Include selected seat IDs
+                                if (service.selectedSeats && service.selectedSeats.length > 0) {
+                                    additionalData.asientosIds = service.selectedSeats.map(seat => seat.id).join(',');
+                                }
                                 break;
                             case 'hotel':
                                 serviceType = 'hotel';
                                 serviceRef = { hotel: { id: service.id } };
+                                // Include selected room ID
+                                if (service.selectedRoom) {
+                                    additionalData.habitacionesIds = service.selectedRoom.id.toString();
+                                }
+                                // Calculate price based on number of nights
+                                const startDate = new Date(fechaInicio);
+                                const endDate = new Date(fechaFin);
+                                const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                                calculatedPrice = parseFloat(service.selectedRoom ? service.selectedRoom.precioPorNoche : service.price) * nights;
                                 break;
                             case 'vehicle':
                                 serviceType = 'vehiculo';
                                 serviceRef = { vehiculo: { id: service.id } };
+                                // Calculate price based on number of days
+                                const vehicleStartDate = new Date(fechaInicio);
+                                const vehicleEndDate = new Date(fechaFin);
+                                const days = Math.ceil((vehicleEndDate - vehicleStartDate) / (1000 * 60 * 60 * 24));
+                                calculatedPrice = parseFloat(service.price) * days;
                                 break;
                         }
 
                         const reservationData = {
                             usuario: { id: userId },
                             ...serviceRef,
+                            ...additionalData,
                             tipoServicio: serviceType,
                             fechaInicio: fechaInicio,
                             fechaFin: fechaFin,
                             numeroPersonas: numeroPersonas,
-                            precioTotal: parseFloat(service.price),
+                            precioTotal: parseFloat(calculatedPrice.toFixed(2)),
                             estado: 'pendiente',
                             solicitudesEspeciales: `Servicio: ${service.name}`
                         };
+
+                        console.log('Creating reservation for service:', service.name);
+                        console.log('Service type:', serviceType);
+                        console.log('Additional data:', additionalData);
+                        console.log('Final reservation data:', reservationData);
 
                         const response = await fetch(`${API_BASE_URL}/reservations`, {
                             method: 'POST',
@@ -1793,14 +2067,19 @@ function showSeatSelectionModal(flight, seats) {
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 800px;">
             <span class="close" style="float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-            <h2>Seleccionar Asiento - ${flight.origen} → ${flight.destino}</h2>
+            <h2>Seleccionar Asientos - ${flight.origen} → ${flight.destino}</h2>
             <div class="flight-info" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
                 <p><strong>Aerolínea:</strong> ${flight.aerolinea}</p>
                 <p><strong>Fecha:</strong> ${new Date(flight.departureTime).toLocaleString('es-ES')}</p>
                 <p><strong>Precio:</strong> ${formatPrice(flight.precio)}</p>
+                <div style="margin-top: 10px;">
+                    <label for="flight-people-count"><strong>Número de Personas:</strong></label>
+                    <input type="number" id="flight-people-count" min="1" max="10" value="1" style="margin-left: 10px; padding: 5px; width: 60px;">
+                    <span id="selection-status" style="margin-left: 20px; font-weight: bold; color: #dc3545;">Selecciona 1 asiento(s)</span>
+                </div>
             </div>
 
-            <div class="filters" style="margin-bottom: 20px;">
+            <div class="filter" style="margin-bottom: 20px;">
                 <label><strong>Filtrar por clase:</strong></label>
                 <select id="seat-class-filter" style="margin-left: 10px; padding: 5px;">
                     <option value="">Todas las clases</option>
@@ -1817,7 +2096,7 @@ function showSeatSelectionModal(flight, seats) {
             </div>
 
             <div class="modal-actions" style="text-align: center;">
-                <button id="confirm-seat-selection" class="btn" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Confirmar Selección</button>
+                <button id="confirm-seat-selection" class="btn" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" disabled>Confirmar Selección</button>
                 <button id="cancel-seat-selection" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Cancelar</button>
             </div>
         </div>
@@ -1825,7 +2104,31 @@ function showSeatSelectionModal(flight, seats) {
 
     document.body.appendChild(modal);
 
-    let selectedSeat = null;
+    let selectedSeats = [];
+    let requiredSeats = 1;
+
+    const peopleCountInput = document.getElementById('flight-people-count');
+    const selectionStatus = document.getElementById('selection-status');
+    const confirmButton = document.getElementById('confirm-seat-selection');
+
+    function updateSelectionStatus() {
+        const selected = selectedSeats.length;
+        const required = requiredSeats;
+
+        if (selected === required) {
+            selectionStatus.textContent = `✓ ${selected} asiento(s) seleccionado(s) - ¡Listo!`;
+            selectionStatus.style.color = '#28a745';
+            confirmButton.disabled = false;
+        } else if (selected < required) {
+            selectionStatus.textContent = `Selecciona ${required - selected} asiento(s) más (${selected}/${required})`;
+            selectionStatus.style.color = '#dc3545';
+            confirmButton.disabled = true;
+        } else {
+            selectionStatus.textContent = `Demasiados asientos seleccionados. Máximo: ${required}`;
+            selectionStatus.style.color = '#dc3545';
+            confirmButton.disabled = true;
+        }
+    }
 
     function displaySeats(seatsToShow) {
         const seatsGrid = document.getElementById('seats-grid');
@@ -1837,51 +2140,61 @@ function showSeatSelectionModal(flight, seats) {
         }
 
         seatsToShow.forEach(seat => {
+            const isSelected = selectedSeats.some(s => s.id === seat.id);
             const seatElement = document.createElement('div');
-            seatElement.className = `seat ${selectedSeat && selectedSeat.id === seat.id ? 'selected' : ''}`;
-            seatElement.style.cssText = `
-                padding: 10px;
-                border: 2px solid #ddd;
-                border-radius: 5px;
-                text-align: center;
-                cursor: pointer;
-                background: ${selectedSeat && selectedSeat.id === seat.id ? '#007bff' : '#f8f9fa'};
-                color: ${selectedSeat && selectedSeat.id === seat.id ? 'white' : 'black'};
-                transition: all 0.3s;
-            `;
+            seatElement.className = `seat ${isSelected ? 'selected' : ''}`;
             seatElement.innerHTML = `
-                <div style="font-weight: bold;">${seat.seatNumber}</div>
-                <div style="font-size: 12px;">${seat.clase}</div>
-                <div style="font-size: 11px; margin-top: 5px;">${formatPrice(seat.precio || flight.precio)}</div>
+                <div class="seat-number">${seat.seatNumber}</div>
+                <div class="seat-class">${seat.clase}</div>
+                <div class="seat-price">${formatPrice(seat.precio || flight.precio)}</div>
             `;
 
             seatElement.onclick = function() {
-                // Remover selección anterior
-                document.querySelectorAll('.seat').forEach(s => {
-                    s.classList.remove('selected');
-                    s.style.background = '#f8f9fa';
-                    s.style.color = 'black';
-                });
-
-                // Seleccionar este asiento
-                seatElement.classList.add('selected');
-                seatElement.style.background = '#007bff';
-                seatElement.style.color = 'white';
-                selectedSeat = seat;
+                if (isSelected) {
+                    // Deseleccionar asiento
+                    selectedSeats = selectedSeats.filter(s => s.id !== seat.id);
+                    seatElement.classList.remove('selected');
+                } else {
+                    // Verificar si ya tenemos el máximo de asientos
+                    if (selectedSeats.length >= requiredSeats) {
+                        showToast(`Ya has seleccionado el máximo de ${requiredSeats} asiento(s)`, 'warning');
+                        return;
+                    }
+                    // Seleccionar asiento
+                    selectedSeats.push(seat);
+                    seatElement.classList.add('selected');
+                }
+                updateSelectionStatus();
             };
 
             seatsGrid.appendChild(seatElement);
         });
     }
 
-    displaySeats(seats);
+    // Event listener para cambio en número de personas
+    peopleCountInput.addEventListener('input', function() {
+        requiredSeats = parseInt(this.value) || 1;
+        // Si tenemos más asientos seleccionados que los requeridos, quitar los extras
+        if (selectedSeats.length > requiredSeats) {
+            selectedSeats = selectedSeats.slice(0, requiredSeats);
+            // Actualizar visualización
+            document.querySelectorAll('.seat').forEach(seatEl => {
+                const seatId = parseInt(seatEl.querySelector('.seat-number').textContent);
+                const isStillSelected = selectedSeats.some(s => s.seatNumber === seatId.toString());
+                if (!isStillSelected) {
+                    seatEl.classList.remove('selected');
+                }
+            });
+        }
+        updateSelectionStatus();
+        displaySeats(getFilteredSeats());
+    });
 
-    // Filtros
-    const classFilter = document.getElementById('seat-class-filter');
-    const priceFilter = document.getElementById('seat-price-filter');
-
-    function applyFilters() {
+    function getFilteredSeats() {
         let filteredSeats = seats;
+
+        const classFilter = document.getElementById('seat-class-filter');
+        const priceFilter = document.getElementById('seat-price-filter');
 
         if (classFilter.value) {
             filteredSeats = filteredSeats.filter(seat => seat.clase === classFilter.value);
@@ -1892,23 +2205,40 @@ function showSeatSelectionModal(flight, seats) {
             filteredSeats = filteredSeats.filter(seat => (seat.precio || flight.precio) <= maxPrice);
         }
 
-        displaySeats(filteredSeats);
+        return filteredSeats;
+    }
+
+    displaySeats(seats);
+    updateSelectionStatus();
+
+    // Filtros
+    const classFilter = document.getElementById('seat-class-filter');
+    const priceFilter = document.getElementById('seat-price-filter');
+
+    function applyFilters() {
+        displaySeats(getFilteredSeats());
     }
 
     classFilter.addEventListener('change', applyFilters);
     priceFilter.addEventListener('input', applyFilters);
 
     // Botones
-    document.getElementById('confirm-seat-selection').onclick = function() {
-        if (!selectedSeat) {
-            showToast('Por favor selecciona un asiento', 'warning');
+    confirmButton.onclick = function() {
+        if (selectedSeats.length !== requiredSeats) {
+            showToast(`Debes seleccionar exactamente ${requiredSeats} asiento(s)`, 'warning');
             return;
         }
 
-        addToReservation('flight', flight.id, selectedSeat);
+        // Crear objeto con los asientos seleccionados y el número de personas
+        const selectionData = {
+            seats: selectedSeats,
+            numeroPersonas: requiredSeats
+        };
+
+        addToReservation('flight', flight.id, selectionData);
         modal.style.display = 'none';
         document.body.removeChild(modal);
-        showToast('Asiento seleccionado exitosamente', 'success');
+        showToast(`${requiredSeats} asiento(s) seleccionado(s) exitosamente`, 'success');
     };
 
     document.getElementById('cancel-seat-selection').onclick = function() {
@@ -1942,12 +2272,12 @@ function showRoomSelectionModal(hotel, rooms) {
             <span class="close" style="float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
             <h2>Seleccionar Habitación - ${hotel.nombre}</h2>
             <div class="hotel-info" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                <p><strong>Ubicación:</strong> ${hotel.ubicacion}</p>
-                <p><strong>Estrellas:</strong> ${generateStars(hotel.estrellas).outerHTML}</p>
-                <p><strong>Desde: </strong> ${formatPrice(hotel.precioMinimo)}/noche</p>
+                <p><strong>Ubicación</strong> ${hotel.ubicacion}</p>
+                <p style="color: #ffd700;"><strong>Estrellas</strong> ${generateStars(hotel.estrellas)}</p>
+                <p><strong>Desde </strong> ${formatPrice(hotel.precioMinimo)}/noche</p>
             </div>
 
-            <div class="filters" style="margin-bottom: 20px;">
+            <div class="filter" style="margin-bottom: 20px;">
                 <label><strong>Tipo de habitación:</strong></label>
                 <select id="room-type-filter" style="margin-left: 10px; padding: 5px;">
                     <option value="">Todos los tipos</option>
@@ -1989,34 +2319,21 @@ function showRoomSelectionModal(hotel, rooms) {
         roomsToShow.forEach(room => {
             const roomElement = document.createElement('div');
             roomElement.className = `room-card ${selectedRoom && selectedRoom.id === room.id ? 'selected' : ''}`;
-            roomElement.style.cssText = `
-                padding: 15px;
-                border: 2px solid #ddd;
-                border-radius: 8px;
-                cursor: pointer;
-                background: ${selectedRoom && selectedRoom.id === room.id ? '#007bff' : '#f8f9fa'};
-                color: ${selectedRoom && selectedRoom.id === room.id ? 'white' : 'black'};
-                transition: all 0.3s;
-            `;
             roomElement.innerHTML = `
-                <h4>${room.numeroHabitacion} - ${room.tipoHabitacion}</h4>
-                <p><strong>Capacidad:</strong> ${room.capacidad} persona(s)</p>
-                <p><strong>Precio:</strong> ${formatPrice(room.precioPorNoche)}/noche</p>
-                ${room.comodidades ? `<p><strong>Comodidades:</strong> ${room.comodidades}</p>` : ''}
+                <h4 class="room-title">${room.numeroHabitacion} - ${room.tipoHabitacion}</h4>
+                <p class="room-capacity"><strong>Capacidad:</strong> ${room.capacidad} persona(s)</p>
+                <p class="room-price"><strong>Precio:</strong> ${formatPrice(room.precioPorNoche)}/noche</p>
+                ${room.comodidades ? `<p class="room-amenities"><strong>Comodidades:</strong> ${room.comodidades}</p>` : ''}
             `;
 
             roomElement.onclick = function() {
                 // Remover selección anterior
                 document.querySelectorAll('.room-card').forEach(r => {
                     r.classList.remove('selected');
-                    r.style.background = '#f8f9fa';
-                    r.style.color = 'black';
                 });
 
                 // Seleccionar esta habitación
                 roomElement.classList.add('selected');
-                roomElement.style.background = '#007bff';
-                roomElement.style.color = 'white';
                 selectedRoom = room;
             };
 
@@ -2096,15 +2413,21 @@ function addToReservation(type, id, selectedItem = null) {
 
     if (type === 'flight') {
         const flight = flightsData.find(f => f.id === id);
+        const selectedSeats = selectedItem && selectedItem.seats ? selectedItem.seats : [];
+        const numeroPersonas = selectedItem && selectedItem.numeroPersonas ? selectedItem.numeroPersonas : selectedSeats.length || 1;
+        const totalPrice = selectedSeats.reduce((sum, seat) => sum + (seat.precio || flight.precio), 0);
         item = {
             type: 'flight',
             id: flight.id,
             name: `${flight.origen} - ${flight.destino}`,
             description: `Aerolinea ${flight.aerolinea}`,
-            price: flight.precio,
-            selectedSeat: selectedItem
+            price: totalPrice,
+            selectedSeats: selectedSeats,
+            numeroPersonas: numeroPersonas,
+            departureTime: flight.departureTime,
+            arrivalTime: flight.arrivalTime
         };
-        price = flight.precio;
+        price = totalPrice;
     } else if (type === 'hotel') {
         const hotel = hotelsData.find(h => h.id === id);
         if (hotel) {
