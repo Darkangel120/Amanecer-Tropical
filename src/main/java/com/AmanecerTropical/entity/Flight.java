@@ -47,6 +47,10 @@ public class Flight {
     private String aircraftType;
 
     @NotNull
+    @Column(name = "capacidad_avion")
+    private Integer airplaneCapacity;
+
+    @NotNull
     @Column(name = "asientos_disponibles")
     private Integer availableSeats;
 
@@ -91,6 +95,9 @@ public class Flight {
 
     public String getAircraftType() { return aircraftType; }
     public void setAircraftType(String aircraftType) { this.aircraftType = aircraftType; }
+
+    public Integer getAirplaneCapacity() { return airplaneCapacity; }
+    public void setAirplaneCapacity(Integer airplaneCapacity) { this.airplaneCapacity = airplaneCapacity; }
 
     public Integer getAvailableSeats() { return availableSeats; }
     public void setAvailableSeats(Integer availableSeats) { this.availableSeats = availableSeats; }

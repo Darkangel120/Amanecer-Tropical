@@ -1,11 +1,14 @@
 package com.AmanecerTropical.controller;
 
 import com.AmanecerTropical.entity.Reservation;
+import com.AmanecerTropical.dto.RoomDTO;
 import com.AmanecerTropical.entity.Flight;
 import com.AmanecerTropical.entity.Hotel;
+import com.AmanecerTropical.entity.Room;
 import com.AmanecerTropical.service.ReservationService;
 import com.AmanecerTropical.service.FlightService;
 import com.AmanecerTropical.service.HotelService;
+import com.AmanecerTropical.service.RoomService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -29,6 +32,9 @@ public class ReservationController {
 
     @Autowired
     private HotelService hotelService;
+
+    @Autowired
+    private RoomService roomService;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -106,6 +112,11 @@ public class ReservationController {
         return ResponseEntity.ok(available);
     }
 
+    @GetMapping("/hotel/{hotelId}/available")
+    public List<RoomDTO> getAvailableRoomsByHotelId(@PathVariable Long hotelId) {
+        return roomService.getAvailableRoomsByHotel(hotelId);
+    }
+
     @GetMapping("/overlapping")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Reservation>> findOverlappingReservations(@RequestParam(required = false) Long paqueteId,
@@ -136,6 +147,7 @@ public class ReservationController {
             boolean compatible = true;
             
             if (!flightIds.isEmpty()) {
+                @SuppressWarnings("null")
                 Optional<Flight> flight = flightService.getFlightById(flightIds.get(0));
                 if (flight.isPresent()) {
                     commonLocation = flight.get().getDestino();
@@ -144,6 +156,7 @@ public class ReservationController {
             
             if (!hotelIds.isEmpty()) {
                 for (Long hotelId : hotelIds) {
+                    @SuppressWarnings("null")
                     Optional<Hotel> hotel = hotelService.getHotelById(hotelId);
                     if (hotel.isPresent()) {
                         String hotelLocation = hotel.get().getUbicacion();
@@ -201,6 +214,7 @@ public class ReservationController {
         for (int i = 0; i < reservations.size(); i++) {
             try {
                 Reservation reservation = reservations.get(i);
+                @SuppressWarnings("null")
                 Reservation created = reservationService.createReservation(reservation);
                 createdReservations.add(created);
             } catch (Exception e) {

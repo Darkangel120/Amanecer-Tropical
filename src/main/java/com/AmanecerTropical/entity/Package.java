@@ -39,6 +39,20 @@ public class Package {
     @Column(name = "duracion_dias")
     private Integer duracionDias;
 
+    @Column(name = "fecha_inicio")
+    private java.time.LocalDate fechaInicio;
+
+    @Column(name = "fecha_fin")
+    private java.time.LocalDate fechaFin;
+
+    @NotNull
+    @Column(name = "numero_personas")
+    private Integer numeroPersonas;
+
+    @NotNull
+    @Column(name = "cantidad_disponible", columnDefinition = "INTEGER DEFAULT 0")
+    private Integer cantidadDisponible = 0;
+
     @NotBlank
     @Column(columnDefinition = "TEXT")
     private String incluye;
@@ -92,6 +106,18 @@ public class Package {
 
     public Integer getDuracionDias() { return duracionDias; }
     public void setDuracionDias(Integer duracionDias) { this.duracionDias = duracionDias; }
+
+    public java.time.LocalDate getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(java.time.LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
+
+    public java.time.LocalDate getFechaFin() { return fechaFin; }
+    public void setFechaFin(java.time.LocalDate fechaFin) { this.fechaFin = fechaFin; }
+
+    public Integer getNumeroPersonas() { return numeroPersonas; }
+    public void setNumeroPersonas(Integer numeroPersonas) { this.numeroPersonas = numeroPersonas; }
+
+    public Integer getCantidadDisponible() { return cantidadDisponible; }
+    public void setCantidadDisponible(Integer cantidadDisponible) { this.cantidadDisponible = cantidadDisponible; }
 
     public String getIncluye() { return incluye; }
     public void setIncluye(String incluye) { this.incluye = incluye; }

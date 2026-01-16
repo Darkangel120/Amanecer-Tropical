@@ -213,6 +213,8 @@ function displayPackages(destinations) {
 
     destinations.forEach(destination => {
         const imageUrl = destination.urlImagen || 'assets/img/default-destination.jpg';
+        const precioPorPersona = destination.numeroPersonas ? (destination.precio / destination.numeroPersonas).toFixed(2) : destination.precio;
+        const cantidadDisponible = destination.cantidadDisponible || 0;
         const packageCard = document.createElement('div');
         packageCard.className = 'paquete-card';
         packageCard.innerHTML = `
@@ -222,7 +224,8 @@ function displayPackages(destinations) {
                 <p class="location">${destination.ubicacion}</p>
                 <p class="category">${destination.categoria}</p>
                 <p class="duration">${destination.duracionDias} días</p>
-                <div class="paquete-price">$${destination.precio}</div>
+                <p class="availability">Disponibles: ${cantidadDisponible}</p>
+                <div class="paquete-price">$${precioPorPersona} por persona</div>
                 <a href="user/services.html?destination=${destination.id}" class="btn">Reservar Ahora</a>
             </div>
         `;

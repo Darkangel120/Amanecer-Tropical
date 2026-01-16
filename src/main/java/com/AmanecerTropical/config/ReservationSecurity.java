@@ -17,6 +17,7 @@ public class ReservationSecurity {
     @Autowired
     private UserSecurity userSecurity;
 
+    @SuppressWarnings("null")
     public boolean hasReservationAccess(Authentication authentication, Long reservationId) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return false;

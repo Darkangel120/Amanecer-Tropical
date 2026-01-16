@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface HotelRepository extends JpaRepository<Hotel, Long> {
     
-    @Query("SELECT h FROM Hotel h WHERE h.activo = true")
+    @Query("SELECT h FROM Hotel h WHERE h.activo = 1")
     List<Hotel> findByActivoTrue();
     
     List<Hotel> findByUbicacion(String ubicacion);

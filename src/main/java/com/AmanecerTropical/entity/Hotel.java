@@ -1,11 +1,13 @@
 package com.AmanecerTropical.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "hoteles")
@@ -25,11 +27,6 @@ public class Hotel {
     @NotBlank
     private String ubicacion;
 
-    @NotNull
-    @Positive
-    @Column(name = "precio_por_noche")
-    private BigDecimal precioPorNoche;
-
     @NotBlank
     @Column(name = "url_imagen")
     private String urlImagen;
@@ -45,13 +42,17 @@ public class Hotel {
     @Column(name = "habitaciones_disponibles")
     private Integer habitacionesDisponibles;
 
-    @ManyToOne
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Room> habitaciones;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "agencia_hotel_id")
     private HotelAgency agenciaHotel;
 
     @Column(columnDefinition = "SMALLINT DEFAULT 1")
-    private boolean activo = true;
+    private Integer activo = 1;
 
     public Hotel() {}
 
@@ -67,9 +68,6 @@ public class Hotel {
     public String getUbicacion() { return ubicacion; }
     public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
 
-    public BigDecimal getPrecioPorNoche() { return precioPorNoche; }
-    public void setPrecioPorNoche(BigDecimal precioPorNoche) { this.precioPorNoche = precioPorNoche; }
-
     public String getUrlImagen() { return urlImagen; }
     public void setUrlImagen(String urlImagen) { this.urlImagen = urlImagen; }
 
@@ -82,9 +80,29 @@ public class Hotel {
     public Integer getHabitacionesDisponibles() { return habitacionesDisponibles; }
     public void setHabitacionesDisponibles(Integer habitacionesDisponibles) { this.habitacionesDisponibles = habitacionesDisponibles; }
 
+    public List<Room> getHabitaciones() { return habitaciones; }
+    public void setHabitaciones(List<Room> habitaciones) { this.habitaciones = habitaciones; }
+
     public HotelAgency getAgenciaHotel() { return agenciaHotel; }
     public void setAgenciaHotel(HotelAgency agenciaHotel) { this.agenciaHotel = agenciaHotel; }
 
-    public boolean isActivo() { return activo; }
-    public void setActivo(boolean activo) { this.activo = activo; }
+    public boolean isActivo() {
+        return activo != null && activo == 1;
+    }
+    public void setActivo(boolean activo) {
+        this.activo = activo ? 1 : 0;
+    }
+
+    // Método para obtener el precio mínimo de las habitaciones disponibles
+    @JsonProperty("precioMinimo")
+    public BigDecimal getPrecioMinimo() {
+        if (habitaciones == null || habitaciones.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return habitaciones.stream()
+                .filter(Room::isDisponible)
+                .map(Room::getPrecioPorNoche)
+                .min(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
+    }
 }

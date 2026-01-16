@@ -22,6 +22,7 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
 
+    @SuppressWarnings("null")
     public Optional<Payment> getPaymentById(Long id) {
         return paymentRepository.findById(id);
     }
@@ -46,11 +47,13 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
 
+    @SuppressWarnings("null")
     @Transactional
     public Payment updatePayment(Payment payment) {
         return paymentRepository.save(payment);
     }
 
+    @SuppressWarnings("null")
     @Transactional
     public void deletePayment(Long id) {
         paymentRepository.deleteById(id);

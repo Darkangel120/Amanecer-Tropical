@@ -51,6 +51,7 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    @SuppressWarnings("null")
     public User updateUser(@NonNull User user) {
         Optional<User> existingUserOpt = userRepository.findById(user.getId());
         if (existingUserOpt.isPresent()) {

@@ -17,6 +17,7 @@ import java.util.Base64;
 @RequestMapping("/api/qr")
 public class QRController {
 
+    @SuppressWarnings("null")
     @GetMapping(produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> generateQR(@RequestParam String text,
                                            @RequestParam(defaultValue = "300") int width,

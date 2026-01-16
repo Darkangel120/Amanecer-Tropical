@@ -32,7 +32,7 @@ public class HotelAgency {
     private String contacto;
 
     @Column(columnDefinition = "SMALLINT DEFAULT 1")
-    private boolean activo = true;
+    private Integer activo = 1;
 
     @OneToMany(mappedBy = "agenciaHotel")
     @JsonIgnore
@@ -56,8 +56,12 @@ public class HotelAgency {
     public String getContacto() { return contacto; }
     public void setContacto(String contacto) { this.contacto = contacto; }
 
-    public boolean isActivo() { return activo; }
-    public void setActivo(boolean activo) { this.activo = activo; }
+    public boolean isActivo() {
+        return activo != null && activo == 1;
+    }
+    public void setActivo(boolean activo) {
+        this.activo = activo ? 1 : 0;
+    }
 
     public List<Hotel> getHoteles() { return hoteles; }
     public void setHoteles(List<Hotel> hoteles) { this.hoteles = hoteles; }

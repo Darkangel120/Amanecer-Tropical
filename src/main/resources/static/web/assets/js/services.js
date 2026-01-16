@@ -33,7 +33,7 @@ async function loadExchangeRate() {
 function formatPrice(usdPrice) {
     const usd = parseFloat(usdPrice);
     const ves = usd * usdToVesRate;
-    return `$${usd.toFixed(2)} USD / Bs${ves.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `$${usd.toFixed(2)} / Bs${ves.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -206,7 +206,8 @@ function viewPackageDetails(packageId) {
     modalImage.alt = `Paquete ${packageData.nombre}`;
     modalTitle.textContent = `Paquete ${packageData.nombre}`;
     modalDescription.textContent = packageData.descripcion;
-    modalPrice.textContent = formatPrice(packageData.precio);
+    const precioPorPersona = packageData.numeroPersonas ? (packageData.precio / packageData.numeroPersonas).toFixed(2) : packageData.precio;
+    modalPrice.textContent = `$${precioPorPersona} por persona (para ${packageData.numeroPersonas || 1} personas)`;
 
     includesList.innerHTML = '';
     let includes = packageData.incluye;
@@ -315,9 +316,10 @@ function displayFlights(flights = flightsData) {
                 <li><strong>Aerolínea</strong> ${flight.aerolinea}</li>
                 <li><strong>Fecha y Hora de Salida</strong> ${departureDateTime}</li>
                 <li><strong>Fecha y Hora de Llegada</strong> ${arrivalDateTime} aprox</li>
+                <li><strong>Asientos Disponibles</strong> ${flight.availableSeats}</li>
             </ul>
             <div class="service-price" style="display: flex; justify-content: center;">${formatPrice(flight.precio)}</div>
-            <a href="#" class="btn" onclick="addToReservation('flight', ${flight.id})" style="display: flex; justify-content: center;">Reservar Vuelo</a>
+            <a href="#" class="btn" onclick="selectFlightSeat(${flight.id})" style="display: flex; justify-content: center;">Reservar Ahora</a>
         `;
         flightsGrid.appendChild(flightCard);
     });
@@ -360,10 +362,10 @@ function displayHotels(hotels = hotelsData) {
             <h3>${hotel.nombre}</h3>
             <div class="hotel-stars">${starsHtml}</div>
             <p>${hotel.descripcion}</p>
-            <div class="service-price"  style="display: flex; justify-content: center;">${formatPrice(hotel.precioPorNoche)}/noche</div>
+            <div class="service-price"  style="text-align:center">Desde: ${formatPrice(hotel.precioMinimo)} <br> <strong>Por noche</strong></div>
             <div class="card-buttons">
                 <a href="#" class="btn btn-details" onclick="viewHotelDetails(${hotel.id})">Ver Detalles</a>
-                <a href="#" class="btn" onclick="addToReservation('hotel', ${hotel.id})">Reservar Hotel</a>
+                <a href="#" class="btn" onclick="selectHotelRoom(${hotel.id})">Reservar Ahora</a>
             </div>
         `;
         hotelsGrid.appendChild(hotelCard);
@@ -415,7 +417,7 @@ function displayVehicles(vehicles = vehiclesData) {
             <div class="service-price"  style="display: flex; justify-content: center;">${formatPrice(vehicle.precioPorDia)}/día</div>
             <div class="card-buttons">
                 <a href="#" class="btn btn-details" onclick="viewVehicleDetails(${vehicle.id})">Ver Detalles</a>
-                <a href="#" class="btn" onclick="addToReservation('vehicle', ${vehicle.id})" style="font-size: 13px;">Alquilar Vehículo</a>
+                <a href="#" class="btn" onclick="addToReservation('vehicle', ${vehicle.id})" style="font-size: 13px;">Alquilar Ahora</a>
             </div>
         `;
         vehiclesGrid.appendChild(vehicleCard);
@@ -438,7 +440,8 @@ function viewHotelDetails(hotelId) {
     modalImage.alt = hotelData.nombre;
     modalTitle.textContent = hotelData.nombre;
     modalDescription.textContent = hotelData.descripcion;
-    modalPrice.textContent = `${formatPrice(hotelData.precioPorNoche)}/noche`;
+    const minPrice = hotelData.precioMinimo && parseFloat(hotelData.precioMinimo) > 0 ? hotelData.precioMinimo : hotelData.precioPorNoche;
+    modalPrice.textContent = `Desde ${formatPrice(minPrice)}/noche`;
     modalStars.innerHTML = generateStars(hotelData.estrellas);
 
     amenitiesList.innerHTML = '';
@@ -1724,4 +1727,433 @@ function generateQRCode(url) {
             document.body.removeChild(modal);
         }
     };
+}
+
+// Función para seleccionar asiento de vuelo
+async function selectFlightSeat(flightId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/seats/vuelo/${flightId}/available`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al cargar asientos disponibles');
+        }
+
+        const seats = await response.json();
+        const flight = flightsData.find(f => f.id === flightId);
+
+        if (!flight) {
+            showToast('Vuelo no encontrado', 'error');
+            return;
+        }
+
+        showSeatSelectionModal(flight, seats);
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error al cargar asientos disponibles', 'error');
+    }
+}
+
+// Función para seleccionar habitación de hotel
+async function selectHotelRoom(hotelId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/rooms/hotel/${hotelId}/available`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al cargar habitaciones disponibles');
+        }
+
+        const rooms = await response.json();
+        const hotel = hotelsData.find(h => h.id === hotelId);
+
+        if (!hotel) {
+            showToast('Hotel no encontrado', 'error');
+            return;
+        }
+
+        showRoomSelectionModal(hotel, rooms);
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Error al cargar habitaciones disponibles', 'error');
+    }
+}
+
+// Modal para selección de asientos
+function showSeatSelectionModal(flight, seats) {
+    const modal = document.createElement('div');
+    modal.id = 'seat-selection-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" style="float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            <h2>Seleccionar Asiento - ${flight.origen} → ${flight.destino}</h2>
+            <div class="flight-info" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <p><strong>Aerolínea:</strong> ${flight.aerolinea}</p>
+                <p><strong>Fecha:</strong> ${new Date(flight.departureTime).toLocaleString('es-ES')}</p>
+                <p><strong>Precio:</strong> ${formatPrice(flight.precio)}</p>
+            </div>
+
+            <div class="filters" style="margin-bottom: 20px;">
+                <label><strong>Filtrar por clase:</strong></label>
+                <select id="seat-class-filter" style="margin-left: 10px; padding: 5px;">
+                    <option value="">Todas las clases</option>
+                    <option value="ECONOMICA">Económica</option>
+                    <option value="EJECUTIVA">Ejecutiva</option>
+                    <option value="PRIMERA">Primera</option>
+                </select>
+                <label style="margin-left: 20px;"><strong>Precio máximo:</strong></label>
+                <input type="number" id="seat-price-filter" placeholder="Precio máximo" style="margin-left: 10px; padding: 5px; width: 120px;">
+            </div>
+
+            <div id="seats-grid" class="seats-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                <!-- Asientos se cargarán aquí -->
+            </div>
+
+            <div class="modal-actions" style="text-align: center;">
+                <button id="confirm-seat-selection" class="btn" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Confirmar Selección</button>
+                <button id="cancel-seat-selection" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Cancelar</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    let selectedSeat = null;
+
+    function displaySeats(seatsToShow) {
+        const seatsGrid = document.getElementById('seats-grid');
+        seatsGrid.innerHTML = '';
+
+        if (seatsToShow.length === 0) {
+            seatsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No hay asientos disponibles con los filtros seleccionados.</p>';
+            return;
+        }
+
+        seatsToShow.forEach(seat => {
+            const seatElement = document.createElement('div');
+            seatElement.className = `seat ${selectedSeat && selectedSeat.id === seat.id ? 'selected' : ''}`;
+            seatElement.style.cssText = `
+                padding: 10px;
+                border: 2px solid #ddd;
+                border-radius: 5px;
+                text-align: center;
+                cursor: pointer;
+                background: ${selectedSeat && selectedSeat.id === seat.id ? '#007bff' : '#f8f9fa'};
+                color: ${selectedSeat && selectedSeat.id === seat.id ? 'white' : 'black'};
+                transition: all 0.3s;
+            `;
+            seatElement.innerHTML = `
+                <div style="font-weight: bold;">${seat.seatNumber}</div>
+                <div style="font-size: 12px;">${seat.clase}</div>
+                <div style="font-size: 11px; margin-top: 5px;">${formatPrice(seat.precio || flight.precio)}</div>
+            `;
+
+            seatElement.onclick = function() {
+                // Remover selección anterior
+                document.querySelectorAll('.seat').forEach(s => {
+                    s.classList.remove('selected');
+                    s.style.background = '#f8f9fa';
+                    s.style.color = 'black';
+                });
+
+                // Seleccionar este asiento
+                seatElement.classList.add('selected');
+                seatElement.style.background = '#007bff';
+                seatElement.style.color = 'white';
+                selectedSeat = seat;
+            };
+
+            seatsGrid.appendChild(seatElement);
+        });
+    }
+
+    displaySeats(seats);
+
+    // Filtros
+    const classFilter = document.getElementById('seat-class-filter');
+    const priceFilter = document.getElementById('seat-price-filter');
+
+    function applyFilters() {
+        let filteredSeats = seats;
+
+        if (classFilter.value) {
+            filteredSeats = filteredSeats.filter(seat => seat.clase === classFilter.value);
+        }
+
+        if (priceFilter.value) {
+            const maxPrice = parseFloat(priceFilter.value);
+            filteredSeats = filteredSeats.filter(seat => (seat.precio || flight.precio) <= maxPrice);
+        }
+
+        displaySeats(filteredSeats);
+    }
+
+    classFilter.addEventListener('change', applyFilters);
+    priceFilter.addEventListener('input', applyFilters);
+
+    // Botones
+    document.getElementById('confirm-seat-selection').onclick = function() {
+        if (!selectedSeat) {
+            showToast('Por favor selecciona un asiento', 'warning');
+            return;
+        }
+
+        addToReservation('flight', flight.id, selectedSeat);
+        modal.style.display = 'none';
+        document.body.removeChild(modal);
+        showToast('Asiento seleccionado exitosamente', 'success');
+    };
+
+    document.getElementById('cancel-seat-selection').onclick = function() {
+        modal.style.display = 'none';
+        document.body.removeChild(modal);
+    };
+
+    const closeBtn = modal.querySelector('.close');
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+        document.body.removeChild(modal);
+    };
+
+    modal.style.display = 'block';
+
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+            document.body.removeChild(modal);
+        }
+    };
+}
+
+// Modal para selección de habitaciones
+function showRoomSelectionModal(hotel, rooms) {
+    const modal = document.createElement('div');
+    modal.id = 'room-selection-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close" style="float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            <h2>Seleccionar Habitación - ${hotel.nombre}</h2>
+            <div class="hotel-info" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <p><strong>Ubicación:</strong> ${hotel.ubicacion}</p>
+                <p><strong>Estrellas:</strong> ${generateStars(hotel.estrellas).outerHTML}</p>
+                <p><strong>Desde: </strong> ${formatPrice(hotel.precioMinimo)}/noche</p>
+            </div>
+
+            <div class="filters" style="margin-bottom: 20px;">
+                <label><strong>Tipo de habitación:</strong></label>
+                <select id="room-type-filter" style="margin-left: 10px; padding: 5px;">
+                    <option value="">Todos los tipos</option>
+                    <option value="INDIVIDUAL">Individual</option>
+                    <option value="DOBLE">Doble</option>
+                    <option value="TRIPLE">Triple</option>
+                    <option value="SUITE">Suite</option>
+                </select>
+                <label style="margin-left: 20px;"><strong>Capacidad mínima:</strong></label>
+                <input type="number" id="room-capacity-filter" placeholder="Capacidad" min="1" style="margin-left: 10px; padding: 5px; width: 100px;">
+                <label style="margin-left: 20px;"><strong>Precio máximo:</strong></label>
+                <input type="number" id="room-price-filter" placeholder="Precio máximo" style="margin-left: 10px; padding: 5px; width: 120px;">
+            </div>
+
+            <div id="rooms-grid" class="rooms-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; max-height: 400px; overflow-y: auto; margin-bottom: 20px;">
+                <!-- Habitaciones se cargarán aquí -->
+            </div>
+
+            <div class="modal-actions" style="text-align: center;">
+                <button id="confirm-room-selection" class="btn" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Confirmar Selección</button>
+                <button id="cancel-room-selection" class="btn" style="background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Cancelar</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    let selectedRoom = null;
+
+    function displayRooms(roomsToShow) {
+        const roomsGrid = document.getElementById('rooms-grid');
+        roomsGrid.innerHTML = '';
+
+        if (roomsToShow.length === 0) {
+            roomsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No hay habitaciones disponibles con los filtros seleccionados.</p>';
+            return;
+        }
+
+        roomsToShow.forEach(room => {
+            const roomElement = document.createElement('div');
+            roomElement.className = `room-card ${selectedRoom && selectedRoom.id === room.id ? 'selected' : ''}`;
+            roomElement.style.cssText = `
+                padding: 15px;
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                cursor: pointer;
+                background: ${selectedRoom && selectedRoom.id === room.id ? '#007bff' : '#f8f9fa'};
+                color: ${selectedRoom && selectedRoom.id === room.id ? 'white' : 'black'};
+                transition: all 0.3s;
+            `;
+            roomElement.innerHTML = `
+                <h4>${room.numeroHabitacion} - ${room.tipoHabitacion}</h4>
+                <p><strong>Capacidad:</strong> ${room.capacidad} persona(s)</p>
+                <p><strong>Precio:</strong> ${formatPrice(room.precioPorNoche)}/noche</p>
+                ${room.comodidades ? `<p><strong>Comodidades:</strong> ${room.comodidades}</p>` : ''}
+            `;
+
+            roomElement.onclick = function() {
+                // Remover selección anterior
+                document.querySelectorAll('.room-card').forEach(r => {
+                    r.classList.remove('selected');
+                    r.style.background = '#f8f9fa';
+                    r.style.color = 'black';
+                });
+
+                // Seleccionar esta habitación
+                roomElement.classList.add('selected');
+                roomElement.style.background = '#007bff';
+                roomElement.style.color = 'white';
+                selectedRoom = room;
+            };
+
+            roomsGrid.appendChild(roomElement);
+        });
+    }
+
+    displayRooms(rooms);
+
+    // Filtros
+    const typeFilter = document.getElementById('room-type-filter');
+    const capacityFilter = document.getElementById('room-capacity-filter');
+    const priceFilter = document.getElementById('room-price-filter');
+
+    function applyFilters() {
+        let filteredRooms = rooms;
+
+        if (typeFilter.value) {
+            filteredRooms = filteredRooms.filter(room => room.tipoHabitacion === typeFilter.value);
+        }
+
+        if (capacityFilter.value) {
+            const minCapacity = parseInt(capacityFilter.value);
+            filteredRooms = filteredRooms.filter(room => room.capacidad >= minCapacity);
+        }
+
+        if (priceFilter.value) {
+            const maxPrice = parseFloat(priceFilter.value);
+            filteredRooms = filteredRooms.filter(room => room.precioPorNoche <= maxPrice);
+        }
+
+        displayRooms(filteredRooms);
+    }
+
+    typeFilter.addEventListener('change', applyFilters);
+    capacityFilter.addEventListener('input', applyFilters);
+    priceFilter.addEventListener('input', applyFilters);
+
+    // Botones
+    document.getElementById('confirm-room-selection').onclick = function() {
+        if (!selectedRoom) {
+            showToast('Por favor selecciona una habitación', 'warning');
+            return;
+        }
+
+        addToReservation('hotel', hotel.id, selectedRoom);
+        modal.style.display = 'none';
+        document.body.removeChild(modal);
+        showToast('Habitación seleccionada exitosamente', 'success');
+    };
+
+    document.getElementById('cancel-room-selection').onclick = function() {
+        modal.style.display = 'none';
+        document.body.removeChild(modal);
+    };
+
+    const closeBtn = modal.querySelector('.close');
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+        document.body.removeChild(modal);
+    };
+
+    modal.style.display = 'block';
+
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+            document.body.removeChild(modal);
+        }
+    };
+}
+
+// Modificar addToReservation para aceptar asiento o habitación seleccionada
+function addToReservation(type, id, selectedItem = null) {
+    let item = null;
+    let price = 0;
+
+    if (type === 'flight') {
+        const flight = flightsData.find(f => f.id === id);
+        item = {
+            type: 'flight',
+            id: flight.id,
+            name: `${flight.origen} - ${flight.destino}`,
+            description: `Aerolinea ${flight.aerolinea}`,
+            price: flight.precio,
+            selectedSeat: selectedItem
+        };
+        price = flight.precio;
+    } else if (type === 'hotel') {
+        const hotel = hotelsData.find(h => h.id === id);
+        if (hotel) {
+            item = {
+                type: 'hotel',
+                id: hotel.id,
+                name: hotel.nombre,
+                description: hotel.descripcion,
+                price: selectedItem ? selectedItem.precioPorNoche : hotel.precioPorNoche,
+                selectedRoom: selectedItem
+            };
+            price = selectedItem ? selectedItem.precioPorNoche : hotel.precioPorNoche;
+        }
+    } else if (type === 'vehicle') {
+        const vehicle = vehiclesData.find(v => v.id === id);
+        if (vehicle) {
+            item = {
+                type: 'vehicle',
+                id: vehicle.id,
+                name: vehicle.nombre,
+                description: vehicle.descripcion,
+                price: vehicle.precioPorDia
+            };
+            price = vehicle.precioPorDia;
+        }
+    } else if (type === 'package') {
+        const packageData = packagesData.find(p => p.id === id);
+        if (packageData) {
+            item = {
+                type: 'package',
+                id: packageData.id,
+                name: `Paquete ${packageData.nombre}`,
+                description: packageData.descripcion,
+                price: packageData.precio
+            };
+            price = packageData.precio;
+        }
+    }
+
+    if (item) {
+        const existingIndex = reservationItems.findIndex(r => r.type === type && r.id === id);
+        if (existingIndex === -1) {
+            reservationItems.push(item);
+            updateReservationSidebar();
+        } else {
+            // Actualizar el elemento existente con la nueva selección
+            reservationItems[existingIndex] = item;
+            updateReservationSidebar();
+            showToast('Servicio actualizado con nueva selección', 'info');
+        }
+    }
 }

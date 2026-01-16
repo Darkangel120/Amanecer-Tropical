@@ -2,7 +2,16 @@ package com.AmanecerTropical.service;
 
 import com.AmanecerTropical.entity.Notification;
 import com.AmanecerTropical.entity.Reservation;
+import com.AmanecerTropical.entity.User;
+import com.AmanecerTropical.entity.Flight;
+import com.AmanecerTropical.entity.Hotel;
+import com.AmanecerTropical.entity.Vehicle;
 import com.AmanecerTropical.repository.ReservationRepository;
+import com.AmanecerTropical.repository.UserRepository;
+import com.AmanecerTropical.repository.PackageRepository;
+import com.AmanecerTropical.repository.FlightRepository;
+import com.AmanecerTropical.repository.HotelRepository;
+import com.AmanecerTropical.repository.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -22,6 +31,21 @@ public class ReservationService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PackageRepository packageRepository;
+
+    @Autowired
+    private FlightRepository flightRepository;
+
+    @Autowired
+    private HotelRepository hotelRepository;
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
     public List<Reservation> getAllReservations() {
         return reservationRepository.findAll();
@@ -48,14 +72,52 @@ public class ReservationService {
     }
 
     public Reservation createReservation(@NonNull Reservation reservation) {
+        // CARGAR LAS ENTIDADES COMPLETAS ANTES DE GUARDAR
+        if (reservation.getUsuario() != null && reservation.getUsuario().getId() != null) {
+            @SuppressWarnings("null")
+            User usuario = userRepository.findById(reservation.getUsuario().getId())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            reservation.setUsuario(usuario);
+        }
+
+        if (reservation.getPaquete() != null && reservation.getPaquete().getId() != null) {
+            @SuppressWarnings("null")
+            com.AmanecerTropical.entity.Package paquete = packageRepository.findById(reservation.getPaquete().getId())
+                    .orElseThrow(() -> new RuntimeException("Paquete no encontrado"));
+            reservation.setPaquete(paquete);
+        }
+
+        if (reservation.getVuelo() != null && reservation.getVuelo().getId() != null) {
+            @SuppressWarnings("null")
+            Flight vuelo = flightRepository.findById(reservation.getVuelo().getId())
+                    .orElseThrow(() -> new RuntimeException("Vuelo no encontrado"));
+            reservation.setVuelo(vuelo);
+        }
+
+        if (reservation.getHotel() != null && reservation.getHotel().getId() != null) {
+            @SuppressWarnings("null")
+            Hotel hotel = hotelRepository.findById(reservation.getHotel().getId())
+                    .orElseThrow(() -> new RuntimeException("Hotel no encontrado"));
+            reservation.setHotel(hotel);
+        }
+
+        if (reservation.getVehiculo() != null && reservation.getVehiculo().getId() != null) {
+            @SuppressWarnings("null")
+            Vehicle vehiculo = vehicleRepository.findById(reservation.getVehiculo().getId())
+                    .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
+            reservation.setVehiculo(vehiculo);
+        }
+
         Reservation createdReservation = reservationRepository.save(reservation);
 
         String serviceDescription = buildServiceDescription(createdReservation);
 
+        String message = "Tu " + serviceDescription + " ha sido realizada y espera confirmación.";
+
         Notification notification = new Notification(
             createdReservation.getUsuario(),
             "Nueva Reserva",
-            "Tu " + serviceDescription + " ha sido realizada y espera confirmación.",
+            message,
             "reservacion"
         );
         notificationService.saveNotification(notification);
@@ -64,6 +126,42 @@ public class ReservationService {
     }
 
     public Reservation updateReservation(@NonNull Reservation reservation) {
+        // CARGAR LAS ENTIDADES COMPLETAS ANTES DE ACTUALIZAR
+        if (reservation.getUsuario() != null && reservation.getUsuario().getId() != null) {
+            @SuppressWarnings("null")
+            User usuario = userRepository.findById(reservation.getUsuario().getId())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            reservation.setUsuario(usuario);
+        }
+
+        if (reservation.getPaquete() != null && reservation.getPaquete().getId() != null) {
+            @SuppressWarnings("null")
+            com.AmanecerTropical.entity.Package paquete = packageRepository.findById(reservation.getPaquete().getId())
+                    .orElseThrow(() -> new RuntimeException("Paquete no encontrado"));
+            reservation.setPaquete(paquete);
+        }
+
+        if (reservation.getVuelo() != null && reservation.getVuelo().getId() != null) {
+            @SuppressWarnings("null")
+            Flight vuelo = flightRepository.findById(reservation.getVuelo().getId())
+                    .orElseThrow(() -> new RuntimeException("Vuelo no encontrado"));
+            reservation.setVuelo(vuelo);
+        }
+
+        if (reservation.getHotel() != null && reservation.getHotel().getId() != null) {
+            @SuppressWarnings("null")
+            Hotel hotel = hotelRepository.findById(reservation.getHotel().getId())
+                    .orElseThrow(() -> new RuntimeException("Hotel no encontrado"));
+            reservation.setHotel(hotel);
+        }
+
+        if (reservation.getVehiculo() != null && reservation.getVehiculo().getId() != null) {
+            @SuppressWarnings("null")
+            Vehicle vehiculo = vehicleRepository.findById(reservation.getVehiculo().getId())
+                    .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
+            reservation.setVehiculo(vehiculo);
+        }
+
         Reservation updatedReservation = reservationRepository.save(reservation);
 
         String serviceDescription = buildServiceDescription(updatedReservation);
